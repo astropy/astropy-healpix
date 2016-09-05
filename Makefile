@@ -9,6 +9,7 @@ help:
 
 clean:
 	rm -rf build docs/_build docs/api htmlcov MANIFEST $(PROJECT).egg-info .coverage
+	rm -rf healpix/raw/wrap.c
 	find . -name "*.pyc" -exec rm {} \;
 	find . -name "*.so" -exec rm {} \;
 	find . -name __pycache__ | xargs rm -fr

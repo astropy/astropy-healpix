@@ -63,7 +63,7 @@ Install the latest development version from https://github.com/cdeil/healpix :
     cd healpix
     python setup.py install
     python setup.py test
-    python setup.py build_sphinx
+    python setup.py build_docs
 
 Optional dependencies
 =====================

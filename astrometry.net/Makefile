@@ -1,7 +1,7 @@
 
 all: test_healpix
 
-OBJS = healpix-utils.o healpix.o starutil.o permutedsort.o mathutil.o bl.o errors.o log.o
+OBJS = healpix-utils.o healpix.o starutil.o permutedsort.o mathutil.o bl.o ioutils.o errors.o log.o
 
 HEADERS = healpix-utils.h healpix.h
 

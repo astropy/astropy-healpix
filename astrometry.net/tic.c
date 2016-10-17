@@ -34,15 +34,6 @@ double millis_between(struct timeval* tv1, struct timeval* tv2) {
 		(tv2->tv_sec  - tv1->tv_sec )*1e3;
 }
 
-void tic() {
-	starttime = time(NULL);
-	starttime2 = timenow();
-	if (get_resource_stats(&startutime, &startstime, NULL)) {
-		ERROR("Failed to get_resource_stats()");
-		return;
-	}
-}
-
 int get_resource_stats(double* p_usertime, double* p_systime, long* p_maxrss) {
 	struct rusage usage;
 	if (getrusage(RUSAGE_SELF, &usage)) {
@@ -59,6 +50,15 @@ int get_resource_stats(double* p_usertime, double* p_systime, long* p_maxrss) {
 		*p_maxrss = usage.ru_maxrss;
 	}
 	return 0;
+}
+
+void tic() {
+	starttime = time(NULL);
+	starttime2 = timenow();
+	if (get_resource_stats(&startutime, &startstime, NULL)) {
+		ERROR("Failed to get_resource_stats()");
+		return;
+	}
 }
 
 void toc() {

@@ -1,7 +1,7 @@
 
 all: test_healpix
 
-OBJS = healpix-utils.o healpix.o starutil.o permutedsort.o mathutil.o bl.o
+OBJS = healpix-utils.o healpix.o starutil.o permutedsort.o mathutil.o bl.o errors.o log.o
 
 HEADERS = healpix-utils.h healpix.h
 
@@ -11,4 +11,4 @@ $(OBJS): %.o: %.c $(HEADERS)
 %.o: %.c
 	$(CC) -o $@ -c $<
 
-test_healpix: test_healpix.c $(OBJS) cutest.o
+test_healpix: test_healpix-main.c test_healpix.c $(OBJS) cutest.o

@@ -9,7 +9,7 @@
 #include <sys/types.h>
 #include <stdint.h>
 
-#include "astrometry/keywords.h"
+#include "keywords.h"
 
 //#undef Const
 //#define Const 

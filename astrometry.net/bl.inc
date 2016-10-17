@@ -5,7 +5,7 @@
 
 #include <assert.h>
 
-#include "astrometry/bl.ph"
+#include "bl.ph"
 
 /* find the node in which element "n" can be found. */
 InlineDefine

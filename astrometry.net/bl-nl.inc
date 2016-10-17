@@ -3,7 +3,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE
 */
 
-#include "astrometry/bl-nl.ph"
+#include "bl-nl.ph"
 
 InlineDefine
 number NLF(get)(nl* list, size_t n) {

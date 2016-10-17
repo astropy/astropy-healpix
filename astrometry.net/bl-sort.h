@@ -11,7 +11,7 @@
 #ifndef BL_SORT_H
 #define BL_SORT_H
 
-#include "astrometry/bl.h"
+#include "bl.h"
 
 void bl_sort(bl* list, int (*compare)(const void* v1, const void* v2));
 

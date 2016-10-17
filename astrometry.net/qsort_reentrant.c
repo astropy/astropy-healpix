@@ -27,6 +27,7 @@
  * SUCH DAMAGE.
  */
 
+#include <unistd.h>
 // from https://groups.google.com/forum/#!topic/astrometry/quGEbY1CgR8
 #if __sun
 # include <stdio.h>
@@ -104,7 +105,7 @@ __unused
 
 #ifdef I_AM_QSORT_R
 void
-qsort_r(void *a, size_t n, size_t es, void *thunk, cmp_t *cmp)
+qsort_rex(void *a, size_t n, size_t es, void *thunk, cmp_t *cmp)
 #else
 #define thunk NULL
 void
@@ -178,7 +179,7 @@ loop:   SWAPINIT(a, es);
         vecswap(pb, pn - r, r);
         if ((r = pb - pa) > es)
 #ifdef  I_AM_QSORT_R
-                qsort_r(a, r / es, es, thunk, cmp);
+                qsort_rex(a, r / es, es, thunk, cmp);
 #else
                 qsort(a, r / es, es, cmp);
 #endif

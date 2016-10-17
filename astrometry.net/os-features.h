@@ -5,18 +5,6 @@
 #ifndef OS_FEATURES_H
 #define OS_FEATURES_H
 
-#ifndef DONT_INCLUDE_OS_FEATURES_CONFIG_H
-#include "os-features-config.h"
-#endif
-
-// Features we use that aren't standard across all supported platforms
-
-#if defined(NEED_CANONICALIZE_FILE_NAME) && (NEED_CANONICALIZE_FILE_NAME == 0)
-// don't redeclare it!
-#else
-char* canonicalize_file_name(const char* fn);
-#endif
-
 // This is actually in POSIX1b but may or may not be available.
 int fdatasync(int fd);
 
@@ -106,22 +94,15 @@ int fdatasync(int fd);
    -Ubuntu 8.10
 */
 
-#if NEED_DECLARE_QSORT_R
-//// NOTE: this declaration must match os-features-test.c .
-void qsort_r(void *base, size_t nmemb, size_t sz,
-             void *userdata,
-             int (*compar)(void *, const void *, const void *));
-#endif
+///// In this healpix distribution, we avoid all this mess by importing
+///// a stand-alone qsort_reentrant implementation.
 
-#if NEED_SWAP_QSORT_R
-#define QSORT_R(a,b,c,d,e) qsort_r(a,b,c,e,d)
-#define QSORT_COMPARISON_FUNCTION(func, thunk, v1, v2) func(v1, v2, thunk)
+typedef int             cmp_t(void *, const void *, const void *);
+void
+qsort_rex(void *a, size_t n, size_t es, void *thunk, cmp_t *cmp);
 
-#else
-#define QSORT_R qsort_r
+#define QSORT_R qsort_rex
 #define QSORT_COMPARISON_FUNCTION(func, thunk, v1, v2) func(thunk, v1, v2)
-
-#endif
 
 // As suggested in http://gcc.gnu.org/onlinedocs/gcc-4.3.0/gcc/Function-Names.html
 #if __STDC_VERSION__ < 199901L

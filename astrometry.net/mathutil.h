@@ -6,7 +6,7 @@
 #ifndef MATHUTIL_H
 #define MATHUTIL_H
 
-#include "astrometry/keywords.h"
+#include "keywords.h"
 #include "bl.h"
 
 int point_in_polygon(double x, double y, const dl* polygon);
@@ -94,7 +94,7 @@ InlineDeclare void normalize_3(double* xyz);
 
 #ifdef INCLUDE_INLINE_SOURCE
 #define InlineDefine InlineDefineH
-#include "astrometry/mathutil.inc"
+#include "mathutil.inc"
 #undef InlineDefine
 #endif
 

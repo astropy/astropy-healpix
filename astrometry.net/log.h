@@ -7,7 +7,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
-#include "astrometry/an-bool.h"
+#include "an-bool.h"
 
 enum log_level {
 	LOG_NONE,

@@ -51,3 +51,6 @@ distribute-*.tar.gz
 
 # Mac OSX
 .DS_Store
+
+healpix/_compiler.c
+healpix/raw/wrap.c

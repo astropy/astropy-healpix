@@ -1,3 +1,9 @@
+"""
+This module contains vectorized Cython functions for common healpix operations.
+Since they are written in Cython rather than Python, their input types are
+strict and the functions will fail if the incorrect types are passed in.
+"""
+
 import numpy as np
 cimport numpy as np
 import cython

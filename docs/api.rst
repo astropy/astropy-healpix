@@ -9,3 +9,6 @@ Reference/API
 
 .. automodapi:: healpix.raw
    :no-inheritance-diagram:
+
+.. automodapi:: healpix._healpix
+   :no-inheritance-diagram:

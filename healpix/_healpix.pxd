@@ -27,3 +27,11 @@ cdef extern from "healpix.h":
 
     # Converts (RA, DEC) coordinates (in radians) to healpix XY index
     int radectohealpixf(double ra, double dec, int Nside, double* dx, double* dy);
+
+    # Finds the healpixes neighbouring the given healpix, placing them in the
+    # array "neighbour".  Returns the number of neighbours.  You must ensure
+    # that "neighbour" has 8 elements.
+    #
+    # Healpixes in the interior of a large healpix will have eight neighbours;
+    # pixels near the edges can have fewer.
+    int healpix_get_neighbours(int hp, int* neighbours, int Nside);

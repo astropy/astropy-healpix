@@ -202,6 +202,60 @@ def lonlat_to_healpix_with_offset(np.ndarray[double, ndim=1, mode="c"] lon,
     return healpix_index, dx, dy
 
 
+def nested_to_ring(np.ndarray[int, ndim=1, mode="c"] nested_index, int n_side):
+    """
+    Convert a healpix 'nested' index to a healpix 'ring' index
+
+    Parameters
+    ----------
+    nested_index : `~numpy.ndarray`
+        Healpix index using the 'nested' ordering
+    n_side : int
+        Number of pixels along the side of each of the 12 top-level healpix tiles
+
+    Returns
+    -------
+    ring_index : `~numpy.ndarray`
+        Healpix index using the 'ring' ordering
+    """
+
+    cdef int n = nested_index.shape[0]
+    cdef int i
+    cdef np.ndarray[int, ndim=1, mode="c"] ring_index = np.zeros(n, dtype=np.int32)
+
+    for i in range(n):
+        ring_index[i] = healpix_xy_to_ring(healpix_nested_to_xy(nested_index[i], n_side), n_side)
+
+    return ring_index
+
+
+def ring_to_nested(np.ndarray[int, ndim=1, mode="c"] ring_index, int n_side):
+    """
+    Convert a healpix 'ring' index to a healpix 'nested' index
+
+    Parameters
+    ----------
+    ring_index : `~numpy.ndarray`
+        Healpix index using the 'ring' ordering
+    n_side : int
+        Number of pixels along the side of each of the 12 top-level healpix tiles
+
+    Returns
+    -------
+    nested_index : `~numpy.ndarray`
+        Healpix index using the 'nested' ordering
+    """
+
+    cdef int n = ring_index.shape[0]
+    cdef int i
+    cdef np.ndarray[int, ndim=1, mode="c"] nested_index = np.zeros(n, dtype=np.int32)
+
+    for i in range(n):
+        nested_index[i] = healpix_xy_to_nested(healpix_ring_to_xy(ring_index[i], n_side), n_side)
+
+    return nested_index
+
+
 def bilinear_interpolation(np.ndarray[double, ndim=1, mode="c"] lon,
                            np.ndarray[double, ndim=1, mode="c"] lat,
                            np.ndarray[double, ndim=1, mode="c"] values,

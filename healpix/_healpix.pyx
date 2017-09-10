@@ -4,8 +4,7 @@ import cython
 
 ctypedef np.double_t DOUBLE_T
 
-cdef extern from "healpix.h":
-    int healpix_xy_to_ring(int hp, int Nside)
+from _healpix cimport healpix_xy_to_ring
 
 
 def heapix_xy_to_ring():

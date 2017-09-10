@@ -6,6 +6,5 @@ ctypedef np.double_t DOUBLE_T
 
 from _healpix cimport healpix_xy_to_ring
 
-
-def heapix_xy_to_ring():
-    return None
+def test():
+    return healpix_xy_to_ring(1, 2)

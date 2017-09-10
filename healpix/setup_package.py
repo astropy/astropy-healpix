@@ -16,7 +16,7 @@ C_FILES = ['bl.c',
            'tic.c']
 
 
-C_DIR = os.path.join('astrometry.net')
+C_DIR = os.path.join('cextern', 'astrometry.net')
 
 
 def get_extensions():

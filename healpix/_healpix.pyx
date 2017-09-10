@@ -364,3 +364,84 @@ def bilinear_interpolation(np.ndarray[double, ndim=1, mode="c"] lon,
                      v22 * xfrac * yfrac)
 
     return result
+
+
+def neighbours_healpix(np.ndarray[int, ndim=1, mode="c"] healpix_index,
+                       int n_side, int order):
+    """
+    Find all the healpix pixels that are the neighbours of a healpix pixel
+
+    Parameters
+    ----------
+    healpix_pixel : `~numpy.ndarray`
+        1-D array of healpix pixels
+    n_side : int
+        Number of pixels along the side of each of the 12 top-level healpix tiles
+    order : int
+        order of healpix pixels. Set this to ORDER_NESTED for nested order
+        or ORDER_RING for ring order.
+
+    Returns
+    -------
+    neighbours : `~numpy.ndarray`
+        2-D array with shape (8, N) giving the neighbours starting SW and
+        rotating clockwise.
+    """
+
+    cdef int n = healpix_index.shape[0]
+    cdef int i, j, xy_index, k
+    cdef np.ndarray[int, ndim=2, mode="c"] neighbours = np.zeros((8, n), dtype=np.int32)
+    cdef int neighbours_indiv[8]
+
+    # The neighbours above are ordered as follows:
+    #
+    #       3   2   1
+    #       4   X   0
+    #       5   6   7
+    #
+    # but we want:
+    #
+    #       2   3   4
+    #       1   X   5
+    #       0   7   6
+    #
+    # so we reorder these on-the-fly
+
+    if order == ORDER_NESTED:
+
+        for i in range(n):
+
+            xy_index = healpix_nested_to_xy(healpix_index[i], n_side)
+            healpix_get_neighbours(xy_index, neighbours_indiv, n_side)
+
+            for j in range(8):
+                k = 5 - j
+                if k < 0:
+                    k = k + 8
+                if neighbours_indiv[k] < 0:
+                    neighbours[j, i] = -1
+                else:
+                    neighbours[j, i] = healpix_xy_to_nested(neighbours_indiv[k], n_side)
+
+    elif order == ORDER_RING:
+
+        for i in range(n):
+
+            xy_index = healpix_ring_to_xy(healpix_index[i], n_side)
+
+            nn = healpix_get_neighbours(xy_index, neighbours_indiv, n_side)
+
+            for j in range(8):
+                k = 5 - j
+                if k < 0:
+                    k = k + 8
+                if neighbours_indiv[k] < 0:
+                    neighbours[j, i] = -1
+                else:
+                    neighbours[j, i] = healpix_xy_to_ring(neighbours_indiv[k], n_side)
+
+    else:
+        raise ValueError('order should be ORDER_NESTED or ORDER_RING')
+
+
+    return neighbours

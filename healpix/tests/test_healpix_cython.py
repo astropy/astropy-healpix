@@ -8,7 +8,11 @@ from numpy.testing import assert_equal, assert_allclose
 from .. import _healpix
 
 
-@pytest.mark.parametrize(('order', 'n_side_power'), product((0, 1), range(0, 9)))
+N_SIDE_POWERS = range(0, 9)
+ORDERS = (0, 1)
+
+
+@pytest.mark.parametrize(('order', 'n_side_power'), product(ORDERS, N_SIDE_POWERS))
 def test_roundtrip_healpix_no_offsets(order, n_side_power):
     n_side = 2 ** n_side_power
     index = np.arange(12 * n_side ** 2).astype(np.int32)
@@ -17,7 +21,7 @@ def test_roundtrip_healpix_no_offsets(order, n_side_power):
     assert_equal(index, index_new)
 
 
-@pytest.mark.parametrize(('order', 'n_side_power'), product((0, 1), range(0, 9)))
+@pytest.mark.parametrize(('order', 'n_side_power'), product(ORDERS, N_SIDE_POWERS))
 def test_roundtrip_healpix_with_offsets(order, n_side_power):
     n_side = 2 ** n_side_power
     index = np.arange(12 * n_side ** 2).astype(np.int32)
@@ -30,7 +34,7 @@ def test_roundtrip_healpix_with_offsets(order, n_side_power):
     assert_allclose(dy, dy_new, atol=1e-10)
 
 
-@pytest.mark.parametrize('n_side_power', range(0, 9))
+@pytest.mark.parametrize('n_side_power', N_SIDE_POWERS)
 def test_roundtrip_nested_ring(n_side_power):
     n_side = 2 ** n_side_power
     nested_index = np.arange(12 * n_side ** 2).astype(np.int32)
@@ -43,3 +47,12 @@ def test_roundtrip_nested_ring(n_side_power):
         assert np.all(nested_index == ring_index)
     else:
         assert not np.all(nested_index == ring_index)
+
+
+@pytest.mark.parametrize(('order', 'n_side_power'), product(ORDERS, N_SIDE_POWERS))
+def test_neighbours_healpix(order, n_side_power):
+    # This just makes sure things run, but doesn't check the validity of result
+    n_side = 2 ** n_side_power
+    index = np.arange(12 * n_side ** 2).astype(np.int32)
+    neighbours = _healpix.neighbours_healpix(index, n_side, order)
+    assert np.all(neighbours >= -1) and np.all(neighbours < 12 * n_side ** 2)

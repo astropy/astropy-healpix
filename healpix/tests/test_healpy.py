@@ -1,8 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from itertools import product
+
 import pytest
-import numpy as np
 
 from numpy.testing import assert_equal, assert_allclose
 
@@ -10,10 +11,34 @@ from .. import healpy as hp_compat
 
 hp = pytest.importorskip('healpy')
 
+NSIDE_VALUES = [2**n for n in range(1, 6)]
 
-def test_nside2resol():
-    actual = hp_compat.nside2resol(nside=2)
-    expected = hp.nside2resol(nside=2)
+
+@pytest.mark.parametrize(('nside', 'degrees'), product(NSIDE_VALUES, (False, True)))
+def test_nside2pixarea(nside, degrees):
+    actual = hp_compat.nside2pixarea(nside=nside, degrees=degrees)
+    expected = hp.nside2pixarea(nside=nside, degrees=degrees)
+    assert_equal(actual, expected)
+
+
+@pytest.mark.parametrize(('nside', 'arcmin'), product(NSIDE_VALUES, (False, True)))
+def test_nside2resol(nside, arcmin):
+    actual = hp_compat.nside2resol(nside=nside, arcmin=arcmin)
+    expected = hp.nside2resol(nside=nside, arcmin=arcmin)
+    assert_equal(actual, expected)
+
+
+@pytest.mark.parametrize('nside', NSIDE_VALUES)
+def test_nside2npix(nside):
+    actual = hp_compat.nside2npix(nside)
+    expected = hp.nside2npix(nside)
+    assert_equal(actual, expected)
+
+
+@pytest.mark.parametrize('npix', [12 * 2**(2*n)for n in range(1, 6)])
+def test_npix2nside(npix):
+    actual = hp_compat.npix2nside(npix)
+    expected = hp.npix2nside(npix)
     assert_equal(actual, expected)
 
 

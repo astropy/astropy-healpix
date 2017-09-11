@@ -31,9 +31,12 @@ def nside2pixarea(nside, degrees=False):
         return area.to(u.sr).value
 
 
-nside2npix = n_side_to_n_pix
+def nside2npix(n_side):
+    return n_side_to_n_pix(n_side)
 
-npix2nside = n_pix_to_n_side
+
+def npix2nside(n_pix):
+    return n_pix_to_n_side(n_pix)
 
 
 def pix2ang(nside, ipix, nest=False):

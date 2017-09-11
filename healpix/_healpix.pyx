@@ -8,13 +8,19 @@ import numpy as np
 cimport numpy as np
 import cython
 
-ctypedef np.double_t DOUBLE_T
+ctypedef np.intp_t intp_t
+ctypedef np.double_t double_t
+
+npy_double = np.double
+npy_intp = np.intp
+npy_int64 = np.int64
 
 cdef int ORDER_NESTED = 0
 cdef int ORDER_RING = 1
 
 
-def healpix_to_lonlat(np.ndarray[int, ndim=1, mode="c"] healpix_index, int n_side, int order):
+def healpix_to_lonlat(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
+                      int n_side, int order):
     """
     Convert healpix indices to longitudes/latitudes.
 
@@ -38,39 +44,42 @@ def healpix_to_lonlat(np.ndarray[int, ndim=1, mode="c"] healpix_index, int n_sid
         1-D arrays of longitude and latitude in radians
     """
 
-    cdef int n = healpix_index.shape[0]
+    cdef intp_t n = healpix_index.shape[0]
+    cdef intp_t i
+    cdef int64_t xy_index
     cdef double dx, dy;
-    cdef int i, xy_index
-    cdef np.ndarray[double, ndim=1, mode="c"] lon = np.zeros(n, dtype=np.double)
-    cdef np.ndarray[double, ndim=1, mode="c"] lat = np.zeros(n, dtype=np.double)
+    cdef np.ndarray[double_t, ndim=1, mode="c"] lon = np.zeros(n, dtype=npy_double)
+    cdef np.ndarray[double_t, ndim=1, mode="c"] lat = np.zeros(n, dtype=npy_double)
 
     dx = 0.5
     dy = 0.5
 
     if order == ORDER_NESTED:
         for i in range(n):
-            xy_index = healpix_nested_to_xy(healpix_index[i], n_side)
-            healpix_to_radec(xy_index, n_side, dx, dy, &lon[i], &lat[i])
+            xy_index = healpixl_nested_to_xy(healpix_index[i], n_side)
+            if xy_index < 0:
+                raise Exception("xy_index: " + str(xy_index))
+            healpixl_to_radec(xy_index, n_side, dx, dy, &lon[i], &lat[i])
     elif order == ORDER_RING:
         for i in range(n):
-            xy_index = healpix_ring_to_xy(healpix_index[i], n_side)
-            healpix_to_radec(xy_index, n_side, dx, dy, &lon[i], &lat[i])
+            xy_index = healpixl_ring_to_xy(healpix_index[i], n_side)
+            healpixl_to_radec(xy_index, n_side, dx, dy, &lon[i], &lat[i])
     else:
         raise ValueError('order should be ORDER_NESTED or ORDER_RING')
 
     return lon, lat
 
 
-def healpix_with_offset_to_lonlat(np.ndarray[int, ndim=1, mode="c"] healpix_index,
-                                  np.ndarray[double, ndim=1, mode="c"] dx,
-                                  np.ndarray[double, ndim=1, mode="c"] dy,
+def healpix_with_offset_to_lonlat(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
+                                  np.ndarray[double_t, ndim=1, mode="c"] dx,
+                                  np.ndarray[double_t, ndim=1, mode="c"] dy,
                                   int n_side, int order):
     """
     Convert healpix indices to longitudes/latitudes
 
     This function takes relative offsets in x and y inside the healpix pixels.
     If you are only interested in the centers of the pixels, see
-    `healpix_to_lonlat`.
+    `healpixl_to_lonlat`.
 
     Parameters
     ----------
@@ -91,28 +100,29 @@ def healpix_with_offset_to_lonlat(np.ndarray[int, ndim=1, mode="c"] healpix_inde
         1-D arrays of longitude and latitude in radians
     """
 
-    cdef int n = healpix_index.shape[0]
-    cdef int i, xy_index
-    cdef np.ndarray[double, ndim=1, mode="c"] lon = np.zeros(n, dtype=np.double)
-    cdef np.ndarray[double, ndim=1, mode="c"] lat = np.zeros(n, dtype=np.double)
+    cdef intp_t n = healpix_index.shape[0]
+    cdef intp_t i
+    cdef int64_t xy_index
+    cdef np.ndarray[double_t, ndim=1, mode="c"] lon = np.zeros(n, dtype=npy_double)
+    cdef np.ndarray[double_t, ndim=1, mode="c"] lat = np.zeros(n, dtype=npy_double)
 
     if order == ORDER_NESTED:
         for i in range(n):
-            xy_index = healpix_nested_to_xy(healpix_index[i], n_side)
-            healpix_to_radec(xy_index, n_side, dx[i], dy[i], &lon[i], &lat[i])
+            xy_index = healpixl_nested_to_xy(healpix_index[i], n_side)
+            healpixl_to_radec(xy_index, n_side, dx[i], dy[i], &lon[i], &lat[i])
     elif order == ORDER_RING:
         for i in range(n):
-            xy_index = healpix_ring_to_xy(healpix_index[i], n_side)
-            healpix_to_radec(xy_index, n_side, dx[i], dy[i], &lon[i], &lat[i])
+            xy_index = healpixl_ring_to_xy(healpix_index[i], n_side)
+            healpixl_to_radec(xy_index, n_side, dx[i], dy[i], &lon[i], &lat[i])
     else:
         raise ValueError('order should be ORDER_NESTED or ORDER_RING')
 
     return lon, lat
 
 
-def lonlat_to_healpix(np.ndarray[double, ndim=1, mode="c"] lon,
-                     np.ndarray[double, ndim=1, mode="c"] lat,
-                     int n_side, int order):
+def lonlat_to_healpix(np.ndarray[double_t, ndim=1, mode="c"] lon,
+                      np.ndarray[double_t, ndim=1, mode="c"] lat,
+                      int n_side, int order):
     """
     Convert longitudes/latitudes to healpix indices
 
@@ -135,28 +145,29 @@ def lonlat_to_healpix(np.ndarray[double, ndim=1, mode="c"] lon,
         1-D array of healpix indices
     """
 
-    cdef int n = lon.shape[0]
-    cdef int i, xy_index
+    cdef intp_t n = lon.shape[0]
+    cdef intp_t i
+    cdef int64_t xy_index
     cdef double dx, dy;
-    cdef np.ndarray[int, ndim=1, mode="c"] healpix_index = np.zeros(n, dtype=np.int32)
+    cdef np.ndarray[int64_t, ndim=1, mode="c"] healpix_index = np.zeros(n, dtype=npy_int64)
 
     if order == ORDER_NESTED:
         for i in range(n):
-            xy_index = radectohealpixf(lon[i], lat[i], n_side, &dx, &dy)
-            healpix_index[i] = healpix_xy_to_nested(xy_index, n_side)
+            xy_index = radectohealpixlf(lon[i], lat[i], n_side, &dx, &dy)
+            healpix_index[i] = healpixl_xy_to_nested(xy_index, n_side)
     elif order == ORDER_RING:
         for i in range(n):
-            xy_index = radectohealpixf(lon[i], lat[i], n_side, &dx, &dy)
-            healpix_index[i] = healpix_xy_to_ring(xy_index, n_side)
+            xy_index = radectohealpixlf(lon[i], lat[i], n_side, &dx, &dy)
+            healpix_index[i] = healpixl_xy_to_ring(xy_index, n_side)
     else:
         raise ValueError('order should be ORDER_NESTED or ORDER_RING')
 
     return healpix_index
 
 
-def lonlat_to_healpix_with_offset(np.ndarray[double, ndim=1, mode="c"] lon,
-                                 np.ndarray[double, ndim=1, mode="c"] lat,
-                                 int n_side, int order):
+def lonlat_to_healpix_with_offset(np.ndarray[double_t, ndim=1, mode="c"] lon,
+                                  np.ndarray[double_t, ndim=1, mode="c"] lat,
+                                  int n_side, int order):
     """
     Convert longitudes/latitudes to healpix indices
 
@@ -182,27 +193,28 @@ def lonlat_to_healpix_with_offset(np.ndarray[double, ndim=1, mode="c"] lon,
         is the center of the healpix pixels)
     """
 
-    cdef int n = lon.shape[0]
-    cdef int i, xy_index
-    cdef np.ndarray[int, ndim=1, mode="c"] healpix_index = np.zeros(n, dtype=np.int32)
-    cdef np.ndarray[double, ndim=1, mode="c"] dx = np.zeros(n, dtype=np.double)
-    cdef np.ndarray[double, ndim=1, mode="c"] dy = np.zeros(n, dtype=np.double)
+    cdef intp_t n = lon.shape[0]
+    cdef intp_t i
+    cdef int64_t xy_index
+    cdef np.ndarray[int64_t, ndim=1, mode="c"] healpix_index = np.zeros(n, dtype=npy_int64)
+    cdef np.ndarray[double_t, ndim=1, mode="c"] dx = np.zeros(n, dtype=npy_double)
+    cdef np.ndarray[double_t, ndim=1, mode="c"] dy = np.zeros(n, dtype=npy_double)
 
     if order == ORDER_NESTED:
         for i in range(n):
-            xy_index = radectohealpixf(lon[i], lat[i], n_side, &dx[i], &dy[i])
-            healpix_index[i] = healpix_xy_to_nested(xy_index, n_side)
+            xy_index = radectohealpixlf(lon[i], lat[i], n_side, &dx[i], &dy[i])
+            healpix_index[i] = healpixl_xy_to_nested(xy_index, n_side)
     elif order == ORDER_RING:
         for i in range(n):
-            xy_index = radectohealpixf(lon[i], lat[i], n_side, &dx[i], &dy[i])
-            healpix_index[i] = healpix_xy_to_ring(xy_index, n_side)
+            xy_index = radectohealpixlf(lon[i], lat[i], n_side, &dx[i], &dy[i])
+            healpix_index[i] = healpixl_xy_to_ring(xy_index, n_side)
     else:
         raise ValueError('order should be ORDER_NESTED or ORDER_RING')
 
     return healpix_index, dx, dy
 
 
-def nested_to_ring(np.ndarray[int, ndim=1, mode="c"] nested_index, int n_side):
+def nested_to_ring(np.ndarray[int64_t, ndim=1, mode="c"] nested_index, int n_side):
     """
     Convert a healpix 'nested' index to a healpix 'ring' index
 
@@ -219,17 +231,17 @@ def nested_to_ring(np.ndarray[int, ndim=1, mode="c"] nested_index, int n_side):
         Healpix index using the 'ring' ordering
     """
 
-    cdef int n = nested_index.shape[0]
-    cdef int i
-    cdef np.ndarray[int, ndim=1, mode="c"] ring_index = np.zeros(n, dtype=np.int32)
+    cdef intp_t n = nested_index.shape[0]
+    cdef intp_t i
+    cdef np.ndarray[int64_t, ndim=1, mode="c"] ring_index = np.zeros(n, dtype=npy_int64)
 
     for i in range(n):
-        ring_index[i] = healpix_xy_to_ring(healpix_nested_to_xy(nested_index[i], n_side), n_side)
+        ring_index[i] = healpixl_xy_to_ring(healpixl_nested_to_xy(nested_index[i], n_side), n_side)
 
     return ring_index
 
 
-def ring_to_nested(np.ndarray[int, ndim=1, mode="c"] ring_index, int n_side):
+def ring_to_nested(np.ndarray[int64_t, ndim=1, mode="c"] ring_index, int n_side):
     """
     Convert a healpix 'ring' index to a healpix 'nested' index
 
@@ -246,19 +258,19 @@ def ring_to_nested(np.ndarray[int, ndim=1, mode="c"] ring_index, int n_side):
         Healpix index using the 'nested' ordering
     """
 
-    cdef int n = ring_index.shape[0]
-    cdef int i
-    cdef np.ndarray[int, ndim=1, mode="c"] nested_index = np.zeros(n, dtype=np.int32)
+    cdef intp_t n = ring_index.shape[0]
+    cdef intp_t i
+    cdef np.ndarray[int64_t, ndim=1, mode="c"] nested_index = np.zeros(n, dtype=npy_int64)
 
     for i in range(n):
-        nested_index[i] = healpix_xy_to_nested(healpix_ring_to_xy(ring_index[i], n_side), n_side)
+        nested_index[i] = healpixl_xy_to_nested(healpixl_ring_to_xy(ring_index[i], n_side), n_side)
 
     return nested_index
 
 
-def bilinear_interpolation(np.ndarray[double, ndim=1, mode="c"] lon,
-                           np.ndarray[double, ndim=1, mode="c"] lat,
-                           np.ndarray[double, ndim=1, mode="c"] values,
+def bilinear_interpolation(np.ndarray[double_t, ndim=1, mode="c"] lon,
+                           np.ndarray[double_t, ndim=1, mode="c"] lat,
+                           np.ndarray[double_t, ndim=1, mode="c"] values,
                            int order):
     """
     Interpolate values at specific longitudes/latitudes using bilinear interpolation
@@ -282,18 +294,20 @@ def bilinear_interpolation(np.ndarray[double, ndim=1, mode="c"] lon,
     """
 
     cdef int n_side
-    cdef int n = lon.shape[0]
-    cdef int i, xy_index, ix, iy, i11, i12, i21, i22
-    cdef double dx, dy, v11, v12, v21, v22, xfrac, yfrac
-    cdef np.ndarray[double, ndim=1, mode="c"] result = np.zeros(n, dtype=np.double)
-    cdef int neighbours[8]
-    cdef double invalid = np.nan
+    cdef intp_t n = lon.shape[0]
+    cdef intp_t i
+    cdef int64_t xy_index, i11, i12, i21, i22
+    cdef double dx, dy, xfrac, yfrac
+    cdef double_t v11, v12, v21, v22
+    cdef np.ndarray[double_t, ndim=1, mode="c"] result = np.zeros(n, dtype=npy_double)
+    cdef int64_t neighbours[8]
+    cdef double_t invalid = np.nan
 
     n_side = int((values.shape[0] / 12) ** 0.5)
 
     for i in range(n):
 
-        xy_index = radectohealpixf(lon[i], lat[i], n_side, &dx, &dy)
+        xy_index = radectohealpixlf(lon[i], lat[i], n_side, &dx, &dy)
 
         # We now need to identify the four pixels that surround the position
         # we've identified. The neighbours are ordered as follows:
@@ -302,7 +316,7 @@ def bilinear_interpolation(np.ndarray[double, ndim=1, mode="c"] lon,
         #       4   X   0
         #       5   6   7
 
-        healpix_get_neighbours(xy_index, neighbours, n_side)
+        healpix_get_neighboursl(xy_index, neighbours, n_side)
 
         if dx < 0.5:
 
@@ -343,15 +357,15 @@ def bilinear_interpolation(np.ndarray[double, ndim=1, mode="c"] lon,
             continue
 
         if order == ORDER_NESTED:
-            i11 = healpix_xy_to_nested(i11, n_side)
-            i12 = healpix_xy_to_nested(i12, n_side)
-            i21 = healpix_xy_to_nested(i21, n_side)
-            i22 = healpix_xy_to_nested(i22, n_side)
+            i11 = healpixl_xy_to_nested(i11, n_side)
+            i12 = healpixl_xy_to_nested(i12, n_side)
+            i21 = healpixl_xy_to_nested(i21, n_side)
+            i22 = healpixl_xy_to_nested(i22, n_side)
         elif order == ORDER_RING:
-            i11 = healpix_xy_to_ring(i11, n_side)
-            i12 = healpix_xy_to_ring(i12, n_side)
-            i21 = healpix_xy_to_ring(i21, n_side)
-            i22 = healpix_xy_to_ring(i22, n_side)
+            i11 = healpixl_xy_to_ring(i11, n_side)
+            i12 = healpixl_xy_to_ring(i12, n_side)
+            i21 = healpixl_xy_to_ring(i21, n_side)
+            i22 = healpixl_xy_to_ring(i22, n_side)
 
         v11 = values[i11]
         v12 = values[i12]
@@ -366,7 +380,7 @@ def bilinear_interpolation(np.ndarray[double, ndim=1, mode="c"] lon,
     return result
 
 
-def neighbours_healpix(np.ndarray[int, ndim=1, mode="c"] healpix_index,
+def neighbours_healpix(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
                        int n_side, int order):
     """
     Find all the healpix pixels that are the neighbours of a healpix pixel
@@ -388,10 +402,12 @@ def neighbours_healpix(np.ndarray[int, ndim=1, mode="c"] healpix_index,
         rotating clockwise.
     """
 
-    cdef int n = healpix_index.shape[0]
-    cdef int i, j, xy_index, k
-    cdef np.ndarray[int, ndim=2, mode="c"] neighbours = np.zeros((8, n), dtype=np.int32)
-    cdef int neighbours_indiv[8]
+    cdef intp_t n = healpix_index.shape[0]
+    cdef intp_t i
+    cdef int64_t xy_index
+    cdef int j, k
+    cdef np.ndarray[int64_t, ndim=2, mode="c"] neighbours = np.zeros((8, n), dtype=npy_int64)
+    cdef int64_t neighbours_indiv[8]
     cdef int n_neighbours
 
     # The neighbours above are ordered as follows:
@@ -412,8 +428,8 @@ def neighbours_healpix(np.ndarray[int, ndim=1, mode="c"] healpix_index,
 
         for i in range(n):
 
-            xy_index = healpix_nested_to_xy(healpix_index[i], n_side)
-            n_neighbours = healpix_get_neighbours(xy_index, neighbours_indiv, n_side)
+            xy_index = healpixl_nested_to_xy(healpix_index[i], n_side)
+            n_neighbours = healpix_get_neighboursl(xy_index, neighbours_indiv, n_side)
 
             for j in range(8):
                 k = 5 - j
@@ -422,15 +438,15 @@ def neighbours_healpix(np.ndarray[int, ndim=1, mode="c"] healpix_index,
                 if j >= n_neighbours or neighbours_indiv[k] < 0:
                     neighbours[j, i] = -1
                 else:
-                    neighbours[j, i] = healpix_xy_to_nested(neighbours_indiv[k], n_side)
+                    neighbours[j, i] = healpixl_xy_to_nested(neighbours_indiv[k], n_side)
 
     elif order == ORDER_RING:
 
         for i in range(n):
 
-            xy_index = healpix_ring_to_xy(healpix_index[i], n_side)
+            xy_index = healpixl_ring_to_xy(healpix_index[i], n_side)
 
-            nn = healpix_get_neighbours(xy_index, neighbours_indiv, n_side)
+            nn = healpix_get_neighboursl(xy_index, neighbours_indiv, n_side)
 
             for j in range(8):
                 k = 5 - j
@@ -439,7 +455,7 @@ def neighbours_healpix(np.ndarray[int, ndim=1, mode="c"] healpix_index,
                 if neighbours_indiv[k] < 0:
                     neighbours[j, i] = -1
                 else:
-                    neighbours[j, i] = healpix_xy_to_ring(neighbours_indiv[k], n_side)
+                    neighbours[j, i] = healpixl_xy_to_ring(neighbours_indiv[k], n_side)
 
     else:
         raise ValueError('order should be ORDER_NESTED or ORDER_RING')

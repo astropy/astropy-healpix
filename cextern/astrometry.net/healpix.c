@@ -25,15 +25,15 @@ struct hp_s {
 typedef struct hp_s hp_t;
 
 static int64_t hptointl(hp_t hp, int Nside) {
-	return healpix_compose_xyl(hp.bighp, hp.x, hp.y, Nside);	
+	return healpixl_compose_xy(hp.bighp, hp.x, hp.y, Nside);
 }
 
 static int hptoint(hp_t hp, int Nside) {
-	return healpix_compose_xy(hp.bighp, hp.x, hp.y, Nside);	
+	return healpix_compose_xy(hp.bighp, hp.x, hp.y, Nside);
 }
 
 static void intltohp(int64_t pix, hp_t* hp, int Nside) {
-	healpix_decompose_xyl(pix, &hp->bighp, &hp->x, &hp->y, Nside);
+	healpixl_decompose_xy(pix, &hp->bighp, &hp->x, &hp->y, Nside);
 }
 
 static void inttohp(int pix, hp_t* hp, int Nside) {
@@ -58,12 +58,12 @@ Const static Inline double mysquare(double d) {
 	return d*d;
 }
 
-Const int healpix_xy_to_nested(int hp, int Nside) {
+Const int64_t healpixl_xy_to_nested(int64_t hp, int Nside) {
 	int bighp,x,y;
-	int index;
+	int64_t index;
 	int i;
 
-	healpix_decompose_xy(hp, &bighp, &x, &y, Nside);
+	healpixl_decompose_xy(hp, &bighp, &x, &y, Nside);
 	if (!is_power_of_two(Nside)) {
 		fprintf(stderr, "healpix_xy_to_nested: Nside must be a power of two.\n");
 		return -1;
@@ -75,38 +75,39 @@ Const int healpix_xy_to_nested(int hp, int Nside) {
 	//    y = ... b5 b3 b1
 	// We go through the bits of x,y, building up "index":
 	index = 0;
-	for (i=0; i<(8*sizeof(int)/2); i++) {
+	for (i=0; i<(8*sizeof(int64_t)/2); i++) {
 		index |= (((y & 1) << 1) | (x & 1)) << (i*2);
 		y >>= 1;
 		x >>= 1;
 		if (!x && !y) break;
 	}
 
-	return index + bighp * Nside * Nside;
+	return index + (int64_t)bighp * Nside * Nside;
 }
 
-Const int healpix_nested_to_xy(int hp, int Nside) {
+Const int64_t healpixl_nested_to_xy(int64_t hp, int Nside) {
 	int bighp, x, y;
-	int index;
+	int64_t index;
+	int64_t ns2 = (int64_t)Nside * (int64_t)Nside;
 	int i;
 	if (!is_power_of_two(Nside)) {
 		fprintf(stderr, "healpix_xy_to_nested: Nside must be a power of two.\n");
 		return -1;
 	}
-	bighp = hp / (Nside*Nside);
-	index = hp % (Nside*Nside);
+	bighp = hp / ns2;
+	index = hp % ns2;
 	x = y = 0;
-	for (i=0; i<(8*sizeof(int)/2); i++) {
+	for (i=0; i<(8*sizeof(int64_t)/2); i++) {
 		x |= (index & 0x1) << i;
 		index >>= 1;
 		y |= (index & 0x1) << i;
 		index >>= 1;
 		if (!index) break;
 	}
-	return healpix_compose_xy(bighp, x, y, Nside);
+	return healpixl_compose_xy(bighp, x, y, Nside);
 }
 
-Const int healpix_compose_ring(int ring, int longind, int Nside) {
+Const int64_t healpixl_compose_ring(int64_t ring, int longind, int Nside) {
 	if (ring <= Nside)
 		// north polar
 		return ring * (ring-1) * 2 + longind;
@@ -120,11 +121,11 @@ Const int healpix_compose_ring(int ring, int longind, int Nside) {
 	}
 }
 
-void healpix_decompose_ring(int hp, int Nside, int* p_ring, int* p_longind) {
+void healpixl_decompose_ring(int64_t hp, int Nside, int* p_ring, int* p_longind) {
 	// FIXME: this could be written in closed form...
-	int longind;
+	int64_t longind;
+	int64_t offset = 0;
 	int ring;
-	int offset = 0;
 	for (ring=1; ring<=Nside; ring++) {
 		if (offset + ring*4 > hp) {
 			longind = hp - offset;
@@ -157,23 +158,23 @@ void healpix_decompose_ring(int hp, int Nside, int* p_ring, int* p_longind) {
 		*p_longind = longind;
 }
 
-Const int healpix_ring_to_xy(int ring, int Nside) {
+Const int64_t healpixl_ring_to_xy(int64_t ring, int Nside) {
 	int bighp, x, y;
 	int ringind, longind;
-	healpix_decompose_ring(ring, Nside, &ringind, &longind);
+	healpixl_decompose_ring(ring, Nside, &ringind, &longind);
 	if (ringind <= Nside) {
-		int ind;
-		int v;
+		int64_t ind;
+		int64_t v;
 		int F1;
 		int frow;
 		bighp = longind / ringind;
-		ind = longind - bighp * ringind;
-		y = (Nside - 1 - ind);
+		ind = (int64_t)longind - (int64_t)bighp * (int64_t)ringind;
+		y = (Nside - 1) - ind;
 		frow = bighp / 4;
 		F1 = frow + 2;
 		v = F1*Nside - ringind - 1;
 		x = v - y;
-		return healpix_compose_xy(bighp, x, y, Nside);
+		return healpixl_compose_xy(bighp, x, y, Nside);
 	} else if (ringind < 3*Nside) {
 		int panel;
 		int ind;
@@ -182,7 +183,6 @@ Const int healpix_ring_to_xy(int ring, int Nside) {
 		int frow, F1, F2, s, v, h;
 		int bighp = -1;
 		int x, y;
-		int hp;
 		int R = 0;
 
 		panel = longind / Nside;
@@ -235,9 +235,7 @@ Const int healpix_ring_to_xy(int ring, int Nside) {
 				//fprintf(stderr, "still not right.\n");
 			}
 		}
-		hp = healpix_compose_xy(bighp, x, y, Nside);
-		//fprintf(stderr, "hp %i\n", hp);
-		return hp;
+		return healpixl_compose_xy(bighp, x, y, Nside);
 	} else {
 		int ind;
 		int v;
@@ -252,19 +250,19 @@ Const int healpix_ring_to_xy(int ring, int Nside) {
 		F1 = frow + 2;
 		v = F1*Nside - ringind - 1;
 		x = v - y;
-		return healpix_compose_xy(bighp, x, y, Nside);
+		return healpixl_compose_xy(bighp, x, y, Nside);
 	}
 }
 
-Const int healpix_xy_to_ring(int hp, int Nside) {
+Const int64_t healpixl_xy_to_ring(int64_t hp, int Nside) {
 	int bighp,x,y;
 	int frow;
 	int F1;
 	int v;
 	int ring;
-	int index;
+	int64_t index;
 
-	healpix_decompose_xy(hp, &bighp, &x, &y, Nside);
+	healpixl_decompose_xy(hp, &bighp, &x, &y, Nside);
 	frow = bighp / 4;
 	F1 = frow + 2;
 	v = x + y;
@@ -305,21 +303,22 @@ Const int healpix_xy_to_ring(int hp, int Nside) {
 		// other rings
 		index += ri*(ri-1)*2;
 		// flip!
-		index = 12*Nside*Nside - 1 - index;
+		index = 12*(int64_t)Nside*Nside - 1 - index;
+
 	} else {
 		// equatorial.
-		int s, F2, h;
+		int64_t s, F2, h;
 		s = (ring - Nside) % 2;
 		F2 = 2*((int)bighp % 4) - (frow % 2) + 1;
 		h = x - y;
-		index = (F2 * (int)Nside + h + s) / 2;
+
+		index = (F2 * Nside + h + s) / 2;
 		// offset from the north polar region:
-		index += Nside*(Nside-1)*2;
+		index += (int64_t)Nside * (Nside - 1) * 2;
 		// offset within the equatorial region:
-		index += Nside * 4 * (ring - Nside);
+		index += (int64_t)Nside * 4 * (ring - Nside);
 		// handle healpix #4 wrap-around
-		if ((bighp == 4) && (y > x))
-			index += (4 * Nside - 1);
+		if ((bighp == 4) && (y > x)) index += (4 * Nside - 1);
 		//fprintf(stderr, "frow=%i, F1=%i, v=%i, ringind=%i, s=%i, F2=%i, h=%i, longind=%i.\n", frow, F1, v, ring, s, F2, h, (F2*(int)Nside+h+s)/2);
 	}
 	return index;
@@ -387,7 +386,7 @@ int healpix_compose_xy(int bighp, int x, int y, int Nside) {
 	return (bighp * Nside * Nside) + compose_xy(x, y, Nside);
 }
 
-int64_t healpix_compose_xyl(int bighp, int x, int y, int Nside) {
+int64_t healpixl_compose_xy(int bighp, int x, int y, int Nside) {
 	int64_t ns = Nside;
 	assert(Nside > 0);
 	assert(bighp >= 0);
@@ -453,7 +452,7 @@ void healpix_decompose_xy(int finehp, int* pbighp, int* px, int* py, int Nside) 
 	}
 }
 
-void healpix_decompose_xyl(int64_t finehp,
+void healpixl_decompose_xy(int64_t finehp,
 						   int* pbighp, int* px, int* py,
 						   int Nside) {
 	int64_t hp;
@@ -586,7 +585,7 @@ static int get_neighbours(hp_t hp, hp_t* neighbour, int Nside) {
 		}
 	} else
 		nbase = base;
-    
+
 	//printf("(0 +): nbase=%i, nx=%i, ny=%i, pix=%i\n", nbase, nx, ny, nbase*Ns2+xy_to_pnprime(nx,ny,Nside));
 
 	neighbour[nn].bighp = nbase;
@@ -963,7 +962,7 @@ int radectohealpixf(double ra, double dec, int Nside, double* dx, double* dy) {
     return xyztohealpixf(radec2x(ra,dec), radec2y(ra,dec), radec2z(ra,dec),
                          Nside, dx, dy);
 }
- 
+
 Const int radecdegtohealpix(double ra, double dec, int Nside) {
 	return radectohealpix(deg2rad(ra), deg2rad(dec), Nside);
 }
@@ -993,7 +992,7 @@ int xyzarrtohealpixf(const double* xyz,int Nside, double* p_dx, double* p_dy) {
 }
 
 static void hp_to_xyz(hp_t* hp, int Nside,
-					  double dx, double dy, 
+					  double dx, double dy,
 					  double* rx, double *ry, double *rz) {
 	int chp;
 	anbool equatorial = TRUE;
@@ -1103,11 +1102,20 @@ static void hp_to_xyz(hp_t* hp, int Nside,
 }
 
 void healpix_to_xyz(int ihp, int Nside,
-					double dx, double dy, 
+					double dx, double dy,
 					double* px, double *py, double *pz) {
 	hp_t hp;
 	inttohp(ihp, &hp, Nside);
 	hp_to_xyz(&hp, Nside, dx, dy, px, py, pz);
+}
+
+void healpixl_to_radec(int64_t ihp, int Nside, double dx, double dy,
+											double* ra, double* dec) {
+	hp_t hp;
+	double xyz[3];
+	intltohp(ihp, &hp, Nside);
+	hp_to_xyz(&hp, Nside, dx, dy, xyz, xyz+1, xyz+2);
+	xyzarr2radec(xyz, ra, dec);
 }
 
 void healpixl_to_radecdeg(int64_t ihp, int Nside, double dx, double dy,
@@ -1341,7 +1349,7 @@ double healpix_distance_to_xyz(int hp, int Nside, const double* xyz,
 	permutation_init(corder, 4);
 	permuted_sort(cdists, sizeof(double), compare_doubles_asc, corder, 4);
 	// now "corder" [0] and [1] are the indices of the two nearest corners.
-	
+
 	// Binary search for closest dx,dy.
 	dxA = cdx[corder[0]];
 	dyA = cdy[corder[0]];

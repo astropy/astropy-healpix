@@ -41,11 +41,11 @@ def npix2nside(n_pix):
 
 def pix2ang(nside, ipix, nest=False):
     ipix = np.atleast_1d(ipix).astype(np.int32)
-    phi, theta = healpix_to_lonlat(ipix, nside, 1 - int(nest))
-    return theta, phi
+    lon, lat = healpix_to_lonlat(ipix, nside, 1 - int(nest))
+    return np.pi / 2 - lat, lon
 
 
 def ang2pix(nside, theta, phi, nest=False):
-    theta = np.atleast_1d(theta)
-    phi = np.atleast_1d(phi)
-    return lonlat_to_healpix(phi, theta, nside, 1 - int(nest))
+    lat = np.pi / 2. - np.atleast_1d(theta)
+    lon = np.atleast_1d(phi)
+    return lonlat_to_healpix(lon, lat, nside, 1 - int(nest))

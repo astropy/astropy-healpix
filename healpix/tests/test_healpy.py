@@ -2,6 +2,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import pytest
+import numpy as np
 
 from numpy.testing import assert_equal, assert_allclose
 
@@ -23,7 +24,9 @@ def test_nside2resol():
     (256, 0.0000000000000000, 5.0265482457436690, True),
     (256, 0.0000000000000000, 6.2831853071795862, True)])
 def test_ang2pix(nside, theta, phi, nest):
-    assert hp_compat.ang2pix(nside, theta, phi, nest) == hp.ang2pix(nside, theta, phi, nest)
+    ipix1 = hp_compat.ang2pix(nside, theta, phi, nest=nest)
+    ipix2 = hp.ang2pix(nside, theta, phi, nest=nest)
+    assert ipix1 == ipix2
 
 
 @pytest.mark.parametrize('nside,ipix,nest', [
@@ -31,5 +34,7 @@ def test_ang2pix(nside, theta, phi, nest):
     (2, 1, True),
     (2, 2, True)])
 def test_pix2ang(nside, ipix, nest):
-    assert_allclose(hp_compat.pix2ang(nside, ipix, nest),
-                    hp.pix2ang(nside, ipix, nest), rtol=1e-10)
+    theta1, phi1 = hp_compat.pix2ang(nside, ipix, nest=nest)
+    theta2, phi2 = hp.pix2ang(nside, ipix, nest=nest)
+    assert_allclose(phi1, phi2, rtol=1e-10)
+    assert_allclose(theta1, theta2, rtol=1e-10)

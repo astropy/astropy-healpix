@@ -40,7 +40,7 @@ def npix2nside(n_pix):
 
 
 def pix2ang(nside, ipix, nest=False):
-    ipix = np.atleast_1d(ipix).astype(np.int32)
+    ipix = np.atleast_1d(ipix).astype(int)
     lon, lat = healpix_to_lonlat(ipix, nside, 1 - int(nest))
     return np.pi / 2 - lat, lon
 

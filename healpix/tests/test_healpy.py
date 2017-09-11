@@ -10,6 +10,7 @@ from .. import healpy as hp_compat
 
 hp = pytest.importorskip('healpy')
 
+
 def test_nside2resol():
     actual = hp_compat.nside2resol(nside=2)
     expected = hp.nside2resol(nside=2)

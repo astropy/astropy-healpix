@@ -392,6 +392,7 @@ def neighbours_healpix(np.ndarray[int, ndim=1, mode="c"] healpix_index,
     cdef int i, j, xy_index, k
     cdef np.ndarray[int, ndim=2, mode="c"] neighbours = np.zeros((8, n), dtype=np.int32)
     cdef int neighbours_indiv[8]
+    cdef int n_neighbours
 
     # The neighbours above are ordered as follows:
     #
@@ -412,13 +413,13 @@ def neighbours_healpix(np.ndarray[int, ndim=1, mode="c"] healpix_index,
         for i in range(n):
 
             xy_index = healpix_nested_to_xy(healpix_index[i], n_side)
-            healpix_get_neighbours(xy_index, neighbours_indiv, n_side)
+            n_neighbours = healpix_get_neighbours(xy_index, neighbours_indiv, n_side)
 
             for j in range(8):
                 k = 5 - j
                 if k < 0:
                     k = k + 8
-                if neighbours_indiv[k] < 0:
+                if j >= n_neighbours or neighbours_indiv[k] < 0:
                     neighbours[j, i] = -1
                 else:
                     neighbours[j, i] = healpix_xy_to_nested(neighbours_indiv[k], n_side)

@@ -96,6 +96,9 @@
 
 // not gnuc >= 3.0
 
+# define InlineDeclare
+# define InlineDefineH
+# define InlineDefineC
 # define Inline
 # define Pure
 # define Const

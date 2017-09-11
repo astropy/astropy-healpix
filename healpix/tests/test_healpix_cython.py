@@ -8,14 +8,19 @@ from numpy.testing import assert_equal, assert_allclose
 from .. import _healpix
 
 
-N_SIDE_POWERS = range(0, 9)
+N_SIDE_POWERS = range(0, 16)
 ORDERS = (0, 1)
 
+def get_test_indices(n_side):
+    # For large number of pixels, we only compute a random subset of points
+    if n_side > 2 ** 8:
+        return np.random.randint(0, 12 * n_side ** 2, 12 * 8 ** 2)
+    else:
+        return np.arange(12 * n_side ** 2).astype(int)
 
-@pytest.mark.parametrize(('order', 'n_side_power'), product(ORDERS, N_SIDE_POWERS))
-def test_roundtrip_healpix_no_offsets(order, n_side_power):
+def test_roundtrip_healpix_no_offsets(order=1, n_side_power=14):
     n_side = 2 ** n_side_power
-    index = np.arange(12 * n_side ** 2).astype(np.int32)
+    index = get_test_indices(n_side)
     lon, lat = _healpix.healpix_to_lonlat(index, n_side, order)
     index_new = _healpix.lonlat_to_healpix(lon, lat, n_side, order)
     assert_equal(index, index_new)
@@ -24,7 +29,7 @@ def test_roundtrip_healpix_no_offsets(order, n_side_power):
 @pytest.mark.parametrize(('order', 'n_side_power'), product(ORDERS, N_SIDE_POWERS))
 def test_roundtrip_healpix_with_offsets(order, n_side_power):
     n_side = 2 ** n_side_power
-    index = np.arange(12 * n_side ** 2).astype(np.int32)
+    index = get_test_indices(n_side)
     dx = np.random.random(index.shape)
     dy = np.random.random(index.shape)
     lon, lat = _healpix.healpix_with_offset_to_lonlat(index, dx, dy, n_side, order)
@@ -37,7 +42,7 @@ def test_roundtrip_healpix_with_offsets(order, n_side_power):
 @pytest.mark.parametrize('n_side_power', N_SIDE_POWERS)
 def test_roundtrip_nested_ring(n_side_power):
     n_side = 2 ** n_side_power
-    nested_index = np.arange(12 * n_side ** 2).astype(np.int32)
+    nested_index = get_test_indices(n_side)
     ring_index = _healpix.nested_to_ring(nested_index, n_side)
     nested_index_new = _healpix.ring_to_nested(ring_index, n_side)
 
@@ -53,6 +58,6 @@ def test_roundtrip_nested_ring(n_side_power):
 def test_neighbours_healpix(order, n_side_power):
     # This just makes sure things run, but doesn't check the validity of result
     n_side = 2 ** n_side_power
-    index = np.arange(12 * n_side ** 2).astype(np.int32)
+    index = get_test_indices(n_side)
     neighbours = _healpix.neighbours_healpix(index, n_side, order)
     assert np.all(neighbours >= -1) and np.all(neighbours < 12 * n_side ** 2)

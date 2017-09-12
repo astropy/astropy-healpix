@@ -64,7 +64,7 @@ void log_to_fd(int fd);
  * Create a new logger.
  *
  * Parameters:
- *   
+ *
  *   level - LOG_NONE  don't show anything
  *           LOG_ERROR only log errors
  *           LOG_MSG   log errors and important messages
@@ -83,17 +83,26 @@ log_t* log_create(const enum log_level level);
  */
 void log_free(log_t* logger);
 
+#ifdef __GNUC__
 #define LOG_TEMPLATE(name)												\
 	void log_##name(const char* file, int line, const char* func, const char* format, ...) \
 		 __attribute__ ((format (printf, 4, 5)));
+#else
+#define LOG_TEMPLATE(name)												\
+	void log_##name(const char* file, int line, const char* func, const char* format, ...);
+#endif
+
 LOG_TEMPLATE(logmsg);
 LOG_TEMPLATE(logerr);
 LOG_TEMPLATE(logverb);
 LOG_TEMPLATE(logdebug);
 
+#ifdef __GNUC__
 void log_loglevel(enum log_level level, const char* file, int line, const char* func, const char* format, ...)
 	__attribute__ ((format (printf, 5, 6)));
-
+#else
+void log_loglevel(enum log_level level, const char* file, int line, const char* func, const char* format, ...);
+#endif
 
 /**
  * Log a message:

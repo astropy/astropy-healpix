@@ -54,7 +54,7 @@ int get_output_image_size(int W, int H, int S,
 						  int* newW, int* newH) {
 	int outw, outh;
 	if (S < 2) {
-		logerr("Need scale >= 2");
+		printf("Need scale >= 2");
 		return -1;
 	}
 	if (edgehandling == 0) {
@@ -66,7 +66,7 @@ int get_output_image_size(int W, int H, int S,
 		outw = (W + S-1) / S;
 		outh = (H + S-1) / S;
 	} else {
-		logerr("Unknown edge handling code %i", edgehandling);
+		printf("Unknown edge handling code %i", edgehandling);
 		return -1;
 	}
 	if (newW)
@@ -94,7 +94,7 @@ float* average_weighted_image_f(const float* image, const float* weight,
 	if (output == NULL) {
 		output = malloc(outw * outh * sizeof(float));
 		if (!output) {
-			SYSERROR("Failed to allocate %i x %i floats", outw, outh);
+			printf("Failed to allocate %i x %i floats", outw, outh);
 			return NULL;
 		}
 	}

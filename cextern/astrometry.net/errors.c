@@ -9,8 +9,11 @@
 #include <stdio.h>
 
 #include "errors.h"
-#include "ioutils.h"
 #include "an-bool.h"
+
+#ifdef _MSC_VER
+int vasprintf(char **strp, const char *fmt, va_list ap) {return -1;}
+#endif
 
 static pl* estack = NULL;
 static anbool atexit_registered = FALSE;
@@ -220,11 +223,11 @@ char* error_get_errs(err_t* e, const char* separator) {
 	return rtn;
 }
 
-void errors_regex_error(int errcode, const regex_t* re) {
-    char str[256];
-    regerror(errcode, re, str, sizeof(str));
-    error_report(errors_get_state(), "regex", -1, NULL, "%s", str);
-}
+//void errors_regex_error(int errcode, const regex_t* re) {
+//    char str[256];
+//    regerror(errcode, re, str, sizeof(str));
+//    error_report(errors_get_state(), "regex", -1, NULL, "%s", str);
+//}
 
 void error_stack_add_entryv(err_t* e, const char* file, int line, const char* func, const char* format, va_list va) {
 	char* str;
@@ -238,10 +241,10 @@ void error_stack_add_entryv(err_t* e, const char* file, int line, const char* fu
 
  void error_stack_add_entry(err_t* e, const char* file, int line, const char* func, const char* str) {
 	errentry_t ee;
-	ee.file = strdup_safe(file);
+	ee.file = strdup(file);
 	ee.line = line;
-	ee.func = strdup_safe(func);
-	ee.str = strdup_safe(str);
+	ee.func = strdup(func);
+	ee.str = strdup(str);
 	bl_append(e->errstack, &ee);
 }
 

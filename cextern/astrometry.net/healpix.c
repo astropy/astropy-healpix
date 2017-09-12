@@ -16,6 +16,10 @@
 #include "permutedsort.h"
 #include "log.h"
 
+#ifndef M_PI
+#    define M_PI 3.14159265358979323846
+#endif
+
 // Internal type
 struct hp_s {
 	int bighp;
@@ -52,7 +56,14 @@ static void hp_decompose(hp_t* hp, int* php, int* px, int* py) {
 // I've had troubles with rounding functions being declared properly
 // in other contexts...  Declare it here so the compiler complains if
 // something is wrong.
+#ifdef _MSC_VER
+double round(double x) {
+  return floor(x + 0.5);
+}
+#else
 double round(double x);
+#endif
+
 
 Const static Inline double mysquare(double d) {
 	return d*d;

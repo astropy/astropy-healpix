@@ -3,7 +3,7 @@
 # This file is needed in order to be able to cimport functions into other Cython
 # files
 
-from libc.stdint cimport int64_t
+from numpy cimport int64_t
 
 cdef extern from "healpix.h":
 

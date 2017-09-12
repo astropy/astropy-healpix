@@ -9,7 +9,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <sys/types.h>
-#include <regex.h>
 
 #include "an-bool.h"
 #include "bl.h"
@@ -94,7 +93,7 @@ char* errors_stop_logging_to_string(const char* separator);
 /*
  Convenience function to report an error from the regex module.
  */
-void errors_regex_error(int errcode, const regex_t* re);
+// void errors_regex_error(int errcode, const regex_t* re);
 
 /***    End globals   ***/
 

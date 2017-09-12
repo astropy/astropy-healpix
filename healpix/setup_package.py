@@ -7,13 +7,11 @@ C_FILES = ['bl.c',
            'errors.c',
            'healpix-utils.c',
            'healpix.c',
-           'ioutils.c',
            'log.c',
            'mathutil.c',
            'permutedsort.c',
            'qsort_reentrant.c',
-           'starutil.c',
-           'tic.c']
+           'starutil.c']
 
 
 C_DIR = os.path.join('cextern', 'astrometry.net')

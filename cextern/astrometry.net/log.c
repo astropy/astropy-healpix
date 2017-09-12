@@ -7,7 +7,13 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef _MSC_VER
+#include <io.h>
+#else
 #include <unistd.h>
+#endif
+
 #include <assert.h>
 
 #include "log.h"
@@ -22,7 +28,7 @@ void log_init_structure(log_t* logger, enum log_level level) {
 	logger->level = level;
     logger->f = stdout;
 	logger->timestamp = FALSE;
-	logger->t0 = timenow();
+	logger->t0 = time();
 	logger->logfunc = NULL;
 	logger->baton = NULL;
 }
@@ -72,7 +78,7 @@ static void loglvl(const log_t* logger, enum log_level level,
 		return;
 	if (logger->f) {
 		if (logger->timestamp)
-			fprintf(logger->f, "[%6i: %.3f] ", (int)getpid(), timenow() - logger->t0);
+			//fprintf(logger->f, "[%6i: %.3f] ", (int)getpid(), time() - logger->t0);
 		//fprintf(logger->f, "%s:%i ", file, line);
 		vfprintf(logger->f, format, va);
 		fflush(logger->f);

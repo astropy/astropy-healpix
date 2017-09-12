@@ -5,13 +5,33 @@
 
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef _MSC_VER
+#include <io.h>
+#else
 #include <unistd.h>
+#endif
+
 #include <stdio.h>
 #include <math.h>
 #include <assert.h>
 
 #include "permutedsort.h"
 #include "os-features.h" // for qsort_r
+
+#ifdef _MSC_VER
+#include <stdint_msc.h>
+#else
+#include <stdint.h>
+#endif
+
+#ifndef off_t
+typedef long off_t;
+#endif
+
+#ifdef _MSC_VER
+#include <float.h>
+#endif
 
 int* permutation_init(int* perm, int N) {
 	int i;
@@ -82,6 +102,17 @@ int* permuted_sort(const void* realarray, int array_stride,
     return perm;
 }
 
+#ifdef _MSC_VER
+#define COMPARE(d1, d2, op1, op2)						\
+	if (d1 op1 d2) return -1;							\
+	if (d1 op2 d2) return 1;							\
+	/* explicitly test for equality, to catch NaNs*/	\
+	if (d1 == d2) return 0;								\
+	if (_isnan(d1) && _isnan(d2)) return 0;				\
+	if (_isnan(d1)) return 1;							\
+	if (_isnan(d2)) return -1;							\
+	assert(0); return 0;
+#else
 #define COMPARE(d1, d2, op1, op2)						\
 	if (d1 op1 d2) return -1;							\
 	if (d1 op2 d2) return 1;							\
@@ -91,6 +122,7 @@ int* permuted_sort(const void* realarray, int array_stride,
 	if (isnan(d1)) return 1;							\
 	if (isnan(d2)) return -1;							\
 	assert(0); return 0;
+#endif
 
 	//printf("d1=%g, d2=%g\n", d1, d2);				   
 

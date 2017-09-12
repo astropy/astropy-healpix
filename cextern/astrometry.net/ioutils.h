@@ -68,7 +68,9 @@ int write_file(const char* fn, const char* data, int len);
  It's not really _safe_ as such, it just prints an error message if it fails...
  */
 void
+#ifdef __GNUC__
 ATTRIB_FORMAT(printf,2,3)
+#endif
 asprintf_safe(char** strp, const char* format, ...);
 
 int run_command_get_outputs(const char* cmd, sl** outlines, sl** errlines);

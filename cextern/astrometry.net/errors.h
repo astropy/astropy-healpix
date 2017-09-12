@@ -46,11 +46,13 @@ err_t* errors_get_state();
 // stack.
 void errors_push_state();
 
-// 
+//
 void errors_pop_state();
 
 void
+#ifdef __GNUC__
 ATTRIB_FORMAT(printf,4,5)
+#endif
 report_error(const char* modfile, int modline, const char* modfunc, const char* fmt, ...);
 
 void report_errno();
@@ -116,7 +118,9 @@ char* error_get_errstr(const err_t* e, int i);
 void error_stack_clear(err_t* e);
 
 void
+#ifdef __GNUC__
 ATTRIB_FORMAT(printf,5,6)
+#endif
 error_report(err_t* e, const char* module, int line, const char* func,
              const char* fmt, ...);
 
@@ -130,4 +134,3 @@ char* error_get_errs(err_t* e, const char* separator);
 
 
 #endif
-

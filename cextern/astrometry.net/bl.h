@@ -209,7 +209,9 @@ char* sl_insert_sorted(sl* list, const char* string);
 
 // Inserts the (newly-allocated) formatted string and returns it.
 char*
+#ifdef __GNUC__
 ATTRIB_FORMAT(printf,2,3)
+#endif
 sl_insert_sortedf(sl* list, const char* format, ...);
 
 void sl_remove_index_range(sl* list, size_t start, size_t length);
@@ -265,7 +267,9 @@ char*  sl_join_reverse(sl* list, const char* join);
 
 // Appends the (newly-allocated) formatted string and returns it.
 char*
+#ifdef __GNUC__
 ATTRIB_FORMAT(printf,2,3)
+#endif
 sl_appendf(sl* list, const char* format, ...);
 
 // Appends the (newly-allocated) formatted string and returns it.
@@ -273,7 +277,9 @@ char* sl_appendvf(sl* list, const char* format, va_list va);
 
 // Inserts the (newly-allocated) formatted string and returns it.
 char*
+#ifdef __GNUC__
 ATTRIB_FORMAT(printf,3,4)
+#endif
 sl_insertf(sl* list, size_t index, const char* format, ...);
 
 

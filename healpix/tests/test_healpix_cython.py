@@ -11,12 +11,14 @@ from .. import _healpix
 N_SIDE_POWERS = range(0, 16)
 ORDERS = (0, 1)
 
+
 def get_test_indices(n_side):
     # For large number of pixels, we only compute a random subset of points
     if n_side > 2 ** 8:
-        return np.random.randint(0, 12 * n_side ** 2, 12 * 8 ** 2)
+        return np.random.randint(0, 12 * n_side ** 2, 12 * 8 ** 2, dtype=np.int64)
     else:
-        return np.arange(12 * n_side ** 2).astype(int)
+        return np.arange(12 * n_side ** 2, dtype=np.int64)
+
 
 def test_roundtrip_healpix_no_offsets(order=1, n_side_power=14):
     n_side = 2 ** n_side_power

@@ -15,7 +15,12 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdarg.h>
+
+#ifdef _MSC_VER
+#include <stdint_msc.h>
+#else
 #include <stdint.h>
+#endif
 
 #include "keywords.h"
 

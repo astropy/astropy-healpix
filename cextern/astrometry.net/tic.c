@@ -9,7 +9,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+
+#ifdef _MSC_VER
+#include <stdint_msc.h>
+#else
 #include <stdint.h>
+#endif
 
 #include "tic.h"
 #include "errors.h"

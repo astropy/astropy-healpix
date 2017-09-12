@@ -6,7 +6,13 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+
+#ifdef _MSC_VER
+#include <stdint_msc.h>
+#else
 #include <stdint.h>
+#endif
+
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -527,7 +533,7 @@ int run_command_get_outputs(const char* cmd, sl** outlines, sl** errlines) {
                         rtn = -1;
                         goto parentreturn;
 					}
-					   
+
 				}
 #if !(defined(__CYGWIN__))
 				if (FD_ISSET(errfd, &errset)) {
@@ -577,7 +583,7 @@ int run_command_get_outputs(const char* cmd, sl** outlines, sl** errlines) {
             close(errpipe[0]);
 		return rtn;
 	}
-    
+
 	return 0;
 }
 

@@ -7,7 +7,13 @@
 #define IOUTILS_H
 
 #include <stdio.h>
+
+#ifdef _MSC_VER
+#include <stdint_msc.h>
+#else
 #include <stdint.h>
+#endif
+
 #include <sys/types.h>
 #include <time.h>
 

@@ -7,7 +7,12 @@
 #define HEALPIX_H
 
 #include <sys/types.h>
+
+#ifdef _MSC_VER
+#include <stdint_msc.h>
+#else
 #include <stdint.h>
+#endif
 
 #include "keywords.h"
 

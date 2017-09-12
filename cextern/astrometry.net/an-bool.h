@@ -6,7 +6,11 @@
 #ifndef AN_BOOL_H
 #define AN_BOOL_H
 
+#ifdef _MSC_VER
+#include <stdint_msc.h>
+#else
 #include <stdint.h>
+#endif
 
 #ifndef TRUE
 #define TRUE 1

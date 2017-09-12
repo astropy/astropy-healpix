@@ -9,7 +9,7 @@
 #include <sys/types.h>
 
 #ifdef _MSC_VER
-#if _MSC_VER >= 1400
+#if _MSC_VER >= 1600
 #include <stdint.h>
 #else
 #include <stdint_msc.h>

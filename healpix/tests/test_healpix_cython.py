@@ -15,7 +15,10 @@ ORDERS = (0, 1)
 def get_test_indices(n_side):
     # For large number of pixels, we only compute a random subset of points
     if n_side > 2 ** 8:
-        return np.random.randint(0, 12 * n_side ** 2, 12 * 8 ** 2, dtype=np.int64)
+        try:
+            return np.random.randint(0, 12 * n_side ** 2, 12 * 8 ** 2, dtype=np.int64)
+        except TypeError:  # Numpy 1.9 and 1.10
+            return (np.random.random(12 * 8 ** 2) * (12 * float(n_side) ** 2)).astype(np.int64)
     else:
         return np.arange(12 * n_side ** 2, dtype=np.int64)
 

@@ -11,7 +11,6 @@
 #include <assert.h>
 
 #include "log.h"
-#include "tic.h"
 
 static log_t g_logger;
 
@@ -115,11 +114,8 @@ FILE* log_get_fid() {
 		loglvl(get_logger(), level, file, line, func, format, va);		\
 		va_end(va);														\
 	}																	\
-	
+
 LOGGER_TEMPLATE(log_logerr,  LOG_ERROR);
 LOGGER_TEMPLATE(log_logmsg,  LOG_MSG);
 LOGGER_TEMPLATE(log_logverb, LOG_VERB);
 LOGGER_TEMPLATE(log_logdebug,LOG_ALL);
-
-
-

@@ -16,7 +16,6 @@
 #include <stdint.h>
 #endif
 
-#include "tic.h"
 #include "errors.h"
 #include "log.h"
 

@@ -14,11 +14,15 @@
 #include "keywords.h"
 
 #include "bl.ph"
-#include "log.h"
 
 static bl_node* bl_new_node(bl* list);
 static void bl_remove_from_node(bl* list, bl_node* node,
 								bl_node* prev, int index_in_node);
+
+// NOTE: this should be replaced by a proper implementation!
+#ifdef _MSC_VER
+  int vasprintf(char **strp, const char *fmt, va_list ap) {return -1;}
+#endif
 
 // Defined in bl.ph (private header):
 // free_node

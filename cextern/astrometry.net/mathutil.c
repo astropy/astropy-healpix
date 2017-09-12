@@ -11,8 +11,6 @@
 
 #include "mathutil.h"
 #include "keywords.h"
-#include "log.h"
-#include "errors.h"
 
 #define InlineDefine InlineDefineC
 #include "mathutil.inc"
@@ -445,4 +443,3 @@ void fit_transform(double* star, double* field, int N, double* trans) {
 	free(F);
 	free(R);
 }
-

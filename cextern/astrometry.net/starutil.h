@@ -80,12 +80,6 @@ double atodec(const char* str);
 
 double mag2flux(double mag);
 
-/*
- RA,Dec in degrees.  RAs in range [0, 360], Decs in range [-90, 90].
- */
-void radecrange2xyzrange(double ralow, double declow, double rahigh, double dechigh,
-						 double* xyzlow, double* xyzhigh);
-
 // RA,Dec in radians:
 InlineDeclare void radec2xyz(double ra, double dec, double* x, double* y, double* z);
 InlineDeclare Flatten void xyz2radec(double x, double y, double z, double *ra, double *dec);

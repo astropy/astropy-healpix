@@ -25,7 +25,7 @@
 #include <stdint.h>
 #endif
 
-#ifndef off_t
+#ifdef _MSC_VER
 typedef long off_t;
 #endif
 
@@ -124,7 +124,7 @@ int* permuted_sort(const void* realarray, int array_stride,
 	assert(0); return 0;
 #endif
 
-	//printf("d1=%g, d2=%g\n", d1, d2);				   
+	//printf("d1=%g, d2=%g\n", d1, d2);
 
 #define INTCOMPARE(i1, i2, op1, op2)					\
 	if (i1 op1 i2) return -1;							\
@@ -205,4 +205,3 @@ int compare_uchars_asc(const void* v1, const void* v2) {
 int compare_uchars_desc(const void* v1, const void* v2) {
     return compare_ints_desc(v2, v1);
 }
-

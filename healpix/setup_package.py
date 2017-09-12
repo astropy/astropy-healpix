@@ -4,10 +4,8 @@ from distutils.core import Extension
 HEALPIX_ROOT = os.path.relpath(os.path.dirname(__file__))
 
 C_FILES = ['bl.c',
-           'errors.c',
            'healpix-utils.c',
            'healpix.c',
-           'log.c',
            'mathutil.c',
            'permutedsort.c',
            'qsort_reentrant.c',

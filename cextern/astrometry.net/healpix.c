@@ -14,7 +14,6 @@
 #include "starutil.h"
 #include "keywords.h"
 #include "permutedsort.h"
-#include "log.h"
 
 #ifndef M_PI
 #    define M_PI 3.14159265358979323846
@@ -1204,7 +1203,7 @@ int healpix_get_neighbours_within_range(double* xyz, double range, int* out_heal
 
 	//assert(Nside > 0);
 	if (Nside <= 0) {
-		logerr("healpix_get_neighbours_within_range: Nside must be > 0.\n");
+		printf("healpix_get_neighbours_within_range: Nside must be > 0.\n");
 		return -1;
 	}
 

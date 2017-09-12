@@ -7,5 +7,8 @@ Reference/API
 .. automodapi:: healpix.healpy
    :no-inheritance-diagram:
 
-.. automodapi:: healpix.raw
+.. automodapi:: healpix.core
+   :no-inheritance-diagram:
+
+.. automodapi:: healpix._healpix
    :no-inheritance-diagram:

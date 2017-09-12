@@ -7,12 +7,21 @@
 #define HEALPIX_H
 
 #include <sys/types.h>
+
+#ifdef _MSC_VER
+#if _MSC_VER >= 1600
 #include <stdint.h>
+#else
+#include <stdint_msc.h>
+#endif
+#else
+#include <stdint.h>
+#endif
 
 #include "keywords.h"
 
 //#undef Const
-//#define Const 
+//#define Const
 
 /**
  The HEALPix paper is here:
@@ -149,22 +158,22 @@
 /**
    Converts a healpix index from the XY scheme to the RING scheme.
 */
-Const int healpix_xy_to_ring(int hp, int Nside);
+Const int64_t healpixl_xy_to_ring(int64_t hp, int Nside);
 
 /**
    Converts a healpix index from the RING scheme to the XY scheme.
 */
-Const int healpix_ring_to_xy(int ring_index, int Nside);
+Const int64_t healpixl_ring_to_xy(int64_t ring_index, int Nside);
 
 /**
    Converts a healpix index from the XY scheme to the NESTED scheme.
  */
-Const int healpix_xy_to_nested(int hp, int Nside);
+Const int64_t healpixl_xy_to_nested(int64_t hp, int Nside);
 
 /**
    Converts a healpix index from the NESTED scheme to the XY scheme.
  */
-Const int healpix_nested_to_xy(int nested_index, int Nside);
+Const int64_t healpixl_nested_to_xy(int64_t nested_index, int Nside);
 
 /**
    Decomposes a RING index into the "ring number" (each ring contain
@@ -188,7 +197,7 @@ Const int healpix_compose_ring(int ring, int longind, int Nside);
 */
 void healpix_decompose_xy(int finehp, int* bighp, int* x, int* y, int Nside);
 
-void healpix_decompose_xyl(int64_t finehp, int* bighp, int* x, int* y, int Nside);
+void healpixl_decompose_xy(int64_t finehp, int* bighp, int* x, int* y, int Nside);
 
 /**
    Composes an XY index given the "base healpix" and "x" and "y" coordinates
@@ -196,7 +205,7 @@ void healpix_decompose_xyl(int64_t finehp, int* bighp, int* x, int* y, int Nside
 */
 Const int healpix_compose_xy(int bighp, int x, int y, int Nside);
 
-Const int64_t healpix_compose_xyl(int bighp, int x, int y, int Nside);
+Const int64_t healpixl_compose_xy(int bighp, int x, int y, int Nside);
 
 /**
  Given (x,y) coordinates of resolution "nside" within a base-level
@@ -282,6 +291,9 @@ void healpix_to_radec(int hp, int Nside, double dx, double dy,
 
 void healpix_to_radecdeg(int hp, int Nside, double dx, double dy,
                          double* ra, double* dec);
+
+void healpixl_to_radec(int64_t hp, int Nside, double dx, double dy,
+						  double* ra, double* dec);
 
 void healpixl_to_radecdeg(int64_t hp, int Nside, double dx, double dy,
 						  double* ra, double* dec);

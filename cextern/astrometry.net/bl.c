@@ -14,11 +14,15 @@
 #include "keywords.h"
 
 #include "bl.ph"
-#include "log.h"
 
 static bl_node* bl_new_node(bl* list);
 static void bl_remove_from_node(bl* list, bl_node* node,
 								bl_node* prev, int index_in_node);
+
+// NOTE: this should be replaced by a proper implementation!
+#ifdef _MSC_VER
+  int vasprintf(char **strp, const char *fmt, va_list ap) {return -1;}
+#endif
 
 // Defined in bl.ph (private header):
 // free_node
@@ -470,9 +474,10 @@ void bl_print_structure(bl* list) {
 }
 
 void bl_get(bl* list, size_t n, void* dest) {
+    char* src;
     assert(list->N > 0);
-	char* src = bl_access(list, n);
-	memcpy(dest, src, list->datasize);
+    src = bl_access(list, n);
+    memcpy(dest, src, list->datasize);
 }
 
 static void bl_find_ind_and_element(bl* list, const void* data,
@@ -606,7 +611,7 @@ void bl_insert(bl* list, size_t index, const void* data) {
 
 	// if the node is full:
 	//   if we're inserting at the end of this node, then create a new node.
-	//   else, shift all but the last element, add in this element, and 
+	//   else, shift all but the last element, add in this element, and
 	//     add the last element to a new node.
 	if (node->N == list->blocksize) {
 		int localindex, nshift;
@@ -714,7 +719,7 @@ int bl_check_consistency(bl* list) {
 	int tailok = 1;
 	int nempty = 0;
 	int nnull = 0;
-	
+
 	// if one of head or tail is NULL, they had both better be NULL!
 	if (!list->head)
 		nnull++;
@@ -863,7 +868,7 @@ void  pl_free_elements(pl* list) {
 
 size_t pl_insert_sorted(pl* list, const void* data, int (*compare)(const void* v1, const void* v2)) {
 	// we don't just call bl_insert_sorted because then we end up passing
-	// "void**" rather than "void*" args to the compare function, which 
+	// "void**" rather than "void*" args to the compare function, which
 	// violates the principle of least surprise.
 	ptrdiff_t lower, upper;
 	lower = -1;
@@ -1257,4 +1262,3 @@ char* sl_insert_sorted(sl* list, const char* string) {
 #define InlineDefine InlineDefineC
 #include "bl.inc"
 #undef InlineDefine
-

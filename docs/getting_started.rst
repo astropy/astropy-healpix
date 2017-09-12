@@ -1,5 +1,7 @@
 .. include:: references.txt
 
+.. doctest-skip-all
+
 .. _gs:
 
 ***************

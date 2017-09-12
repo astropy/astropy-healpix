@@ -5,6 +5,10 @@
 
 #include <math.h>
 
+#ifndef M_PI
+#    define M_PI 3.14159265358979323846
+#endif
+
 InlineDefine void star_midpoint(double* mid, const double* A, const double* B) {
 	double len;
 	double invlen;

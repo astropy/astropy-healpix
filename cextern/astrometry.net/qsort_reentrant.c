@@ -27,12 +27,21 @@
  * SUCH DAMAGE.
  */
 
+#ifdef _MSC_VER
+#include <io.h>
+#else
 #include <unistd.h>
+#endif
+
 // from https://groups.google.com/forum/#!topic/astrometry/quGEbY1CgR8
+#ifdef _MSC_VER
+# include <stdio.h>
+#else
 #if __sun
 # include <stdio.h>
 #else
 # include <sys/cdefs.h>
+#endif
 #endif
 //__FBSDID("$FreeBSD: src/sys/libkern/qsort.c,v 1.15 2004/07/15 23:58:23 glebius Exp $");
 

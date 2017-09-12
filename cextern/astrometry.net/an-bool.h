@@ -6,7 +6,15 @@
 #ifndef AN_BOOL_H
 #define AN_BOOL_H
 
+#ifdef _MSC_VER
+#if _MSC_VER >= 1600
 #include <stdint.h>
+#else
+#include <stdint_msc.h>
+#endif
+#else
+#include <stdint.h>
+#endif
 
 #ifndef TRUE
 #define TRUE 1

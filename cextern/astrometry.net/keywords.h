@@ -8,7 +8,9 @@
 #ifndef ASTROMETRY_KEYWORDS_H
 #define ASTROMETRY_KEYWORDS_H
 
+#ifdef __GNUC__
 #define ATTRIB_FORMAT(style,fmt,start) __attribute__ ((format(style,fmt,start)))
+#endif
 
 // this snippet borrowed from GNU libc features.h:
 #if defined __GNUC__
@@ -96,6 +98,9 @@
 
 // not gnuc >= 3.0
 
+# define InlineDeclare
+# define InlineDefineH
+# define InlineDefineC
 # define Inline
 # define Pure
 # define Const

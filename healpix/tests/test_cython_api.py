@@ -60,9 +60,9 @@ def test_roundtrip_nested_ring(n_side_power):
 
 
 @pytest.mark.parametrize(('order', 'n_side_power'), product(ORDERS, N_SIDE_POWERS))
-def test_neighbours_healpix(order, n_side_power):
+def test_healpix_neighbors(order, n_side_power):
     # This just makes sure things run, but doesn't check the validity of result
     n_side = 2 ** n_side_power
     index = get_test_indices(n_side)
-    neighbours = _healpix.neighbours_healpix(index, n_side, order)
+    neighbours = _healpix.healpix_neighbors(index, n_side, order)
     assert np.all(neighbours >= -1) and np.all(neighbours < 12 * n_side ** 2)

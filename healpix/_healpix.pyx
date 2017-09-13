@@ -302,8 +302,18 @@ def bilinear_interpolation(np.ndarray[double_t, ndim=1, mode="c"] lon,
     cdef np.ndarray[double_t, ndim=1, mode="c"] result = np.zeros(n, dtype=npy_double)
     cdef int64_t neighbours[8]
     cdef double_t invalid = np.nan
+    cdef intp_t n_pix = values.shape[0]
+    cdef double square_root
 
-    n_side = int((values.shape[0] / 12) ** 0.5)
+    if n_pix % 12 != 0:
+        raise ValueError('Number of pixels should be divisible by 12')
+
+    square_root = (n_pix / 12.) ** 0.5
+
+    if square_root ** 2 != n_pix / 12:
+        raise ValueError('Number of pixels is not of the form 12 * n_side ** 2')
+
+    n_side = int(square_root)
 
     for i in range(n):
 
@@ -380,7 +390,7 @@ def bilinear_interpolation(np.ndarray[double_t, ndim=1, mode="c"] lon,
     return result
 
 
-def neighbours_healpix(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
+def healpix_neighbors(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
                        int n_side, int order):
     """
     Find all the healpix pixels that are the neighbours of a healpix pixel

@@ -26,6 +26,6 @@ To get an overview of available features, see :ref:`using`.
    :maxdepth: 1
 
    about
-   using
    installation
+   using
    api

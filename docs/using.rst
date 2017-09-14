@@ -44,7 +44,7 @@ HEALPix pixels::
 
 As described in the references above, HEALPix pixel indices can follow two
 different ordering conventions - the *nested* convention and the *ring*
-convention. By default, the ``HEALPix`` class assumes the nested ordering
+convention. By default, the :class:`~healpix.HEALPix` class assumes the nested ordering
 convention, but it is possible to explicitly specify the convention to use using
 the ``order`` argument, for example::
 
@@ -191,3 +191,5 @@ Healpy-compatible interface
 In addition to the above high- and low-level interfaces, we have provided
 a `healpy <http://healpy.readthedocs.io>`_-compatible interface in
 `healpix.healpy`. Note that this only includes a subset of the healpy functions.
+This is not the recommended interface, and is only provided as a convenience
+for packages that want to support both heapy and this package.

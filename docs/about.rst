@@ -2,42 +2,39 @@
 
 .. _about:
 
-*****
-About
-*****
+******************
+About this package
+******************
 
-This is a BSD-licensed Python package for HEALPix.
-
-It's based on the C HEALPix code written by Dustin Lang originally
-in astrometry.net, and was added here with a Cython wrapper and expanded
-with a nice Python interface.
+This is a BSD-licensed Python package for HEALPix, which is based on the C
+HEALPix code written by Dustin Lang originally in `astrometry.net
+<http://astrometry.net>`_, and was added here with a Cython wrapper and expanded
+with a Python interface.
 
 Why?
 ----
 
-The `healpy <https://github.com/healpy/healpy>`__ package that is a
-wrapper around the `HEALPIX <http://healpix.jpl.nasa.gov/>`__ C++ library
-has existed for a long time.
+The `healpy <https://github.com/healpy/healpy>`__ package that is a wrapper
+around the `HEALPIX <http://healpix.jpl.nasa.gov/>`__ C++ library has existed
+for a long time.
 
 So why this re-write?
 
-The main motivation is that the original HEALPIX / healpy are GPL-licensed,
-which is incompatible with the BSD license used by Astropy and most
-Astropy-affiliated and scientific Python (Numpy, Scipy, ...) package.
+The main motivation is that the original HEALPIX/healpy packages are
+GPL-licensed, which is incompatible with the BSD license used by Astropy and
+most Astropy-affiliated and scientific Python (Numpy, Scipy, ...) package, and
+HEALPIX/healpy will not be relicensed (see `here
+<https://sourceforge.net/p/healpix/mailman/message/34929929/>`__).
 
-Attempts to re-license parts of HEALPIX / healpy under a liberal license
-that's BSD compatible have failed
-(see `here <https://sourceforge.net/p/healpix/mailman/message/34929929/>`__).
+There are a few other reasons why the present package is useful:
 
-There are a few other reasons why this package is useful:
-
-- It doesn't have a big C++ package as a dependency, just a little C and
+* It doesn't have a big C++ package as a dependency, just a little C and
   Cython code like many other affiliated packages, i.e. it's easy to install
   everywhere (Linux, OS X, Windows).
-- The rewrite offers the possibility to re-consider the implementation
+* The rewrite offered the possibility to re-consider the implementation
   and API, e.g. we could use `astropy.coordinates.SkyCoord` in the API
-  or support ``NSIDE`` values that are not a power of 2 for ``RING`` scheme
-  (see `here <https://github.com/healpy/healpy/issues/333>`__).
+  or support ``nside`` values that are not a power of 2 for the ring ordering
+  scheme (see `here <https://github.com/healpy/healpy/issues/333>`__).
 
 Plan
 ----
@@ -53,7 +50,6 @@ at this point.
 
 There are no plans to implement all of the HEALPIX / healpy functionality.
 
-- Pixelisation related functions -- Planned
 - FITS I/O related functions -- Planned
 - Other functions (e.g. spherical harmonics) -- Not planned.
 

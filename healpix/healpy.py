@@ -9,7 +9,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import numpy as np
 from astropy import units as u
 
-from ._healpix import lonlat_to_healpix, healpix_to_lonlat
+from .core_cython import lonlat_to_healpix, healpix_to_lonlat
 from .core import (nside_to_pixel_resolution, nside_to_pixel_area,
                    nside_to_npix, npix_to_nside)
 
@@ -42,7 +42,7 @@ def npix2nside(npix):
 
 
 def pix2ang(nside, ipix, nest=False):
-    ipix = np.atleast_1d(ipix).astype(int)
+    ipix = np.atleast_1d(ipix).astype(np.int64)
     lon, lat = healpix_to_lonlat(ipix, nside, 1 - int(nest))
     return np.pi / 2 - lat, lon
 

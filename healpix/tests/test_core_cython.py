@@ -5,7 +5,7 @@ import pytest
 import numpy as np
 from numpy.testing import assert_equal, assert_allclose
 
-from .. import _healpix
+from .. import core_cython
 
 
 nside_POWERS = range(0, 16)
@@ -26,8 +26,8 @@ def get_test_indices(nside):
 def test_roundtrip_healpix_no_offsets(order=1, nside_power=14):
     nside = 2 ** nside_power
     index = get_test_indices(nside)
-    lon, lat = _healpix.healpix_to_lonlat(index, nside, order)
-    index_new = _healpix.lonlat_to_healpix(lon, lat, nside, order)
+    lon, lat = core_cython.healpix_to_lonlat(index, nside, order)
+    index_new = core_cython.lonlat_to_healpix(lon, lat, nside, order)
     assert_equal(index, index_new)
 
 
@@ -37,8 +37,8 @@ def test_roundtrip_healpix_with_offsets(order, nside_power):
     index = get_test_indices(nside)
     dx = np.random.random(index.shape)
     dy = np.random.random(index.shape)
-    lon, lat = _healpix.healpix_with_offset_to_lonlat(index, dx, dy, nside, order)
-    index_new, dx_new, dy_new = _healpix.lonlat_to_healpix_with_offset(lon, lat, nside, order)
+    lon, lat = core_cython.healpix_with_offset_to_lonlat(index, dx, dy, nside, order)
+    index_new, dx_new, dy_new = core_cython.lonlat_to_healpix_with_offset(lon, lat, nside, order)
     assert_equal(index, index_new)
     assert_allclose(dx, dx_new, atol=1e-10)
     assert_allclose(dy, dy_new, atol=1e-10)
@@ -48,8 +48,8 @@ def test_roundtrip_healpix_with_offsets(order, nside_power):
 def test_roundtrip_nested_ring(nside_power):
     nside = 2 ** nside_power
     nested_index = get_test_indices(nside)
-    ring_index = _healpix.nested_to_ring(nested_index, nside)
-    nested_index_new = _healpix.ring_to_nested(ring_index, nside)
+    ring_index = core_cython.nested_to_ring(nested_index, nside)
+    nested_index_new = core_cython.ring_to_nested(ring_index, nside)
 
     assert_equal(nested_index, nested_index_new)
 
@@ -64,5 +64,5 @@ def test_healpix_neighbors(order, nside_power):
     # This just makes sure things run, but doesn't check the validity of result
     nside = 2 ** nside_power
     index = get_test_indices(nside)
-    neighbours = _healpix.healpix_neighbors(index, nside, order)
+    neighbours = core_cython.healpix_neighbors(index, nside, order)
     assert np.all(neighbours >= -1) and np.all(neighbours < 12 * nside ** 2)

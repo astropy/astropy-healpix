@@ -20,12 +20,12 @@ def get_extensions():
     libraries = []
 
     sources = [os.path.join(C_DIR, filename) for filename in C_FILES]
-    sources.append(os.path.join(HEALPIX_ROOT, '_healpix.pyx'))
+    sources.append(os.path.join(HEALPIX_ROOT, 'core_cython.pyx'))
 
     include_dirs = ['numpy', C_DIR]
 
     extension = Extension(
-        name="healpix._healpix",
+        name="healpix.core_cython",
         sources=sources,
         include_dirs=include_dirs,
         libraries=libraries,

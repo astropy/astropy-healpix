@@ -7,7 +7,7 @@ import numpy as np
 from astropy import units as u
 from astropy.coordinates import Longitude, Latitude
 
-from . import _healpix
+from . import core_cython
 
 __all__ = ['nside_to_pixel_area', 'nside_to_pixel_resolution', 'nside_to_npix',
            'npix_to_nside', 'lonlat_to_healpix', 'healpix_to_lonlat',
@@ -166,13 +166,13 @@ def healpix_to_lonlat(healpix_index, nside, dx=None, dy=None, order='nested'):
     _validate_order(order)
 
     if dx is None:
-        lon, lat = _healpix.healpix_to_lonlat(healpix_index, nside, ORDER[order])
+        lon, lat = core_cython.healpix_to_lonlat(healpix_index, nside, ORDER[order])
     else:
         dx = np.asarray(dx, dtype=np.float)
         dy = np.asarray(dy, dtype=np.float)
         _validate_offset('x', dx)
         _validate_offset('y', dy)
-        lon, lat = _healpix.healpix_with_offset_to_lonlat(healpix_index, dx, dy, nside, ORDER[order])
+        lon, lat = core_cython.healpix_with_offset_to_lonlat(healpix_index, dx, dy, nside, ORDER[order])
 
     lon = Longitude(lon, unit=u.rad, copy=False)
     lat = Latitude(lat, unit=u.rad, copy=False)
@@ -218,9 +218,9 @@ def lonlat_to_healpix(lon, lat, nside, return_offsets=False, order='nested'):
     _validate_order(order)
 
     if return_offsets:
-        return _healpix.lonlat_to_healpix_with_offset(lon, lat, nside, ORDER[order])
+        return core_cython.lonlat_to_healpix_with_offset(lon, lat, nside, ORDER[order])
     else:
-        return _healpix.lonlat_to_healpix(lon, lat, nside, ORDER[order])
+        return core_cython.lonlat_to_healpix(lon, lat, nside, ORDER[order])
 
 
 def nested_to_ring(nested_index, nside):
@@ -246,7 +246,7 @@ def nested_to_ring(nested_index, nside):
     _validate_healpix_index('nested_index', nested_index, nside)
     _validate_nside(nside)
 
-    return _healpix.nested_to_ring(nested_index, nside)
+    return core_cython.nested_to_ring(nested_index, nside)
 
 
 def ring_to_nested(ring_index, nside):
@@ -272,7 +272,7 @@ def ring_to_nested(ring_index, nside):
     _validate_healpix_index('ring_index', ring_index, nside)
     _validate_nside(nside)
 
-    return _healpix.ring_to_nested(ring_index, nside)
+    return core_cython.ring_to_nested(ring_index, nside)
 
 
 def interpolate_bilinear(lon, lat, values, order='nested'):
@@ -307,7 +307,7 @@ def interpolate_bilinear(lon, lat, values, order='nested'):
     if values.ndim != 1:
         raise ValueError("values should be a 1-dimensional array")
 
-    return _healpix.interpolate_bilinear(lon, lat, values, ORDER[order])
+    return core_cython.interpolate_bilinear(lon, lat, values, ORDER[order])
 
 
 def healpix_neighbors(healpix_index, nside, order='nested'):
@@ -337,4 +337,4 @@ def healpix_neighbors(healpix_index, nside, order='nested'):
     _validate_nside(nside)
     _validate_order(order)
 
-    return _healpix.healpix_neighbors(healpix_index, nside, ORDER[order])
+    return core_cython.healpix_neighbors(healpix_index, nside, ORDER[order])

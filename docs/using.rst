@@ -2,19 +2,13 @@
 
 .. doctest-skip-all
 
-.. _gs:
+.. _using:
 
-***************
-Getting started
-***************
+*************
+Using healpix
+*************
 
-.. warning::
-    This ``healpix`` package is in a very early stage of development.
-    It is not feature complete or API stable!
-    That said, please have a look and try to use it for your applications.
-    Feedback and contributions welcome!
-
-.. _gs-intro:
+.. _using-intro:
 
 What is HEALPix?
 ================

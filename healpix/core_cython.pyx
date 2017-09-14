@@ -268,10 +268,10 @@ def ring_to_nested(np.ndarray[int64_t, ndim=1, mode="c"] ring_index, int nside):
     return nested_index
 
 
-def interpolate_bilinear(np.ndarray[double_t, ndim=1, mode="c"] lon,
-                           np.ndarray[double_t, ndim=1, mode="c"] lat,
-                           np.ndarray[double_t, ndim=1, mode="c"] values,
-                           int order):
+def interpolate_bilinear_lonlat(np.ndarray[double_t, ndim=1, mode="c"] lon,
+                                np.ndarray[double_t, ndim=1, mode="c"] lat,
+                                np.ndarray[double_t, ndim=1, mode="c"] values,
+                                int order):
     """
     Interpolate values at specific longitudes/latitudes using bilinear interpolation
 

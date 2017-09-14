@@ -11,7 +11,7 @@ from . import core_cython
 
 __all__ = ['nside_to_pixel_area', 'nside_to_pixel_resolution', 'nside_to_npix',
            'npix_to_nside', 'lonlat_to_healpix', 'healpix_to_lonlat',
-           'interpolate_bilinear', 'healpix_neighbors']
+           'interpolate_bilinear_lonlat', 'healpix_neighbors']
 
 ORDER = {'nested': 0,
          'ring': 1}
@@ -272,7 +272,7 @@ def ring_to_nested(ring_index, nside):
     return core_cython.ring_to_nested(ring_index, nside)
 
 
-def interpolate_bilinear(lon, lat, values, order='nested'):
+def interpolate_bilinear_lonlat(lon, lat, values, order='nested'):
     """
     Interpolate values at specific longitudes/latitudes using bilinear interpolation
 
@@ -304,7 +304,7 @@ def interpolate_bilinear(lon, lat, values, order='nested'):
     if values.ndim != 1:
         raise ValueError("values should be a 1-dimensional array")
 
-    return core_cython.interpolate_bilinear(lon, lat, values, ORDER[order])
+    return core_cython.interpolate_bilinear_lonlat(lon, lat, values, ORDER[order])
 
 
 def healpix_neighbors(healpix_index, nside, order='nested'):

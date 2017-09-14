@@ -62,17 +62,17 @@ class TestHEALPix:
         nested_index_2 = self.pix.ring_to_nested(ring_index)
         assert_equal(nested_index_1, nested_index_2)
 
-    def test_interpolate_bilinear(self):
+    def test_interpolate_bilinear_lonlat(self):
         values = np.ones(12 * 256 ** 2) * 3
-        result = self.pix.interpolate_bilinear([1, 3, 4] * u.deg,
-                                               [3, 2, 6] * u.deg, values)
+        result = self.pix.interpolate_bilinear_lonlat([1, 3, 4] * u.deg,
+                                                      [3, 2, 6] * u.deg, values)
         assert_allclose(result, [3, 3, 3])
 
-    def test_interpolate_bilinear_invalid(self):
+    def test_interpolate_bilinear_lonlat_invalid(self):
         values = np.ones(222) * 3
         with pytest.raises(ValueError) as exc:
-            self.pix.interpolate_bilinear([1, 3, 4] * u.deg,
-                                          [3, 2, 6] * u.deg, values)
+            self.pix.interpolate_bilinear_lonlat([1, 3, 4] * u.deg,
+                                                 [3, 2, 6] * u.deg, values)
         assert exc.value.args[0] == 'values should be an array of length 786432 (got 222)'
 
 
@@ -113,8 +113,8 @@ class TestCelestialHEALPix:
         assert_allclose(dx, [0.1, 0.2, 0.3])
         assert_allclose(dy, [0.5, 0.4, 0.7])
 
-    def test_interpolate_bilinear(self):
+    def test_interpolate_bilinear_skycoord(self):
         values = np.ones(192) * 3
         coord = SkyCoord([1, 2, 3] * u.deg, [4, 3, 1] * u.deg, frame='fk4')
-        result = self.pix.interpolate_bilinear(coord, values)
+        result = self.pix.interpolate_bilinear_skycoord(coord, values)
         assert_allclose(result, [3, 3, 3])

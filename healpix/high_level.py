@@ -3,9 +3,9 @@ from __future__ import print_function, division
 from astropy.coordinates import ICRS, SkyCoord
 from astropy.coordinates.representation import UnitSphericalRepresentation
 
-from .core import (nside_to_pixel_area, nside_to_pixel_resolution, nside_to_npix,
-                   healpix_to_lonlat, lonlat_to_healpix, interpolate_bilinear,
-                   ring_to_nested, nested_to_ring)
+from .core import (nside_to_pixel_area, nside_to_pixel_resolution,
+                   nside_to_npix, healpix_to_lonlat, lonlat_to_healpix,
+                   interpolate_bilinear_lonlat, ring_to_nested, nested_to_ring)
 
 __all__ = ['HEALPix', 'CelestialHEALPix']
 
@@ -129,7 +129,7 @@ class HEALPix(object):
         """
         return ring_to_nested(ring_index, self.nside)
 
-    def interpolate_bilinear(self, lon, lat, values):
+    def interpolate_bilinear_lonlat(self, lon, lat, values):
         """
         Interpolate values at specific longitudes/latitudes using bilinear interpolation
 
@@ -150,7 +150,7 @@ class HEALPix(object):
         """
         if len(values) != self.npix:
             raise ValueError('values should be an array of length {0} (got {1})'.format(self.npix, len(values)))
-        return interpolate_bilinear(lon, lat, values, order=self.order)
+        return interpolate_bilinear_lonlat(lon, lat, values, order=self.order)
 
 
 class CelestialHEALPix(HEALPix):
@@ -221,7 +221,7 @@ class CelestialHEALPix(HEALPix):
         lon, lat = representation.lon, representation.lat
         return self.lonlat_to_healpix(lon, lat, return_offsets=return_offsets)
 
-    def interpolate_bilinear(self, skycoord, values):
+    def interpolate_bilinear_skycoord(self, skycoord, values):
         """
         Interpolate values at specific celestial coordinates using bilinear interpolation.
 
@@ -241,4 +241,4 @@ class CelestialHEALPix(HEALPix):
         """
         representation = skycoord.represent_as(UnitSphericalRepresentation)
         lon, lat = representation.lon, representation.lat
-        return interpolate_bilinear(lon, lat, values)
+        return interpolate_bilinear_lonlat(lon, lat, values)

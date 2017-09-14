@@ -10,7 +10,7 @@ from astropy.coordinates import Longitude, Latitude, Galactic, SkyCoord
 from ..high_level import HEALPix, CelestialHEALPix
 
 
-class TestHEALPix():
+class TestHEALPix:
 
     def setup_class(self):
         self.pix = HEALPix(nside=256, order='nested')
@@ -76,7 +76,7 @@ class TestHEALPix():
         assert exc.value.args[0] == 'values should be an array of length 786432 (got 222)'
 
 
-class TestCelestialHEALPix():
+class TestCelestialHEALPix:
 
     def setup_class(self):
         self.pix = CelestialHEALPix(nside=256, order='nested', frame=Galactic())

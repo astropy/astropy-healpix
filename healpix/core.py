@@ -210,8 +210,8 @@ def lonlat_to_healpix(lon, lat, nside, return_offsets=False, order='nested'):
         is the center of the healpix pixels)
     """
 
-    lon = lon.to(u.rad).value.astype(np.float)
-    lat = lat.to(u.rad).value.astype(np.float)
+    lon = np.atleast_1d(lon.to(u.rad).value).astype(np.float)
+    lat = np.atleast_1d(lat.to(u.rad).value).astype(np.float)
     nside = int(nside)
 
     _validate_nside(nside)
@@ -240,7 +240,7 @@ def nested_to_ring(nested_index, nside):
         Healpix index using the 'ring' ordering
     """
 
-    nested_index = np.asarray(nested_index, dtype=np.int64)
+    nested_index = np.atleast_1d(np.asarray(nested_index, dtype=np.int64))
     nside = int(nside)
 
     _validate_healpix_index('nested_index', nested_index, nside)
@@ -266,7 +266,7 @@ def ring_to_nested(ring_index, nside):
         Healpix index using the 'nested' ordering
     """
 
-    ring_index = np.asarray(ring_index, dtype=np.int64)
+    ring_index = np.atleast_1d(np.asarray(ring_index, dtype=np.int64))
     nside = int(nside)
 
     _validate_healpix_index('ring_index', ring_index, nside)
@@ -297,8 +297,8 @@ def interpolate_bilinear(lon, lat, values, order='nested'):
         1-D array of interpolated values
     """
 
-    lon = lon.to(u.rad).value.astype(np.float)
-    lat = lat.to(u.rad).value.astype(np.float)
+    lon = np.atleast_1d(lon.to(u.rad).value).astype(np.float)
+    lat = np.atleast_1d(lat.to(u.rad).value).astype(np.float)
     values = np.asarray(values, dtype=float)
 
     _validate_order(order)

@@ -7,6 +7,8 @@ from .core import (nside_to_pixel_area, nside_to_pixel_resolution, nside_to_npix
                    healpix_to_lonlat, lonlat_to_healpix, interpolate_bilinear,
                    ring_to_nested, nested_to_ring)
 
+__all__ = ['HEALPix', 'CelestialHEALPix']
+
 
 class HEALPix(object):
     """

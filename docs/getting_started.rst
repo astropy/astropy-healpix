@@ -21,67 +21,179 @@ What is HEALPix?
 
 Description of [HEALPix from Wikipedia](https://en.wikipedia.org/wiki/HEALPix):
 
-> HEALPix (sometimes written as Healpix), an acronym for Hierarchical
-> Equal Area isoLatitude Pixelisation of a 2-sphere, is an algorithm
-> for pixelisation of the 2-sphere, and the associated class of map
-> projections.
+*HEALPix (sometimes written as Healpix), an acronym for Hierarchical Equal Area
+isoLatitude Pixelisation of a 2-sphere, is an algorithm for pixelisation of the
+2-sphere, and the associated class of map projections.*
 
-More information:
+More information about HEALPix can be found here:
 
 * http://healpix.jpl.nasa.gov/
 * http://adsabs.harvard.edu/abs/2005ApJ...622..759G
 * http://adsabs.harvard.edu/abs/2007MNRAS.381..865C
 
-Using healpix
-=============
+Using the healpix package
+=========================
 
-The ``healpix`` API isn't stable yet.
-We have to discuss what we want for Astropy and how to best
-expose the functionality.
+High-level interface
+--------------------
 
-A major question is whether to use a healpy-compatible API and
-whether to use `astropy.coordinates` in the API.
+The cleanest way to use the functionality in this package is to make use of the
+high-level :class:`~healpix.HEALPix` class (or the
+:class:`~healpix.CelestialHEALPix` class if you are working with a HEALPix
+pixellization of the sky). The :class:`~healpix.HEALPix` class should be
+initialized with the ``nside`` parameter which controls the resolution of the
+pixellization - it is the number of pixels on the side of each of the 12 top-level
+HEALPix pixels::
 
-For now we're exposing the functionality in these namespaces:
+    >>> from healpix import HEALPix
+    >>> hp = HEALPix(nside=16)
 
-- `healpix.healpy` -- `healpy`-compatible API
-- `healpix.raw` -- Raw wrappers around C functionality
+As described in the references above, HEALPix pixel indices can follow two
+different ordering conventions - the *nested* convention and the *ring*
+convention. By default, the ``HEALPix`` class assumes the nested ordering
+convention, but it is possible to explicitly specify the convention to use using
+the ``order`` argument, for example::
 
-The top-level `healpix` namespace is still empty and we'll have to
-discuss what API we want.
+    >>> hp = HEALPix(nside=16, order='ring')
 
-healpix.healpy
---------------
+or::
 
-The API in `healpix.healpy` should be a drop-in replacement for `healpy <http://healpy.readthedocs.io/>`__ .
+    >>> hp = HEALPix(nside=16, order='nested')
 
-I.e. if your code currently uses ``healpy`` like this:
+Once this class has been set up, you can access various properties and methods
+related to the HEALPix pixellization. For example, you can calculate the
+number of pixels as well as the pixel area or resolution::
 
-    >>> import healpy as hp
+    >>> hp.npix
+    3072
+    >>> hp.pixel_area
+    <Quantity 0.0040906154343617095 sr>
+    >>> hp.pixel_resolution
+    <Quantity 219.87113035631398 arcmin>
 
-you should be able to replace that import statement with
+As you can see, when appropriate the properties and the methods on the
+:class:`~healpix.HEALPix` class return Astropy high-level classes such as
+:class:`~astropy.units.Quantity`, :class:`~astropy.coordinates.SkyCoord`, and so
+on.
 
-    >>> import healpix.healpy as hp
+The following method can be used to convert HEALPix indices to
+:class:`~astropy.coordinates.Longitude` and
+:class:`~astropy.coordinates.Latitude` objects:
 
-and as long as we've implemented that functionality, the result should be the same.
+    >>> lon, lat = hp.healpix_to_lonlat([1, 442, 2200])
+    >>> lon
+    <Longitude [ 0.83448555, 1.63624617, 0.4712389 ] rad>
+    >>> lat
+    <Latitude [ 0.08343009, 0.94842784,-0.78529135] rad>
 
-Please file an issue or make a pull request if you find that:
+The :class:`~astropy.coordinates.Longitude` and
+:class:`~astropy.coordinates.Latitude` objects are fully-fledged
+:class:`~astropy.units.Quantity` objects and also include shortcuts to get
+the values in various units::
 
-- Some function from `healpix.healpy` doesn't give identical results as `healpy`.
-- Some function you need is missing.
-- Some function you need it too slow or uses too much memory.
+    >>> lon.hourangle
+    array([ 3.1875,  6.25  ,  1.8   ])
+    >>> lat.degree
+    array([  4.78019185,  54.3409123 , -44.99388015])
 
-Note: even if we don't want to support this API in the future, we probably should just make it private
-(i.e. rename to `healpix._healpy`), because it's very useful for testing.
+Conversely, given longitudes and latitudes as :class:`~astropy.units.Quantity`
+objects, it is possible to recover HEALPix pixel indices::
 
-healpix.raw
------------
+    >>> from astropy import units as u
+    >>> hp.lonlat_to_healpix([1, 3, 4] * u.deg, [5, 6, 9] * u.deg)
+    array([1217, 1217, 1222])
 
-The `healpix.raw` package exposes the functionality implemented in C via a Cython wrapper.
+Note that :meth:`~healpix.HEALPix.healpix_to_lonlat` and
+:meth:`~healpix.HEALPix.lonlat_to_healpix` can also take/give the fractional
+position inside each HEALPix pixel, e.g.::
 
+  >>> index, dx, dy = hp.lonlat_to_healpix([1, 3, 4] * u.deg, [5, 6, 9] * u.deg,
+  ...                                      return_offsets=True)
+  return_offsets=True)
+  >>> index
+  array([1217, 1217, 1222])
+  >>> dx
+  array([ 0.22364669,  0.78767489,  0.58832469])
+  >>> dy
+  array([ 0.86809114,  0.72100823,  0.16610247])
 
-What next?
-----------
+Finally, the :class:`~healpix.HEALPix` class can be used to interpolate a
+HEALPix map at given coordinates. A HEALPix map is typically given as a 1-d
+array with as many values as pixels in the HEALPix map, and either in nested or
+ring ordering. Assuming that we have an array of values in the correct order,
+we can carry out bilinear interpolation at custom positions using::
 
-Try out `healpix` for your applications.
-Please give feedback or contribute!
+    >>> import numpy as np
+    >>> values = np.arange(3072)
+    >>> hp.interpolate_bilinear([1, 2, 3] * u.deg, [5, 8, 10] * u.deg, values)
+    array([ 1217.45982896,  1220.20594161,  1222.41978026])
+
+Celestial HEALPix pixellization
+-------------------------------
+
+For cases where the HEALPix pixellization is of the celestial sphere, a
+specialized class :class:`~healpix.CelestialHEALPix` is provided. This is a
+sub-class of :class:`~healpix.HEALPix`, and in addition to the above
+functionality, it is possible to convert HEALPix indices to celestial
+coordinates (represented by :class:`~astropy.coordinates.SkyCoord`) and
+vice-versa.
+
+Initializing the :class:`~healpix.CelestialHEALPix` class is done as for
+:class:`~healpix.HEALPix` but with an additional ``frame`` keyword argument
+which specifies the frame in which the HEALPix pixellization is defined::
+
+    >>> from healpix import CelestialHEALPix
+    >>> from astropy.coordinates import Galactic
+    >>> hp = CelestialHEALPix(nside=16, order='nested', frame=Galactic())
+
+This can then be used to convert from HEALPix indices to celestial coordinates::
+
+    >>> hp.healpix_to_skycoord([144, 231])
+    <SkyCoord (Galactic): (l, b) in deg
+        [( 33.75      ,  32.7971683 ), ( 32.14285714,  69.42254649)]>
+
+and from celestial coordinates to HEALPix indices, e.g::
+
+    >>> from astropy.coordinates import SkyCoord
+    >>> coord = SkyCoord.from_name('m31')
+    >>> hp.skycoord_to_healpix(coord)
+    array([2537])
+
+Finally, this can be used for interpolation::
+
+    >>> values = np.arange(3072)
+    >>> hp.interpolate_bilinear(coord, values)
+    array([ 167.03780645])
+
+Converting between ring and nested conventions
+----------------------------------------------
+
+The :class:`~healpix.HEALPix` class (and by extension the
+:class:`~healpix.CelestialHEALPix` class) have methods that can be used to
+convert HEALPix pixel indices between the ring and nested convention. These
+are::
+
+    >>> hp.nested_to_ring([30])
+    array([873])
+
+and::
+
+    >>> hp.ring_to_nested([1, 2, 3])
+    array([ 511,  767, 1023])
+
+Low-level interface(s)
+----------------------
+
+If you would prefer to use a functional interface, you can use the functions
+from `healpix.core`. These functions include sanity checking of the input, so if
+performance is paramount and you want to access the Cython functions directly,
+you can do so via the `healpix.core_cython` sub-package. Be sure to read the
+documentation for the functions you want to use, since the Cython functions
+require the data to be in specific numerical types in order to work properly.
+
+Healpy-compatible interface
+---------------------------
+
+In addition to the above high- and low-level interfaces, we have provided
+a `healpy <http://healpy.readthedocs.io>`_-compatible interface in
+`healpix.healpy`. Note that this only includes a subset of the healpy functions.

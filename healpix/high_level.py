@@ -17,9 +17,9 @@ class HEALPix(object):
     Parameters
     ----------
     nside : int
-        Number of pixels along the side of each of the 12 top-level healpix tiles
+        Number of pixels along the side of each of the 12 top-level HEALPix tiles
     order : { 'nested' | 'ring' }
-        Order of healpix pixels
+        Order of HEALPix pixels
     """
 
     def __init__(self, nside=None, order='nested'):
@@ -51,15 +51,15 @@ class HEALPix(object):
 
     def healpix_to_lonlat(self, healpix_index, dx=None, dy=None):
         """
-        Convert healpix indices (optionally with offsets) to longitudes/latitudes
+        Convert HEALPix indices (optionally with offsets) to longitudes/latitudes
 
         Parameters
         ----------
         healpix_index : `~numpy.ndarray`
-            1-D array of healpix indices
+            1-D array of HEALPix indices
         dx, dy : `~numpy.ndarray`, optional
-            1-D arrays of offsets inside the healpix pixel, which should be in
-            the range [0:1] (0.5 is the center of the healpix pixels). If not
+            1-D arrays of offsets inside the HEALPix pixel, which should be in
+            the range [0:1] (0.5 is the center of the HEALPix pixels). If not
             specified, the position at the center of the pixel is used.
 
         Returns
@@ -73,7 +73,7 @@ class HEALPix(object):
 
     def lonlat_to_healpix(self, lon, lat, return_offsets=False):
         """
-        Convert longitudes/latitudes to healpix indices (optionally with offsets)
+        Convert longitudes/latitudes to HEALPix indices (optionally with offsets)
 
         Parameters
         ----------
@@ -81,17 +81,17 @@ class HEALPix(object):
             The longitude and latitude values as :class:`~astropy.units.Quantity` instances
             with angle units.
         return_offsets : bool
-            If `True`, the returned values are the healpix pixel as well as
+            If `True`, the returned values are the HEALPix pixel as well as
             ``dx`` and ``dy``, the fractional positions inside the pixel. If
             `False` (the default), only the HEALPix pixel is returned.
 
         Returns
         -------
         healpix_index : `~numpy.ndarray`
-            1-D array of healpix indices
+            1-D array of HEALPix indices
         dx, dy : `~numpy.ndarray`
-            1-D arrays of offsets inside the healpix pixel in the range [0:1] (0.5
-            is the center of the healpix pixels). This is returned if
+            1-D arrays of offsets inside the HEALPix pixel in the range [0:1] (0.5
+            is the center of the HEALPix pixels). This is returned if
             ``return_offsets`` is `True`.
         """
         return lonlat_to_healpix(lon, lat, self.nside,
@@ -139,7 +139,7 @@ class HEALPix(object):
             The longitude and latitude values as :class:`~astropy.units.Quantity` instances
             with angle units.
         values : `~numpy.ndarray`
-            1-D array with the values in each healpix pixel. This should have a
+            1-D array with the values in each HEALPix pixel. This should have a
             length of the form 12 * nside ** 2 (and nside is determined
             automatically from this).
 
@@ -160,9 +160,9 @@ class CelestialHEALPix(HEALPix):
     Parameters
     ----------
     nside : int
-        Number of pixels along the side of each of the 12 top-level healpix tiles
+        Number of pixels along the side of each of the 12 top-level HEALPix tiles
     order : { 'nested' | 'ring' }
-        Order of healpix pixels
+        Order of HEALPix pixels
     frame : :class:`~astropy.coordinates.BaseCoordinateFrame`, optional
         The coordinate frame of the pixellization, which defaults to ICRS
     """
@@ -174,15 +174,15 @@ class CelestialHEALPix(HEALPix):
 
     def healpix_to_skycoord(self, healpix_index, dx=None, dy=None):
         """
-        Convert healpix indices (optionally with offsets) to celestial coordinates.
+        Convert HEALPix indices (optionally with offsets) to celestial coordinates.
 
         Parameters
         ----------
         healpix_index : `~numpy.ndarray`
-            1-D array of healpix indices
+            1-D array of HEALPix indices
         dx, dy : `~numpy.ndarray`, optional
-            1-D arrays of offsets inside the healpix pixel, which should be in
-            the range [0:1] (0.5 is the center of the healpix pixels). If not
+            1-D arrays of offsets inside the HEALPix pixel, which should be in
+            the range [0:1] (0.5 is the center of the HEALPix pixels). If not
             specified, the position at the center of the pixel is used.
 
         Returns
@@ -196,24 +196,24 @@ class CelestialHEALPix(HEALPix):
 
     def skycoord_to_healpix(self, skycoord, return_offsets=False):
         """
-        Convert celestial coordinates to healpix indices (optionally with offsets).
+        Convert celestial coordinates to HEALPix indices (optionally with offsets).
 
         Parameters
         ----------
         skycoord : :class:`~astropy.coordinates.SkyCoord`
             The celestial coordinates to convert
         return_offsets : bool
-            If `True`, the returned values are the healpix pixel as well as
+            If `True`, the returned values are the HEALPix pixel as well as
             ``dx`` and ``dy``, the fractional positions inside the pixel. If
             `False` (the default), only the HEALPix pixel is returned.
 
         Returns
         -------
         healpix_index : `~numpy.ndarray`
-            1-D array of healpix indices
+            1-D array of HEALPix indices
         dx, dy : `~numpy.ndarray`
-            1-D arrays of offsets inside the healpix pixel in the range [0:1] (0.5
-            is the center of the healpix pixels). This is returned if
+            1-D arrays of offsets inside the HEALPix pixel in the range [0:1] (0.5
+            is the center of the HEALPix pixels). This is returned if
             ``return_offsets`` is `True`.
         """
         skycoord = skycoord.transform_to(self.frame)
@@ -230,7 +230,7 @@ class CelestialHEALPix(HEALPix):
         skycoord : :class:`~astropy.coordinates.SkyCoord`
             The celestial coordinates at which to interpolate
         values : `~numpy.ndarray`
-            1-D array with the values in each healpix pixel. This should have a
+            1-D array with the values in each HEALPix pixel. This should have a
             length of the form 12 * nside ** 2 (and nside is determined
             automatically from this).
 

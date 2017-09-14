@@ -41,18 +41,18 @@ def _validate_nside(nside):
 
 def nside_to_pixel_area(nside):
     """
-    Find the area of healpix pixels given the pixel dimensions of one of
-    the 12 'top-level' healpix tiles.
+    Find the area of HEALPix pixels given the pixel dimensions of one of
+    the 12 'top-level' HEALPix tiles.
 
     Parameters
     ----------
     nside : int
-        The number of pixels on the side of one of the 12 'top-level' healpix tiles.
+        The number of pixels on the side of one of the 12 'top-level' HEALPix tiles.
 
     Returns
     -------
     pixel_area : :class:`~astropy.units.Quantity`
-        The area of the healpix pixels
+        The area of the HEALPix pixels
     """
     nside = np.asanyarray(nside)
     _validate_nside(nside)
@@ -63,18 +63,18 @@ def nside_to_pixel_area(nside):
 
 def nside_to_pixel_resolution(nside):
     """
-    Find the resolution of healpix pixels given the pixel dimensions of one of
-    the 12 'top-level' healpix tiles.
+    Find the resolution of HEALPix pixels given the pixel dimensions of one of
+    the 12 'top-level' HEALPix tiles.
 
     Parameters
     ----------
     nside : int
-        The number of pixels on the side of one of the 12 'top-level' healpix tiles.
+        The number of pixels on the side of one of the 12 'top-level' HEALPix tiles.
 
     Returns
     -------
     resolution : :class:`~astropy.units.Quantity`
-        The resolution of the healpix pixels
+        The resolution of the HEALPix pixels
     """
     nside = np.asanyarray(nside)
     _validate_nside(nside)
@@ -83,17 +83,17 @@ def nside_to_pixel_resolution(nside):
 
 def nside_to_npix(nside):
     """
-    Find the number of pixels corresponding to a healpix resolution.
+    Find the number of pixels corresponding to a HEALPix resolution.
 
     Parameters
     ----------
     nside : int
-        The number of pixels on the side of one of the 12 'top-level' healpix tiles.
+        The number of pixels on the side of one of the 12 'top-level' HEALPix tiles.
 
     Returns
     -------
     npix : int
-        The number of pixels in the healpix map.
+        The number of pixels in the HEALPix map.
     """
     nside = np.asanyarray(nside)
     _validate_nside(nside)
@@ -102,18 +102,18 @@ def nside_to_npix(nside):
 
 def npix_to_nside(npix):
     """
-    Find the number of pixels on the side of one of the 12 'top-level' healpix
+    Find the number of pixels on the side of one of the 12 'top-level' HEALPix
     tiles given a total number of pixels.
 
     Parameters
     ----------
     npix : int
-        The number of pixels in the healpix map.
+        The number of pixels in the HEALPix map.
 
     Returns
     -------
     nside : int
-        The number of pixels on the side of one of the 12 'top-level' healpix tiles.
+        The number of pixels on the side of one of the 12 'top-level' HEALPix tiles.
     """
 
     npix = np.asanyarray(npix)
@@ -130,7 +130,7 @@ def npix_to_nside(npix):
 
 def healpix_to_lonlat(healpix_index, nside, dx=None, dy=None, order='nested'):
     """
-    Convert healpix indices (optionally with offsets) to longitudes/latitudes.
+    Convert HEALPix indices (optionally with offsets) to longitudes/latitudes.
 
     If no offsets (``dx`` and ``dy``) are provided, the coordinates will default
     to those at the center of the HEALPix pixels.
@@ -138,14 +138,14 @@ def healpix_to_lonlat(healpix_index, nside, dx=None, dy=None, order='nested'):
     Parameters
     ----------
     healpix_index : `~numpy.ndarray`
-        1-D array of healpix indices
+        1-D array of HEALPix indices
     nside : int
-        Number of pixels along the side of each of the 12 top-level healpix tiles
+        Number of pixels along the side of each of the 12 top-level HEALPix tiles
     dx, dy : `~numpy.ndarray`, optional
-        1-D arrays of offsets inside the healpix pixel, which should be in the
-        range [0:1] (0.5 is the center of the healpix pixels)
+        1-D arrays of offsets inside the HEALPix pixel, which should be in the
+        range [0:1] (0.5 is the center of the HEALPix pixels)
     order : { 'nested' | 'ring' }, optional
-        Order of healpix pixels
+        Order of HEALPix pixels
 
     Returns
     -------
@@ -182,10 +182,7 @@ def healpix_to_lonlat(healpix_index, nside, dx=None, dy=None, order='nested'):
 
 def lonlat_to_healpix(lon, lat, nside, return_offsets=False, order='nested'):
     """
-    Convert longitudes/latitudes to healpix indices
-
-    This returns only the healpix indices. If you also want to get relative
-    offsets inside the pixels, see :func:`lonlat_to_healpix_with_offset`.
+    Convert longitudes/latitudes to HEALPix indices
 
     Parameters
     ----------
@@ -193,21 +190,21 @@ def lonlat_to_healpix(lon, lat, nside, return_offsets=False, order='nested'):
         The longitude and latitude values as :class:`~astropy.units.Quantity` instances
         with angle units.
     nside : int
-        Number of pixels along the side of each of the 12 top-level healpix tiles
+        Number of pixels along the side of each of the 12 top-level HEALPix tiles
     order : { 'nested' | 'ring' }
-        Order of healpix pixels
+        Order of HEALPix pixels
     return_offsets : bool, optional
-        If `True`, the returned values are the healpix pixel indices as well as
+        If `True`, the returned values are the HEALPix pixel indices as well as
         ``dx`` and ``dy``, the fractional positions inside the pixels. If
         `False` (the default), only the HEALPix pixel indices is returned.
 
     Returns
     -------
     healpix_index : `~numpy.ndarray`
-        1-D array of healpix indices
+        1-D array of HEALPix indices
     dx, dy : `~numpy.ndarray`
-        1-D arrays of offsets inside the healpix pixel in the range [0:1] (0.5
-        is the center of the healpix pixels)
+        1-D arrays of offsets inside the HEALPix pixel in the range [0:1] (0.5
+        is the center of the HEALPix pixels)
     """
 
     lon = np.atleast_1d(lon.to(u.rad).value).astype(np.float)
@@ -225,14 +222,14 @@ def lonlat_to_healpix(lon, lat, nside, return_offsets=False, order='nested'):
 
 def nested_to_ring(nested_index, nside):
     """
-    Convert a healpix 'nested' index to a healpix 'ring' index
+    Convert a HEALPix 'nested' index to a HEALPix 'ring' index
 
     Parameters
     ----------
     nested_index : `~numpy.ndarray`
         Healpix index using the 'nested' ordering
     nside : int
-        Number of pixels along the side of each of the 12 top-level healpix tiles
+        Number of pixels along the side of each of the 12 top-level HEALPix tiles
 
     Returns
     -------
@@ -251,14 +248,14 @@ def nested_to_ring(nested_index, nside):
 
 def ring_to_nested(ring_index, nside):
     """
-    Convert a healpix 'ring' index to a healpix 'nested' index
+    Convert a HEALPix 'ring' index to a HEALPix 'nested' index
 
     Parameters
     ----------
     ring_index : `~numpy.ndarray`
         Healpix index using the 'ring' ordering
     nside : int
-        Number of pixels along the side of each of the 12 top-level healpix tiles
+        Number of pixels along the side of each of the 12 top-level HEALPix tiles
 
     Returns
     -------
@@ -285,11 +282,11 @@ def interpolate_bilinear(lon, lat, values, order='nested'):
         The longitude and latitude values as :class:`~astropy.units.Quantity` instances
         with angle units.
     values : `~numpy.ndarray`
-        1-D array with the values in each healpix pixel. This should have a
+        1-D array with the values in each HEALPix pixel. This should have a
         length of the form 12 * nside ** 2 (and nside is determined
         automatically from this).
     order : { 'nested' | 'ring' }
-        Order of healpix pixels
+        Order of HEALPix pixels
 
     Returns
     -------
@@ -312,16 +309,16 @@ def interpolate_bilinear(lon, lat, values, order='nested'):
 
 def healpix_neighbors(healpix_index, nside, order='nested'):
     """
-    Find all the healpix pixels that are the neighbours of a healpix pixel
+    Find all the HEALPix pixels that are the neighbours of a HEALPix pixel
 
     Parameters
     ----------
     healpix_pixel : `~numpy.ndarray`
-        1-D array of healpix pixels
+        1-D array of HEALPix pixels
     nside : int
-        Number of pixels along the side of each of the 12 top-level healpix tiles
+        Number of pixels along the side of each of the 12 top-level HEALPix tiles
     order : { 'nested' | 'ring' }
-        Order of healpix pixels
+        Order of HEALPix pixels
 
     Returns
     -------

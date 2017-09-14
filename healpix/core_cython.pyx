@@ -1,5 +1,5 @@
 """
-This module contains vectorized Cython functions for common healpix operations.
+This module contains vectorized Cython functions for common HEALPix operations.
 Since they are written in Cython rather than Python, their input types are
 strict and the functions will fail if the incorrect types are passed in.
 """
@@ -20,23 +20,23 @@ cdef int ORDER_RING = 1
 
 
 def healpix_to_lonlat(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
-                      int n_side, int order):
+                      int nside, int order):
     """
-    Convert healpix indices to longitudes/latitudes.
+    Convert HEALPix indices to longitudes/latitudes.
 
-    This returns the longitudes/latitudes of the center of the healpix pixels.
+    This returns the longitudes/latitudes of the center of the HEALPix pixels.
     If you also want to provide relative offsets inside the pixels, see
     :func:`healpix_with_offset_to_lonlat`.
 
     Parameters
     ----------
     healpix_index : `~numpy.ndarray`
-        1-D array of healpix indices
-    n_side : int
-        Number of pixels along the side of each of the 12 top-level healpix tiles
+        1-D array of HEALPix indices
+    nside : int
+        Number of pixels along the side of each of the 12 top-level HEALPix tiles
     order : int
-        order of healpix pixels. Set this to ORDER_NESTED for nested order
-        or ORDER_RING for ring order.
+        Order of HEALPix pixels. Set this to 0 for nested order or 1 for ring
+        order.
 
     Returns
     -------
@@ -56,16 +56,16 @@ def healpix_to_lonlat(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
 
     if order == ORDER_NESTED:
         for i in range(n):
-            xy_index = healpixl_nested_to_xy(healpix_index[i], n_side)
+            xy_index = healpixl_nested_to_xy(healpix_index[i], nside)
             if xy_index < 0:
                 raise Exception("xy_index: " + str(xy_index))
-            healpixl_to_radec(xy_index, n_side, dx, dy, &lon[i], &lat[i])
+            healpixl_to_radec(xy_index, nside, dx, dy, &lon[i], &lat[i])
     elif order == ORDER_RING:
         for i in range(n):
-            xy_index = healpixl_ring_to_xy(healpix_index[i], n_side)
-            healpixl_to_radec(xy_index, n_side, dx, dy, &lon[i], &lat[i])
+            xy_index = healpixl_ring_to_xy(healpix_index[i], nside)
+            healpixl_to_radec(xy_index, nside, dx, dy, &lon[i], &lat[i])
     else:
-        raise ValueError('order should be ORDER_NESTED or ORDER_RING')
+        raise ValueError('order should be 0 or 1')
 
     return lon, lat
 
@@ -73,26 +73,26 @@ def healpix_to_lonlat(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
 def healpix_with_offset_to_lonlat(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
                                   np.ndarray[double_t, ndim=1, mode="c"] dx,
                                   np.ndarray[double_t, ndim=1, mode="c"] dy,
-                                  int n_side, int order):
+                                  int nside, int order):
     """
-    Convert healpix indices to longitudes/latitudes
+    Convert HEALPix indices to longitudes/latitudes
 
-    This function takes relative offsets in x and y inside the healpix pixels.
+    This function takes relative offsets in x and y inside the HEALPix pixels.
     If you are only interested in the centers of the pixels, see
     `healpixl_to_lonlat`.
 
     Parameters
     ----------
     healpix_index : `~numpy.ndarray`
-        1-D array of healpix indices
+        1-D array of HEALPix indices
     dx, dy : `~numpy.ndarray`
-        1-D arrays of offsets inside the healpix pixel, which should be in the
-        range [0:1] (0.5 is the center of the healpix pixels)
-    n_side : int
-        Number of pixels along the side of each of the 12 top-level healpix tiles
+        1-D arrays of offsets inside the HEALPix pixel, which should be in the
+        range [0:1] (0.5 is the center of the HEALPix pixels)
+    nside : int
+        Number of pixels along the side of each of the 12 top-level HEALPix tiles
     order : int
-        order of healpix pixels. Set this to ORDER_NESTED for nested order
-        or ORDER_RING for ring order.
+        Order of HEALPix pixels. Set this to 0 for nested order or 1 for ring
+        order.
 
     Returns
     -------
@@ -108,41 +108,41 @@ def healpix_with_offset_to_lonlat(np.ndarray[int64_t, ndim=1, mode="c"] healpix_
 
     if order == ORDER_NESTED:
         for i in range(n):
-            xy_index = healpixl_nested_to_xy(healpix_index[i], n_side)
-            healpixl_to_radec(xy_index, n_side, dx[i], dy[i], &lon[i], &lat[i])
+            xy_index = healpixl_nested_to_xy(healpix_index[i], nside)
+            healpixl_to_radec(xy_index, nside, dx[i], dy[i], &lon[i], &lat[i])
     elif order == ORDER_RING:
         for i in range(n):
-            xy_index = healpixl_ring_to_xy(healpix_index[i], n_side)
-            healpixl_to_radec(xy_index, n_side, dx[i], dy[i], &lon[i], &lat[i])
+            xy_index = healpixl_ring_to_xy(healpix_index[i], nside)
+            healpixl_to_radec(xy_index, nside, dx[i], dy[i], &lon[i], &lat[i])
     else:
-        raise ValueError('order should be ORDER_NESTED or ORDER_RING')
+        raise ValueError('order should be 0 or 1')
 
     return lon, lat
 
 
 def lonlat_to_healpix(np.ndarray[double_t, ndim=1, mode="c"] lon,
                       np.ndarray[double_t, ndim=1, mode="c"] lat,
-                      int n_side, int order):
+                      int nside, int order):
     """
-    Convert longitudes/latitudes to healpix indices
+    Convert longitudes/latitudes to HEALPix indices
 
-    This returns only the healpix indices. If you also want to get relative
+    This returns only the HEALPix indices. If you also want to get relative
     offsets inside the pixels, see :func:`lonlat_to_healpix_with_offset`.
 
     Parameters
     ----------
     lon, lat : `~numpy.ndarray`
         1-D arrays of longitude and latitude in radians
-    n_side : int
-        Number of pixels along the side of each of the 12 top-level healpix tiles
+    nside : int
+        Number of pixels along the side of each of the 12 top-level HEALPix tiles
     order : int
-        order of healpix pixels. Set this to ORDER_NESTED for nested order
-        or ORDER_RING for ring order.
+        Order of HEALPix pixels. Set this to 0 for nested order or 1 for ring
+        order.
 
     Returns
     -------
     healpix_index : `~numpy.ndarray`
-        1-D array of healpix indices
+        1-D array of HEALPix indices
     """
 
     cdef intp_t n = lon.shape[0]
@@ -153,44 +153,44 @@ def lonlat_to_healpix(np.ndarray[double_t, ndim=1, mode="c"] lon,
 
     if order == ORDER_NESTED:
         for i in range(n):
-            xy_index = radectohealpixlf(lon[i], lat[i], n_side, &dx, &dy)
-            healpix_index[i] = healpixl_xy_to_nested(xy_index, n_side)
+            xy_index = radectohealpixlf(lon[i], lat[i], nside, &dx, &dy)
+            healpix_index[i] = healpixl_xy_to_nested(xy_index, nside)
     elif order == ORDER_RING:
         for i in range(n):
-            xy_index = radectohealpixlf(lon[i], lat[i], n_side, &dx, &dy)
-            healpix_index[i] = healpixl_xy_to_ring(xy_index, n_side)
+            xy_index = radectohealpixlf(lon[i], lat[i], nside, &dx, &dy)
+            healpix_index[i] = healpixl_xy_to_ring(xy_index, nside)
     else:
-        raise ValueError('order should be ORDER_NESTED or ORDER_RING')
+        raise ValueError('order should be 0 or 1')
 
     return healpix_index
 
 
 def lonlat_to_healpix_with_offset(np.ndarray[double_t, ndim=1, mode="c"] lon,
                                   np.ndarray[double_t, ndim=1, mode="c"] lat,
-                                  int n_side, int order):
+                                  int nside, int order):
     """
     Convert longitudes/latitudes to healpix indices
 
-    This returns the healpix indices and relative offsets inside the pixels. If
-    you want only the healpix indices, see :func:`lonlat_to_healpix`.
+    This returns the HEALPix indices and relative offsets inside the pixels. If
+    you want only the HEALPix indices, see :func:`lonlat_to_healpix`.
 
     Parameters
     ----------
     lon, lat : `~numpy.ndarray`
         1-D arrays of longitude and latitude in radians
-    n_side : int
-        Number of pixels along the side of each of the 12 top-level healpix tiles
+    nside : int
+        Number of pixels along the side of each of the 12 top-level HEALPix tiles
     order : int
-        order of healpix pixels. Set this to ORDER_NESTED for nested order
-        or ORDER_RING for ring order.
+        Order of HEALPix pixels. Set this to 0 for nested order or 1 for ring
+        order.
 
     Returns
     -------
     healpix_index : `~numpy.ndarray`
-        1-D array of healpix indices
+        1-D array of HEALPix indices
     dx, dy : `~numpy.ndarray`
-        1-D arrays of offsets inside the healpix pixel in the range [0:1] (0.5
-        is the center of the healpix pixels)
+        1-D arrays of offsets inside the HEALPix pixel in the range [0:1] (0.5
+        is the center of the HEALPix pixels)
     """
 
     cdef intp_t n = lon.shape[0]
@@ -202,28 +202,28 @@ def lonlat_to_healpix_with_offset(np.ndarray[double_t, ndim=1, mode="c"] lon,
 
     if order == ORDER_NESTED:
         for i in range(n):
-            xy_index = radectohealpixlf(lon[i], lat[i], n_side, &dx[i], &dy[i])
-            healpix_index[i] = healpixl_xy_to_nested(xy_index, n_side)
+            xy_index = radectohealpixlf(lon[i], lat[i], nside, &dx[i], &dy[i])
+            healpix_index[i] = healpixl_xy_to_nested(xy_index, nside)
     elif order == ORDER_RING:
         for i in range(n):
-            xy_index = radectohealpixlf(lon[i], lat[i], n_side, &dx[i], &dy[i])
-            healpix_index[i] = healpixl_xy_to_ring(xy_index, n_side)
+            xy_index = radectohealpixlf(lon[i], lat[i], nside, &dx[i], &dy[i])
+            healpix_index[i] = healpixl_xy_to_ring(xy_index, nside)
     else:
-        raise ValueError('order should be ORDER_NESTED or ORDER_RING')
+        raise ValueError('order should be 0 or 1')
 
     return healpix_index, dx, dy
 
 
-def nested_to_ring(np.ndarray[int64_t, ndim=1, mode="c"] nested_index, int n_side):
+def nested_to_ring(np.ndarray[int64_t, ndim=1, mode="c"] nested_index, int nside):
     """
-    Convert a healpix 'nested' index to a healpix 'ring' index
+    Convert a HEALPix 'nested' index to a HEALPix 'ring' index
 
     Parameters
     ----------
     nested_index : `~numpy.ndarray`
         Healpix index using the 'nested' ordering
-    n_side : int
-        Number of pixels along the side of each of the 12 top-level healpix tiles
+    nside : int
+        Number of pixels along the side of each of the 12 top-level HEALPix tiles
 
     Returns
     -------
@@ -236,21 +236,21 @@ def nested_to_ring(np.ndarray[int64_t, ndim=1, mode="c"] nested_index, int n_sid
     cdef np.ndarray[int64_t, ndim=1, mode="c"] ring_index = np.zeros(n, dtype=npy_int64)
 
     for i in range(n):
-        ring_index[i] = healpixl_xy_to_ring(healpixl_nested_to_xy(nested_index[i], n_side), n_side)
+        ring_index[i] = healpixl_xy_to_ring(healpixl_nested_to_xy(nested_index[i], nside), nside)
 
     return ring_index
 
 
-def ring_to_nested(np.ndarray[int64_t, ndim=1, mode="c"] ring_index, int n_side):
+def ring_to_nested(np.ndarray[int64_t, ndim=1, mode="c"] ring_index, int nside):
     """
-    Convert a healpix 'ring' index to a healpix 'nested' index
+    Convert a HEALPix 'ring' index to a HEALPix 'nested' index
 
     Parameters
     ----------
     ring_index : `~numpy.ndarray`
         Healpix index using the 'ring' ordering
-    n_side : int
-        Number of pixels along the side of each of the 12 top-level healpix tiles
+    nside : int
+        Number of pixels along the side of each of the 12 top-level HEALPix tiles
 
     Returns
     -------
@@ -263,12 +263,12 @@ def ring_to_nested(np.ndarray[int64_t, ndim=1, mode="c"] ring_index, int n_side)
     cdef np.ndarray[int64_t, ndim=1, mode="c"] nested_index = np.zeros(n, dtype=npy_int64)
 
     for i in range(n):
-        nested_index[i] = healpixl_xy_to_nested(healpixl_ring_to_xy(ring_index[i], n_side), n_side)
+        nested_index[i] = healpixl_xy_to_nested(healpixl_ring_to_xy(ring_index[i], nside), nside)
 
     return nested_index
 
 
-def bilinear_interpolation(np.ndarray[double_t, ndim=1, mode="c"] lon,
+def interpolate_bilinear(np.ndarray[double_t, ndim=1, mode="c"] lon,
                            np.ndarray[double_t, ndim=1, mode="c"] lat,
                            np.ndarray[double_t, ndim=1, mode="c"] values,
                            int order):
@@ -280,12 +280,12 @@ def bilinear_interpolation(np.ndarray[double_t, ndim=1, mode="c"] lon,
     lon, lat : `~numpy.ndarray`
         1-D arrays of longitude and latitude in radians
     values : `~numpy.ndarray`
-        1-D array with the values in each healpix pixel. This should have a
-        length of the form 12 * n_side ** 2 (and n_side is determined
+        1-D array with the values in each HEALPix pixel. This should have a
+        length of the form 12 * nside ** 2 (and nside is determined
         automatically from this).
     order : int
-        order of healpix pixels. Set this to ORDER_NESTED for nested order
-        or ORDER_RING for ring order.
+        Order of HEALPix pixels. Set this to 0 for nested order or 1 for ring
+        order.
 
     Returns
     -------
@@ -293,7 +293,7 @@ def bilinear_interpolation(np.ndarray[double_t, ndim=1, mode="c"] lon,
         1-D array of interpolated values
     """
 
-    cdef int n_side
+    cdef int nside
     cdef intp_t n = lon.shape[0]
     cdef intp_t i
     cdef int64_t xy_index, i11, i12, i21, i22
@@ -302,12 +302,22 @@ def bilinear_interpolation(np.ndarray[double_t, ndim=1, mode="c"] lon,
     cdef np.ndarray[double_t, ndim=1, mode="c"] result = np.zeros(n, dtype=npy_double)
     cdef int64_t neighbours[8]
     cdef double_t invalid = np.nan
+    cdef intp_t npix = values.shape[0]
+    cdef double square_root
 
-    n_side = int((values.shape[0] / 12) ** 0.5)
+    if npix % 12 != 0:
+        raise ValueError('Number of pixels should be divisible by 12')
+
+    square_root = (npix / 12.) ** 0.5
+
+    if square_root ** 2 != npix / 12:
+        raise ValueError('Number of pixels is not of the form 12 * nside ** 2')
+
+    nside = int(square_root)
 
     for i in range(n):
 
-        xy_index = radectohealpixlf(lon[i], lat[i], n_side, &dx, &dy)
+        xy_index = radectohealpixlf(lon[i], lat[i], nside, &dx, &dy)
 
         # We now need to identify the four pixels that surround the position
         # we've identified. The neighbours are ordered as follows:
@@ -316,7 +326,7 @@ def bilinear_interpolation(np.ndarray[double_t, ndim=1, mode="c"] lon,
         #       4   X   0
         #       5   6   7
 
-        healpix_get_neighboursl(xy_index, neighbours, n_side)
+        healpix_get_neighboursl(xy_index, neighbours, nside)
 
         if dx < 0.5:
 
@@ -357,15 +367,15 @@ def bilinear_interpolation(np.ndarray[double_t, ndim=1, mode="c"] lon,
             continue
 
         if order == ORDER_NESTED:
-            i11 = healpixl_xy_to_nested(i11, n_side)
-            i12 = healpixl_xy_to_nested(i12, n_side)
-            i21 = healpixl_xy_to_nested(i21, n_side)
-            i22 = healpixl_xy_to_nested(i22, n_side)
+            i11 = healpixl_xy_to_nested(i11, nside)
+            i12 = healpixl_xy_to_nested(i12, nside)
+            i21 = healpixl_xy_to_nested(i21, nside)
+            i22 = healpixl_xy_to_nested(i22, nside)
         elif order == ORDER_RING:
-            i11 = healpixl_xy_to_ring(i11, n_side)
-            i12 = healpixl_xy_to_ring(i12, n_side)
-            i21 = healpixl_xy_to_ring(i21, n_side)
-            i22 = healpixl_xy_to_ring(i22, n_side)
+            i11 = healpixl_xy_to_ring(i11, nside)
+            i12 = healpixl_xy_to_ring(i12, nside)
+            i21 = healpixl_xy_to_ring(i21, nside)
+            i22 = healpixl_xy_to_ring(i22, nside)
 
         v11 = values[i11]
         v12 = values[i12]
@@ -380,20 +390,20 @@ def bilinear_interpolation(np.ndarray[double_t, ndim=1, mode="c"] lon,
     return result
 
 
-def neighbours_healpix(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
-                       int n_side, int order):
+def healpix_neighbors(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
+                       int nside, int order):
     """
-    Find all the healpix pixels that are the neighbours of a healpix pixel
+    Find all the HEALPix pixels that are the neighbours of a HEALPix pixel
 
     Parameters
     ----------
     healpix_pixel : `~numpy.ndarray`
-        1-D array of healpix pixels
-    n_side : int
-        Number of pixels along the side of each of the 12 top-level healpix tiles
+        1-D array of HEALPix pixels
+    nside : int
+        Number of pixels along the side of each of the 12 top-level HEALPix tiles
     order : int
-        order of healpix pixels. Set this to ORDER_NESTED for nested order
-        or ORDER_RING for ring order.
+        Order of HEALPix pixels. Set this to 0 for nested order or 1 for ring
+        order.
 
     Returns
     -------
@@ -428,8 +438,8 @@ def neighbours_healpix(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
 
         for i in range(n):
 
-            xy_index = healpixl_nested_to_xy(healpix_index[i], n_side)
-            n_neighbours = healpix_get_neighboursl(xy_index, neighbours_indiv, n_side)
+            xy_index = healpixl_nested_to_xy(healpix_index[i], nside)
+            n_neighbours = healpix_get_neighboursl(xy_index, neighbours_indiv, nside)
 
             for j in range(8):
                 k = 5 - j
@@ -438,15 +448,15 @@ def neighbours_healpix(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
                 if j >= n_neighbours or neighbours_indiv[k] < 0:
                     neighbours[j, i] = -1
                 else:
-                    neighbours[j, i] = healpixl_xy_to_nested(neighbours_indiv[k], n_side)
+                    neighbours[j, i] = healpixl_xy_to_nested(neighbours_indiv[k], nside)
 
     elif order == ORDER_RING:
 
         for i in range(n):
 
-            xy_index = healpixl_ring_to_xy(healpix_index[i], n_side)
+            xy_index = healpixl_ring_to_xy(healpix_index[i], nside)
 
-            nn = healpix_get_neighboursl(xy_index, neighbours_indiv, n_side)
+            nn = healpix_get_neighboursl(xy_index, neighbours_indiv, nside)
 
             for j in range(8):
                 k = 5 - j
@@ -455,10 +465,10 @@ def neighbours_healpix(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
                 if neighbours_indiv[k] < 0:
                     neighbours[j, i] = -1
                 else:
-                    neighbours[j, i] = healpixl_xy_to_ring(neighbours_indiv[k], n_side)
+                    neighbours[j, i] = healpixl_xy_to_ring(neighbours_indiv[k], nside)
 
     else:
-        raise ValueError('order should be ORDER_NESTED or ORDER_RING')
+        raise ValueError('order should be 0 or 1')
 
 
     return neighbours

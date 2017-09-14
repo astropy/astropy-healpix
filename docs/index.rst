@@ -15,7 +15,7 @@ BSD-licensed HEALPix for Astropy.
 Note that this is different from `healpy <https://github.com/healpy/healpy>`__
 See :ref:`about` for further information.
 
-To get an overview of available features, see :ref:`gs`.
+To get an overview of available features, see :ref:`using`.
 
 * Code : https://github.com/cdeil/healpix
 * Docs : http://healpix.readthedocs.io
@@ -26,6 +26,6 @@ To get an overview of available features, see :ref:`gs`.
    :maxdepth: 1
 
    about
-   getting_started
    installation
+   using
    api

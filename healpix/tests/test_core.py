@@ -10,7 +10,7 @@ from astropy.coordinates import Longitude, Latitude
 
 from ..core import (nside_to_pixel_area, nside_to_pixel_resolution,
                     nside_to_npix, npix_to_nside, healpix_to_lonlat,
-                    lonlat_to_healpix, interpolate_bilinear,
+                    lonlat_to_healpix, interpolate_bilinear_lonlat,
                     healpix_neighbors)
 
 
@@ -112,10 +112,10 @@ def test_healpix_to_lonlat_invalid():
 
 
 @pytest.mark.parametrize('order', ['nested', 'ring'])
-def test_interpolate_bilinear(order):
+def test_interpolate_bilinear_lonlat(order):
     values = np.ones(192) * 3
-    result = interpolate_bilinear([1, 3, 4] * u.deg, [3, 2, 6] * u.deg,
-                                  values, order=order)
+    result = interpolate_bilinear_lonlat([1, 3, 4] * u.deg, [3, 2, 6] * u.deg,
+                                         values, order=order)
     assert_allclose(result, [3, 3, 3])
 
 
@@ -123,13 +123,13 @@ def test_interpolate_bilinear_invalid():
 
     values = np.ones(133)
     with pytest.raises(ValueError) as exc:
-        interpolate_bilinear([1, 3, 4] * u.deg, [3, 2, 6] * u.deg, values)
+        interpolate_bilinear_lonlat([1, 3, 4] * u.deg, [3, 2, 6] * u.deg, values)
     assert exc.value.args[0] == 'Number of pixels should be divisible by 12'
 
     values = np.ones(192)
     with pytest.raises(ValueError) as exc:
-        interpolate_bilinear([1, 3, 4] * u.deg, [3, 2, 6] * u.deg,
-                             values, order='banana')
+        interpolate_bilinear_lonlat([1, 3, 4] * u.deg, [3, 2, 6] * u.deg,
+                                    values, order='banana')
     assert exc.value.args[0] == "order should be 'nested' or 'ring'"
 
 

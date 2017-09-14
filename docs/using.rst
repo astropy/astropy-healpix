@@ -119,7 +119,7 @@ we can carry out bilinear interpolation at custom positions using::
 
     >>> import numpy as np
     >>> values = np.arange(3072)
-    >>> hp.interpolate_bilinear([1, 2, 3] * u.deg, [5, 8, 10] * u.deg, values)
+    >>> hp.interpolate_bilinear_lonlat([1, 2, 3] * u.deg, [5, 8, 10] * u.deg, values)
     array([ 1217.45982896,  1220.20594161,  1222.41978026])
 
 Celestial HEALPix pixellization
@@ -156,7 +156,7 @@ and from celestial coordinates to HEALPix indices, e.g::
 Finally, this can be used for interpolation::
 
     >>> values = np.arange(3072)
-    >>> hp.interpolate_bilinear(coord, values)
+    >>> hp.interpolate_bilinear_skycoord(coord, values)
     array([ 167.03780645])
 
 Converting between ring and nested conventions

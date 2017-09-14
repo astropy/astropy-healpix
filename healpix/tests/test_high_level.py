@@ -1,5 +1,6 @@
 from __future__ import print_function, division
 
+import pytest
 import numpy as np
 from numpy.testing import assert_allclose, assert_equal
 
@@ -55,11 +56,24 @@ class TestHEALPix():
         assert_allclose(dx, [0.1, 0.2, 0.3])
         assert_allclose(dy, [0.5, 0.4, 0.7])
 
+    def test_nested_to_ring(self):
+        nested_index_1 = [1, 3, 22]
+        ring_index = self.pix.nested_to_ring(nested_index_1)
+        nested_index_2 = self.pix.ring_to_nested(ring_index)
+        assert_equal(nested_index_1, nested_index_2)
+
     def test_interpolate_bilinear(self):
         values = np.ones(12 * 256 ** 2) * 3
         result = self.pix.interpolate_bilinear([1, 3, 4] * u.deg,
                                                [3, 2, 6] * u.deg, values)
         assert_allclose(result, [3, 3, 3])
+
+    def test_interpolate_bilinear_invalid(self):
+        values = np.ones(222) * 3
+        with pytest.raises(ValueError) as exc:
+            self.pix.interpolate_bilinear([1, 3, 4] * u.deg,
+                                          [3, 2, 6] * u.deg, values)
+        assert exc.value.args[0] == 'values should be an array of length 786432 (got 222)'
 
 
 class TestCelestialHEALPix():

@@ -130,3 +130,18 @@ il* healpix_rangesearch_radec(double ra, double dec, double radius, int Nside, i
 	radecdeg2xyzarr(ra, dec, xyz);
 	return hp_rangesearch(xyz, radius, Nside, hps, FALSE);
 }
+
+int healpix_rangesearch_radec_simple(double ra, double dec, double radius,
+																		 int Nside, int **indices) {
+	double xyz[3];
+	il* hps = il_new(256);
+	radecdeg2xyzarr(ra, dec, xyz);
+	hp_rangesearch(xyz, radius, Nside, hps, FALSE);
+	*indices = (int *)malloc((int)il_size(hps) * sizeof(int));
+	if (*indices == NULL) {
+	  fprintf(stderr, "malloc failed\n");
+	  return(-1);
+	}
+	il_copy(hps, 0, hps->N, *indices);
+	return (int)il_size(hps);
+}

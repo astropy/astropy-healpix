@@ -37,3 +37,5 @@ cdef extern from "healpix.h":
     # Healpixes in the interior of a large healpix will have eight neighbours;
     # pixels near the edges can have fewer.
     int healpix_get_neighboursl(int64_t hp, int64_t* neighbours, int Nside);
+
+    int healpix_rangesearch_radec_simple(double ra, double dec, double radius, int Nside, int* indices)

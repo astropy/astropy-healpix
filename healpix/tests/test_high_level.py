@@ -86,6 +86,11 @@ class TestHEALPix:
             self.pix.cone_search_lonlat(lon, lat, 1 * u.deg)
         assert exc.value.args[0] == 'The longitude, latitude and radius should be scalar Quantity objects'
 
+    def test_boundaries_lonlat(self):
+        lon, lat = self.pix.boundaries_lonlat([10, 20, 30], 4)
+        assert lon.shape == (3, 16)
+        assert lat.shape == (3, 16)
+
 
 class TestCelestialHEALPix:
 
@@ -147,3 +152,7 @@ class TestCelestialHEALPix:
         assert len(result1) == 77
         result2 = self.pix.cone_search_skycoord(coord.icrs, 1 * u.deg)
         assert_allclose(result1, result2)
+
+    def test_boundaries_skycoord(self):
+        coord = self.pix.boundaries_skycoord([10, 20, 30], 4)
+        assert coord.shape == (3, 16)

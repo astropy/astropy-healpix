@@ -119,13 +119,22 @@ order, we can carry out bilinear interpolation at custom positions using::
     >>> hp.interpolate_bilinear_lonlat([1, 2, 3] * u.deg, [5, 8, 10] * u.deg, values)  # doctest: +FLOAT_CMP
     array([ 1217.45982896,  1220.20594161,  1222.41978026])
 
-Finally, the :meth:`~healpix.HEALPix.cone_search_lonlat` method can be used to
+The :meth:`~healpix.HEALPix.cone_search_lonlat` method can be used to
 find all HEALpix pixels within a certain radius from a longitude/latitude::
 
     >>> hp.cone_search_lonlat(10 * u.deg, 30 * u.deg, radius=10 * u.deg)
     array([1269,  160,  162, 1271, 1270, 1268, 1246, 1247,  138,  139,  161,
            1245,  136,  137,  140,  142,  130,  131, 1239, 1244, 1238, 1241,
            1243, 1265, 1267, 1276, 1273, 1277,  168,  169,  163,  166,  164])
+
+Finally, the :meth:`~healpix.HEALPix.boundaries_lonlat` method can be used to
+sample points long the edge of one or more HEALPix pixels::
+
+    >>> hp.boundaries_lonlat([120], step=1)  # doctest: +FLOAT_CMP
+    (<Longitude [[ 1.12199738, 1.20830487, 1.17809725, 1.08747438]] rad>, <Latitude [[ 0.84022258, 0.89458259, 0.94842784, 0.89458259]] rad>)
+
+The ``step`` argument specifies how many points to sample along each edge, and
+setting ``step`` to 1 returns only the corner positions.
 
 Celestial HEALPix pixellization
 -------------------------------
@@ -160,14 +169,14 @@ and from celestial coordinates to HEALPix indices using the
     >>> hp.skycoord_to_healpix(coord)
     array([2537])
 
-Finally, the :meth:`~healpix.CelestialHEALPix.interpolate_bilinear_skycoord` method can
+The :meth:`~healpix.CelestialHEALPix.interpolate_bilinear_skycoord` method can
 be used for interpolation::
 
     >>> values = np.arange(3072)
     >>> hp.interpolate_bilinear_skycoord(coord, values)  # doctest: +FLOAT_CMP
     array([ 2533.90376398])
 
-and the :meth:`~healpix.CelestialHEALPix.cone_search_skycoord` method can be used for
+The :meth:`~healpix.CelestialHEALPix.cone_search_skycoord` method can be used for
 cone searches::
 
     >>> hp.cone_search_skycoord(coord, radius=5 * u.arcmin)
@@ -175,8 +184,16 @@ cone searches::
            2529, 2532, 2507, 2528, 2506, 2485, 2487, 2486, 2493, 2492, 2495,
            1344, 1345, 2543])
 
-See the `High-level interface`_ section for more details on the interpolation
-and the cone search.
+Finally, the :meth:`~healpix.CelestialHEALPix.boundaries_skycoord` method can be
+used to return the edges of one or more HEALPix pixels::
+
+    >>> hp.boundaries_skycoord([120], step=1)  # doctest: +FLOAT_CMP
+    <SkyCoord (Galactic): (l, b) in deg
+        [[( 64.28571429,  48.14120779), ( 69.23076923,  51.25580695),
+          ( 67.5       ,  54.3409123 ), ( 62.30769231,  51.25580695)]]>
+
+See the `High-level interface`_ section for more details on these methods, since
+they are equivalent to the ``*_lonlat`` versions.
 
 Converting between ring and nested conventions
 ----------------------------------------------

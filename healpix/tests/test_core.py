@@ -1,5 +1,7 @@
 from __future__ import print_function, division
 
+from itertools import product
+
 import pytest
 
 import numpy as np
@@ -11,7 +13,7 @@ from astropy.coordinates import Longitude, Latitude
 from ..core import (nside_to_pixel_area, nside_to_pixel_resolution,
                     nside_to_npix, npix_to_nside, healpix_to_lonlat,
                     lonlat_to_healpix, interpolate_bilinear_lonlat,
-                    healpix_neighbors, healpix_cone_search)
+                    healpix_neighbors, healpix_cone_search, boundaries_lonlat)
 
 
 def test_nside_to_pixel_area():
@@ -182,3 +184,10 @@ def test_healpix_cone_search(order):
                                   nside=256, order=order)
 
     assert len(indices) == 80
+
+
+@pytest.mark.parametrize(('step', 'order'), product([1, 4, 10], ['nested', 'ring']))
+def test_boundaries_lonlat(step, order):
+    lon, lat = boundaries_lonlat([10, 20, 30], step, 256, order=order)
+    assert lon.shape == (3, 4 * step)
+    assert lat.shape == (3, 4 * step)

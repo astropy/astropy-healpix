@@ -39,4 +39,6 @@ install:
 build: false
 
 test_script:
-    - "%CMD_IN_ENV% python setup.py test"
+    # We only test the docs output on Linux so as not to have to
+    # degrade the output with ellipses to work on all platforms.
+    - "%CMD_IN_ENV% python setup.py test --skip-docs"

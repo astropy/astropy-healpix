@@ -12,7 +12,7 @@ from ..core import nside_to_pixel_resolution
 from .. import core_cython
 
 
-NSIDE_POWERS = range(0, 17)
+NSIDE_POWERS = range(0, 21)
 ORDERS = (0, 1)
 
 
@@ -27,7 +27,8 @@ def get_test_indices(nside):
         return np.arange(12 * nside ** 2, dtype=np.int64)
 
 
-def test_roundtrip_healpix_no_offsets(order=1, nside_power=14):
+@pytest.mark.parametrize(('order', 'nside_power'), product(ORDERS, NSIDE_POWERS))
+def test_roundtrip_healpix_no_offsets(order, nside_power):
     nside = 2 ** nside_power
     index = get_test_indices(nside)
     lon, lat = core_cython.healpix_to_lonlat(index, nside, order)
@@ -72,15 +73,6 @@ def test_healpix_neighbors(order, nside_power):
     assert np.all(neighbours >= -1) and np.all(neighbours < 12 * nside ** 2)
 
 
-CASES = list()
-
-# Also add a case with very high resolution to check things work properly
-# with indices that would overflow a 32-bit int
-CASES.append((0, 16, 0.1))
-
-CASES = [(0, 6, 1)]
-
-
 @pytest.mark.parametrize(('order', 'nside_power'), product(ORDERS, NSIDE_POWERS))
 def test_healpix_cone_search(order, nside_power):
     nside = 2 ** nside_power
@@ -97,4 +89,4 @@ def test_healpix_cone_search(order, nside_power):
     lon, lat = lon.reshape((n_inside, 4)), lat.reshape((n_inside, 4))
     sep = angular_separation(lon0 * u.deg, lat0 * u.deg, lon * u.rad, lat * u.rad)
     sep = sep.min(axis=1)
-    assert np.all(sep.to(u.degree).value < radius)
+    assert np.all(sep.to(u.degree).value < radius * 1.05)

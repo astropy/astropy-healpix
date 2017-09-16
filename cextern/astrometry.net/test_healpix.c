@@ -39,7 +39,7 @@ static void add_plot_xyz_point(double* xyz) {
 
 static void add_plot_point(int hp, int nside, double dx, double dy) {
   double xyz[3];
-  healpix_to_xyzarr(hp, nside, dx, dy, xyz);
+  healpixl_to_xyzarr(hp, nside, dx, dy, xyz);
   add_plot_xyz_point(xyz);
 }
 
@@ -101,7 +101,7 @@ static void hpmap(int nside, const char* fn) {
     dy = 0.95;
     range = 0.1;
   */
-  healpix_to_xyzarr(hp, nside, dx, dy, xyz);
+  healpixl_to_xyzarr(hp, nside, dx, dy, xyz);
 
   for (i=0; i<12*nside*nside; i++) {
     plot_hp_boundary(i, nside, 0.005, 0.01, "b-");
@@ -196,7 +196,7 @@ int tst_xyztohpf(CuTest* ct,
     outb = z2dec(outz) / (M_PI);
     fprintf(stderr,
 	    "plot([%g, %g],[%g, %g],'r.-')\n", a, outa, b, outb);
-    fprintf(stderr, 
+    fprintf(stderr,
 	    "text(%g, %g, \"(%g,%g)\")\n",
 	    a, b, dx, dy);
   }
@@ -329,7 +329,7 @@ void print_node(double z, double phi, int Nside) {
     ra -= 2.0 * M_PI;
 
   // find its healpix.
-  hp = radectohealpix(ra, dec, Nside);
+  hp = radec_to_healpix(ra, dec, Nside);
   // find its neighbourhood.
   nn = healpix_get_neighbours(hp, neigh, Nside);
   fprintf(stderr, "  N%i [ label=\"%i\", pos=\"%g,%g!\" ];\n", hp, hp,
@@ -575,7 +575,7 @@ void print_healpix_grid(int Nside) {
   fprintf(stderr, "x%i=[", Nside);
   for (i=0; i<N; i++) {
     for (j=0; j<N; j++) {
-      fprintf(stderr, "%i ", radectohealpix(i*2*M_PI/N, M_PI*(j-N/2)/N, Nside));
+      fprintf(stderr, "%i ", radec_to_healpix(i*2*M_PI/N, M_PI*(j-N/2)/N, Nside));
     }
     fprintf(stderr, ";");
   }
@@ -591,7 +591,7 @@ void print_healpix_borders(int Nside) {
   fprintf(stderr, "x%i=[", Nside);
   for (i=0; i<N; i++) {
     for (j=0; j<N; j++) {
-      fprintf(stderr, "%i ", radectohealpix(i*2*M_PI/N, M_PI*(j-N/2)/N, Nside));
+      fprintf(stderr, "%i ", radec_to_healpix(i*2*M_PI/N, M_PI*(j-N/2)/N, Nside));
     }
     fprintf(stderr, ";");
   }
@@ -665,7 +665,7 @@ void test_distortion_at_pole(CuTest* ct) {
     // diagonals
     d5 = arcsec_between_radecdeg(ra1, dec1, ra3, dec3);
     d6 = arcsec_between_radecdeg(ra2, dec2, ra4, dec4);
-		
+
     printf("%-15s (%4.1f, %4.1f): %-5.3f, %-5.3f, %-5.3f, %-5.3f / %-5.3f, %-5.3f\n", testnames[i], ra, dec, d1, d2, d3, d4, d5, d6);
   }
 }
@@ -699,7 +699,7 @@ int main(int argc, char** args) {
   */
 
   //print_test_healpix_output();
-	
+
   /*
     int rastep, decstep;
     int Nra = 100;
@@ -711,8 +711,8 @@ int main(int argc, char** args) {
     ra = ((double)rastep / (double)(Nra-1)) * 2.0 * M_PI;
     for (decstep=0; decstep<Ndec; decstep++) {
     dec = (((double)decstep / (double)(Ndec-1)) * M_PI) - M_PI/2.0;
-    healpix = radectohealpix(ra, dec);
-    printf("radechealpix(%i,:)=[%g,%g,%i];\n", 
+    healpix = radec_to_healpix(ra, dec);
+    printf("radechealpix(%i,:)=[%g,%g,%i];\n",
     (rastep*Ndec) + decstep + 1, ra, dec, healpix);
     }
     }

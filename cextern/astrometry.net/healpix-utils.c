@@ -9,124 +9,125 @@
 #include "starutil.h"
 #include <stdio.h>
 
-il* healpix_region_search(int seed, il* seeds, int Nside,
-						  il* accepted, il* rejected,
+ll* healpix_region_search(int seed, ll* seeds, int Nside,
+						  ll* accepted, ll* rejected,
 						  int (*accept)(int hp, void* token),
 						  void* token, int depth) {
-	il* frontier;
+	ll* frontier;
 	anbool allocd_rej = FALSE;
 	int d;
 
 	if (!accepted)
-		accepted = il_new(256);
+		accepted = ll_new(256);
 	if (!rejected) {
-		rejected = il_new(256);
+		rejected = ll_new(256);
 		allocd_rej = TRUE;
 	}
 
 	if (seeds)
 		//frontier = seeds;
-		frontier = il_dupe(seeds);
+		frontier = ll_dupe(seeds);
 	else {
-		frontier = il_new(256);
-		il_append(frontier, seed);
+		frontier = ll_new(256);
+		ll_append(frontier, seed);
 	}
 
 	for (d=0; !depth || d<depth; d++) {
 		int j, N;
-		N = il_size(frontier);
+		N = ll_size(frontier);
 		if (N == 0)
 			break;
 		for (j=0; j<N; j++) {
-			int hp;
-			int i, nn, neigh[8];
-			hp = il_get(frontier, j);
-			nn = healpix_get_neighbours(hp, neigh, Nside);
+			int64_t hp;
+			int i, nn;
+			int64_t neigh[8];
+			hp = ll_get(frontier, j);
+			nn = healpixl_get_neighbours(hp, neigh, Nside);
 			for (i=0; i<nn; i++) {
-				if (il_contains(frontier, neigh[i]))
+				if (ll_contains(frontier, neigh[i]))
 					continue;
-				if (il_contains(rejected, neigh[i]))
+				if (ll_contains(rejected, neigh[i]))
 					continue;
-				if (il_contains(accepted, neigh[i]))
+				if (ll_contains(accepted, neigh[i]))
 					continue;
 				if (accept(neigh[i], token)) {
-					il_append(accepted, neigh[i]);
-					il_append(frontier, neigh[i]);
+					ll_append(accepted, neigh[i]);
+					ll_append(frontier, neigh[i]);
 				} else
-					il_append(rejected, neigh[i]);
+					ll_append(rejected, neigh[i]);
 			}
 		}
-		il_remove_index_range(frontier, 0, N);
+		ll_remove_index_range(frontier, 0, N);
 	}
 
-	il_free(frontier);
+	ll_free(frontier);
 	if (allocd_rej)
-		il_free(rejected);
+		ll_free(rejected);
 	return accepted;
 }
 
 
-static il* hp_rangesearch(const double* xyz, double radius, int Nside, il* hps, anbool approx) {
-	int hp;
+static ll* hp_rangesearch(const double* xyz, double radius, int Nside, ll* hps, anbool approx) {
+	int64_t hp;
 	double hprad = arcmin2dist(healpix_side_length_arcmin(Nside)) * sqrt(2);
-	il* frontier = il_new(256);
-	il* bad = il_new(256);
+	ll* frontier = ll_new(256);
+	ll* bad = ll_new(256);
 	if (!hps)
-		hps = il_new(256);
+		hps = ll_new(256);
 
-	hp = xyzarrtohealpix(xyz, Nside);
-	il_append(frontier, hp);
-	il_append(hps, hp);
-	while (il_size(frontier)) {
-		int nn, neighbours[8];
-		int i;
-		hp = il_pop(frontier);
-		nn = healpix_get_neighbours(hp, neighbours, Nside);
+	hp = xyzarrtohealpixl(xyz, Nside);
+	ll_append(frontier, hp);
+	ll_append(hps, hp);
+	while (ll_size(frontier)) {
+		int64_t nn, neighbours[8];
+		int64_t i;
+		hp = ll_pop(frontier);
+		nn = healpixl_get_neighbours(hp, neighbours, Nside);
 		for (i=0; i<nn; i++) {
 			anbool tst;
 			double nxyz[3];
-			if (il_contains(frontier, neighbours[i]))
+			if (ll_contains(frontier, neighbours[i]))
 				continue;
-			if (il_contains(bad, neighbours[i]))
+			if (ll_contains(bad, neighbours[i]))
 				continue;
-			if (il_contains(hps, neighbours[i]))
+			if (ll_contains(hps, neighbours[i]))
 				continue;
 			if (approx) {
-				healpix_to_xyzarr(neighbours[i], Nside, 0.5, 0.5, nxyz);
+				healpixl_to_xyzarr(neighbours[i], Nside, 0.5, 0.5, nxyz);
 				tst = (sqrt(distsq(xyz, nxyz, 3)) - hprad <= radius);
 			} else {
-				tst = healpix_within_range_of_xyz(neighbours[i], Nside, xyz, radius);
+				tst = healpixl_within_range_of_xyz(neighbours[i], Nside, xyz, radius);
 			}
 			if (tst) {
 				// in range!
-				il_append(frontier, neighbours[i]);
-				il_append(hps, neighbours[i]);
+				ll_append(frontier, neighbours[i]);
+				ll_append(hps, neighbours[i]);
 			} else
-				il_append(bad, neighbours[i]);
+				ll_append(bad, neighbours[i]);
 		}
 	}
 
-	il_free(bad);
-	il_free(frontier);
+	ll_free(bad);
+	ll_free(frontier);
 
 	return hps;
 }
 
-il* healpix_rangesearch_xyz_approx(const double* xyz, double radius, int Nside, il* hps) {
+ll* healpix_rangesearch_xyz_approx(const double* xyz, double radius, int Nside, ll* hps) {
 	return hp_rangesearch(xyz, radius, Nside, hps, TRUE);
 }
 
-il* healpix_rangesearch_xyz(const double* xyz, double radius, int Nside, il* hps) {
+ll* healpix_rangesearch_xyz(const double* xyz, double radius, int Nside, ll* hps) {
 	return hp_rangesearch(xyz, radius, Nside, hps, FALSE);
 }
 
-il* healpix_rangesearch_radec_approx(double ra, double dec, double radius, int Nside, il* hps) {
+ll* healpix_rangesearch_radec_approx(double ra, double dec, double radius, int Nside, ll* hps) {
 	double xyz[3];
 	radecdeg2xyzarr(ra, dec, xyz);
 	return hp_rangesearch(xyz, radius, Nside, hps, TRUE);
 }
 
-il* healpix_rangesearch_radec(double ra, double dec, double radius, int Nside, il* hps) {
+ll* healpix_rangesearch_radec(double ra, double dec, double radius, int Nside, ll* hps) {
 	double xyz[3];
 	radecdeg2xyzarr(ra, dec, xyz);
 	return hp_rangesearch(xyz, radius, Nside, hps, FALSE);
@@ -134,17 +135,17 @@ il* healpix_rangesearch_radec(double ra, double dec, double radius, int Nside, i
 
 // The following is a version of the healpix_rangesearch_radec function
 // that works with standard C types to make interfacing with Python easier.
-int healpix_rangesearch_radec_simple(double ra, double dec, double radius,
-																		 int Nside, int approx, int **indices) {
+int64_t healpix_rangesearch_radec_simple(double ra, double dec, double radius,
+																		 int Nside, int approx, int64_t **indices) {
 	double xyz[3];
-	il* hps = il_new(256);
+	ll* hps = ll_new(256);
 	radecdeg2xyzarr(ra, dec, xyz);
-	hp_rangesearch(xyz, radius, Nside, hps, approx);
-	*indices = (int *)malloc((int)il_size(hps) * sizeof(int));
+	hp_rangesearch(xyz, radius, Nside, hps, (anbool)approx);
+	*indices = (int64_t *)malloc((int64_t)ll_size(hps) * sizeof(int64_t));
 	if (*indices == NULL) {
 	  fprintf(stderr, "malloc failed\n");
 	  return(-1);
 	}
-	il_copy(hps, 0, hps->N, *indices);
-	return (int)il_size(hps);
+	ll_copy(hps, 0, hps->N, *indices);
+	return (int64_t)ll_size(hps);
 }

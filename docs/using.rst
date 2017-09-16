@@ -58,9 +58,9 @@ number of pixels as well as the pixel area or resolution::
 
     >>> hp.npix
     3072
-    >>> hp.pixel_area
+    >>> hp.pixel_area  # doctest: +FLOAT_CMP
     <Quantity 0.0040906154343617095 sr>
-    >>> hp.pixel_resolution
+    >>> hp.pixel_resolution  # doctest: +FLOAT_CMP
     <Quantity 219.87113035631398 arcmin>
 
 As you can see, when appropriate the properties and the methods on the
@@ -70,12 +70,12 @@ on.
 
 The :meth:`~healpix.HEALPix.healpix_to_lonlat` method can be used to convert HEALPix indices to
 :class:`~astropy.coordinates.Longitude` and
-:class:`~astropy.coordinates.Latitude` objects:
+:class:`~astropy.coordinates.Latitude` objects::
 
     >>> lon, lat = hp.healpix_to_lonlat([1, 442, 2200])
-    >>> lon
+    >>> lon  # doctest: +FLOAT_CMP
     <Longitude [ 0.83448555, 1.63624617, 0.4712389 ] rad>
-    >>> lat
+    >>> lat  # doctest: +FLOAT_CMP
     <Latitude [ 0.08343009, 0.94842784,-0.78529135] rad>
 
 The :class:`~astropy.coordinates.Longitude` and
@@ -83,9 +83,9 @@ The :class:`~astropy.coordinates.Longitude` and
 :class:`~astropy.units.Quantity` objects and also include shortcuts to get
 the values in various units::
 
-    >>> lon.hourangle
+    >>> lon.hourangle  # doctest: +FLOAT_CMP
     array([ 3.1875,  6.25  ,  1.8   ])
-    >>> lat.degree
+    >>> lat.degree  # doctest: +FLOAT_CMP
     array([  4.78019185,  54.3409123 , -44.99388015])
 
 Conversely, given longitudes and latitudes as :class:`~astropy.units.Quantity`
@@ -99,14 +99,14 @@ Note that :meth:`~healpix.HEALPix.healpix_to_lonlat` and
 :meth:`~healpix.HEALPix.lonlat_to_healpix` can also take/give the fractional
 position inside each HEALPix pixel, e.g.::
 
-  >>> index, dx, dy = hp.lonlat_to_healpix([1, 3, 4] * u.deg, [5, 6, 9] * u.deg,
-  ...                                      return_offsets=True)
-  >>> index
-  array([1217, 1217, 1222])
-  >>> dx
-  array([ 0.22364669,  0.78767489,  0.58832469])
-  >>> dy
-  array([ 0.86809114,  0.72100823,  0.16610247])
+    >>> index, dx, dy = hp.lonlat_to_healpix([1, 3, 4] * u.deg, [5, 6, 9] * u.deg,
+    ...                                      return_offsets=True)
+    >>> index
+    array([1217, 1217, 1222])
+    >>> dx  # doctest: +FLOAT_CMP
+    array([ 0.22364669,  0.78767489,  0.58832469])
+    >>> dy  # doctest: +FLOAT_CMP
+    array([ 0.86809114,  0.72100823,  0.16610247])
 
 The :meth:`~healpix.HEALPix.interpolate_bilinear_lonlat` can be used to
 interpolate a HEALPix map at given coordinates. A HEALPix map is typically given
@@ -116,7 +116,7 @@ order, we can carry out bilinear interpolation at custom positions using::
 
     >>> import numpy as np
     >>> values = np.arange(3072)
-    >>> hp.interpolate_bilinear_lonlat([1, 2, 3] * u.deg, [5, 8, 10] * u.deg, values)
+    >>> hp.interpolate_bilinear_lonlat([1, 2, 3] * u.deg, [5, 8, 10] * u.deg, values)  # doctest: +FLOAT_CMP
     array([ 1217.45982896,  1220.20594161,  1222.41978026])
 
 Finally, the :meth:`~healpix.HEALPix.cone_search_lonlat` method can be used to
@@ -148,7 +148,7 @@ which specifies the frame in which the HEALPix pixellization is defined::
 This can then be used to convert from HEALPix indices to celestial coordinates
 using the :meth:`~healpix.CelestialHEALPix.healpix_to_skycoord` method::
 
-    >>> hp.healpix_to_skycoord([144, 231])
+    >>> hp.healpix_to_skycoord([144, 231])  # doctest: +FLOAT_CMP
     <SkyCoord (Galactic): (l, b) in deg
         [( 33.75      ,  32.7971683 ), ( 32.14285714,  69.42254649)]>
 
@@ -156,16 +156,16 @@ and from celestial coordinates to HEALPix indices using the
 :meth:`~healpix.CelestialHEALPix.skycoord_to_healpix` method, e.g::
 
     >>> from astropy.coordinates import SkyCoord
-    >>> coord = SkyCoord.from_name('m31')  # doctest: +REMOTE_DATA
-    >>> hp.skycoord_to_healpix(coord)  # doctest: +REMOTE_DATA
+    >>> coord = SkyCoord('00h42m44.3503s +41d16m08.634s')
+    >>> hp.skycoord_to_healpix(coord)
     array([2537])
 
 Finally, the :meth:`~healpix.CelestialHEALPix.interpolate_bilinear_skycoord` method can
 be used for interpolation::
 
     >>> values = np.arange(3072)
-    >>> hp.interpolate_bilinear_skycoord(coord, values)
-    array([ 2533.90376392])
+    >>> hp.interpolate_bilinear_skycoord(coord, values)  # doctest: +FLOAT_CMP
+    array([ 2533.90376398])
 
 and the :meth:`~healpix.CelestialHEALPix.cone_search_skycoord` method can be used for
 cone searches::

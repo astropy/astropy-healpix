@@ -474,26 +474,23 @@ def healpix_neighbors(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
     return neighbours
 
 
-def healpix_search(double ra, double dec, double radius, int nside):
+def healpix_cone_search(double lon, double lat, double radius, int nside, int order, int approx):
 
     cdef intp_t i
-    cdef int xy_index
-    cdef int j, k
     cdef int *indices
     cdef int n_indices
-    cdef double t
-    cdef x=1, y=2
+    cdef int64_t index
 
-    print(1, ra, dec, radius, nside)
-    # t = uniform_sample(x, y)
-    # print(t)
-    n_indices =  healpix_rangesearch_radec_simple(ra, dec, radius, nside, indices)
-    print(2)
+    n_indices =  healpix_rangesearch_radec_simple(lon, lat, radius, nside, approx, &indices)
 
-    cdef np.ndarray[int64_t, ndim=2, mode="c"] result = np.zeros(n_indices, dtype=npy_int64)
+    cdef np.ndarray[int64_t, ndim=1, mode="c"] result = np.zeros(n_indices, dtype=npy_int64)
 
-    print(3)
-    # for i in range(n_indices):
-    #     result[i] = indices[i]
+    for i in range(n_indices):
+        index = indices[i]
+        print(index)
+        if order == ORDER_NESTED:
+            result[i] = healpixl_xy_to_nested(index, nside)
+        else:
+            result[i] = healpixl_xy_to_ring(index, nside)
 
     return result

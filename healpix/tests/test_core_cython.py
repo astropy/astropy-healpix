@@ -4,6 +4,8 @@ import pytest
 
 import numpy as np
 from numpy.testing import assert_equal, assert_allclose
+from astropy import units as u
+from astropy.coordinates.angle_utilities import angular_separation
 
 from .. import core_cython
 
@@ -66,3 +68,21 @@ def test_healpix_neighbors(order, nside_power):
     index = get_test_indices(nside)
     neighbours = core_cython.healpix_neighbors(index, nside, order)
     assert np.all(neighbours >= -1) and np.all(neighbours < 12 * nside ** 2)
+
+
+@pytest.mark.parametrize(('order', 'nside_power', 'radius'), product(ORDERS, range(6), [0.1, 1, 10, 100]))
+def test_healpix_cone_search(order, nside_power, radius):
+    # Since healpix_cone_search finds any overlapping healpix but the centers
+    # may not be inside the HEALPix pixel, we instead for now check that
+    # any HEALPix pixel not selected definitely has a center outside the search
+    # radius
+    nside = 2 ** nside_power
+    lon0, lat0 = 12., 40.
+    radius = 10.
+    index_inside = core_cython.healpix_cone_search(lon0, lat0, radius, nside, order, 0)
+    index_outside = np.arange(12 * nside ** 2)
+    index_outside[index_inside] = -1
+    index_outside = index_outside[index_outside >= 0]
+    lon, lat = core_cython.healpix_to_lonlat(index_outside, nside, order)
+    sep = angular_separation(lon0 * u.deg, lat0 * u.deg, lon * u.rad, lat * u.rad)
+    assert np.all(sep.to(u.degree).value > radius)

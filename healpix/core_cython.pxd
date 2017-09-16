@@ -38,4 +38,4 @@ cdef extern from "healpix.h":
     # pixels near the edges can have fewer.
     int healpix_get_neighboursl(int64_t hp, int64_t* neighbours, int Nside);
 
-    int healpix_rangesearch_radec_simple(double ra, double dec, double radius, int Nside, int* indices)
+    int healpix_rangesearch_radec_simple(double ra, double dec, double radius, int Nside, int approx, int** indices)

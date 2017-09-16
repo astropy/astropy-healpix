@@ -7,6 +7,7 @@
 #include "healpix.h"
 #include "mathutil.h"
 #include "starutil.h"
+#include <stdio.h>
 
 il* healpix_region_search(int seed, il* seeds, int Nside,
 						  il* accepted, il* rejected,
@@ -131,12 +132,14 @@ il* healpix_rangesearch_radec(double ra, double dec, double radius, int Nside, i
 	return hp_rangesearch(xyz, radius, Nside, hps, FALSE);
 }
 
+// The following is a version of the healpix_rangesearch_radec function
+// that works with standard C types to make interfacing with Python easier.
 int healpix_rangesearch_radec_simple(double ra, double dec, double radius,
-																		 int Nside, int **indices) {
+																		 int Nside, int approx, int **indices) {
 	double xyz[3];
 	il* hps = il_new(256);
 	radecdeg2xyzarr(ra, dec, xyz);
-	hp_rangesearch(xyz, radius, Nside, hps, FALSE);
+	hp_rangesearch(xyz, radius, Nside, hps, approx);
 	*indices = (int *)malloc((int)il_size(hps) * sizeof(int));
 	if (*indices == NULL) {
 	  fprintf(stderr, "malloc failed\n");

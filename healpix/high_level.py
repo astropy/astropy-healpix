@@ -6,7 +6,7 @@ from astropy.coordinates.representation import UnitSphericalRepresentation
 from .core import (nside_to_pixel_area, nside_to_pixel_resolution,
                    nside_to_npix, healpix_to_lonlat, lonlat_to_healpix,
                    interpolate_bilinear_lonlat, ring_to_nested, nested_to_ring,
-                   healpix_cone_search)
+                   healpix_cone_search, boundaries_lonlat)
 
 __all__ = ['HEALPix', 'CelestialHEALPix']
 
@@ -182,6 +182,30 @@ class HEALPix(object):
         return healpix_cone_search(lon, lat, radius, self.nside,
                                    order=self.order, approximate=approximate)
 
+    def boundaries_lonlat(self, healpix_index, step):
+        """
+        Return the longitude and latitude of the edges of HEALPix pixels
+
+        This returns the longitude and latitude of points along the edge of each
+        HEALPIX pixel. The number of points returned for each pixel is ``4 * step``,
+        so setting ``step`` to 1 returns just the corners.
+
+        Parameters
+        ----------
+        healpix_index : `~numpy.ndarray`
+            1-D array of HEALPix pixels
+        step : int
+            The number of steps to take along each edge.
+
+        Returns
+        -------
+        lon, lat : :class:`~astropy.units.Quantity`
+            The longitude and latitude, as 2-D arrays where the first dimension is
+            the same as the ``healpix_index`` input, and the second dimension has
+            size ``4 * step``.
+        """
+        return boundaries_lonlat(healpix_index, step, self.nside, order=self.order)
+
 
 class CelestialHEALPix(HEALPix):
     """
@@ -285,8 +309,8 @@ class CelestialHEALPix(HEALPix):
 
         Parameters
         ----------
-        lon, lat : :class:`~astropy.units.Quantity`
-            The longitude and latitude to search around
+        skycoord : :class:`~astropy.coordinates.SkyCoord`
+            The celestial coordinates to use for the cone search
         radius : :class:`~astropy.units.Quantity`
             The search radius
         approximate : bool
@@ -301,3 +325,27 @@ class CelestialHEALPix(HEALPix):
         representation = skycoord.represent_as(UnitSphericalRepresentation)
         lon, lat = representation.lon, representation.lat
         return self.cone_search_lonlat(lon, lat, radius, self.nside)
+
+    def boundaries_skycoord(self, healpix_index, step):
+        """
+        Return the celestial coordinates of the edges of HEALPix pixels
+
+        This returns the celestial coordinates of points along the edge of each
+        HEALPIX pixel. The number of points returned for each pixel is ``4 * step``,
+        so setting ``step`` to 1 returns just the corners.
+
+        Parameters
+        ----------
+        healpix_index : `~numpy.ndarray`
+            1-D array of HEALPix pixels
+        step : int
+            The number of steps to take along each edge.
+
+        Returns
+        -------
+        skycoord : :class:`~astropy.coordinates.SkyCoord`
+            The celestial coordinates of the HEALPix pixel boundaries
+        """
+        lon, lat = self.boundaries_lonlat(healpix_index, step)
+        representation = UnitSphericalRepresentation(lon, lat, copy=False)
+        return SkyCoord(self.frame.realize_frame(representation))

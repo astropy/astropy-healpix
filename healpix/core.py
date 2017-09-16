@@ -313,7 +313,7 @@ def healpix_neighbors(healpix_index, nside, order='ring'):
 
     Parameters
     ----------
-    healpix_pixel : `~numpy.ndarray`
+    healpix_index : `~numpy.ndarray`
         1-D array of HEALPix pixels
     nside : int
         Number of pixels along the side of each of the 12 top-level HEALPix tiles
@@ -374,3 +374,53 @@ def healpix_cone_search(lon, lat, radius, nside, order='ring', approximate=False
     _validate_order(order)
 
     return core_cython.healpix_cone_search(lon, lat, radius, nside, ORDER[order], approximate)
+
+
+def boundaries_lonlat(healpix_index, step, nside, order='ring'):
+    """
+    Return the longitude and latitude of the edges of HEALPix pixels
+
+    This returns the longitude and latitude of points along the edge of each
+    HEALPIX pixel. The number of points returned for each pixel is ``4 * step``,
+    so setting ``step`` to 1 returns just the corners.
+
+    Parameters
+    ----------
+    healpix_index : `~numpy.ndarray`
+        1-D array of HEALPix pixels
+    step : int
+        The number of steps to take along each edge.
+    nside : int
+        Number of pixels along the side of each of the 12 top-level HEALPix tiles
+    order : { 'nested' | 'ring' }
+        Order of HEALPix pixels
+
+    Returns
+    -------
+    lon, lat : :class:`~astropy.units.Quantity`
+        The longitude and latitude, as 2-D arrays where the first dimension is
+        the same as the ``healpix_index`` input, and the second dimension has
+        size ``4 * step``.
+    """
+
+    healpix_index = np.asarray(healpix_index, dtype=np.int64)
+    step = int(step)
+
+    if step < 1:
+        raise ValueError('step should be at least 1')
+
+    # PERF: this could be optimized by writing a Cython routine to do this to
+    # avoid allocating temporary arrays
+
+    frac = np.linspace(0., 1., step + 1)[:-1]
+    dx = np.hstack([frac, np.repeat(1, step), 1 - frac, np.repeat(0, step)])
+    dy = np.hstack([np.repeat(0, step), frac, np.repeat(1, step), 1 - frac])
+
+    healpix_index, dx, dy = np.broadcast_arrays(healpix_index.reshape(-1, 1), dx, dy)
+
+    lon, lat = healpix_to_lonlat(healpix_index.ravel(), nside, dx.ravel(), dy.ravel(), order=order)
+
+    lon = lon.reshape(-1, 4 * step)
+    lat = lat.reshape(-1, 4 * step)
+
+    return lon, lat

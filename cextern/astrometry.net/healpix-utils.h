@@ -15,6 +15,7 @@ il* healpix_rangesearch_xyz(const double* xyz, double radius, int Nside, il* hps
 il* healpix_rangesearch_xyz_approx(const double* xyz, double radius, int Nside, il* hps);
 il* healpix_rangesearch_radec_approx(double ra, double dec, double radius, int Nside, il* hps);
 il* healpix_rangesearch_radec(double ra, double dec, double radius, int Nside, il* hps);
+int healpix_rangesearch_radec_simple(double ra, double dec, double radius, int Nside, int **indices);
 
 /**
  Starting from a "seed" or list of "seeds" healpixes, grows a region

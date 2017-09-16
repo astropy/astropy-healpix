@@ -153,11 +153,11 @@ def lonlat_to_healpix(np.ndarray[double_t, ndim=1, mode="c"] lon,
 
     if order == ORDER_NESTED:
         for i in range(n):
-            xy_index = radectohealpixlf(lon[i], lat[i], nside, &dx, &dy)
+            xy_index = radec_to_healpixlf(lon[i], lat[i], nside, &dx, &dy)
             healpix_index[i] = healpixl_xy_to_nested(xy_index, nside)
     elif order == ORDER_RING:
         for i in range(n):
-            xy_index = radectohealpixlf(lon[i], lat[i], nside, &dx, &dy)
+            xy_index = radec_to_healpixlf(lon[i], lat[i], nside, &dx, &dy)
             healpix_index[i] = healpixl_xy_to_ring(xy_index, nside)
     else:
         raise ValueError('order should be 0 or 1')
@@ -202,11 +202,11 @@ def lonlat_to_healpix_with_offset(np.ndarray[double_t, ndim=1, mode="c"] lon,
 
     if order == ORDER_NESTED:
         for i in range(n):
-            xy_index = radectohealpixlf(lon[i], lat[i], nside, &dx[i], &dy[i])
+            xy_index = radec_to_healpixlf(lon[i], lat[i], nside, &dx[i], &dy[i])
             healpix_index[i] = healpixl_xy_to_nested(xy_index, nside)
     elif order == ORDER_RING:
         for i in range(n):
-            xy_index = radectohealpixlf(lon[i], lat[i], nside, &dx[i], &dy[i])
+            xy_index = radec_to_healpixlf(lon[i], lat[i], nside, &dx[i], &dy[i])
             healpix_index[i] = healpixl_xy_to_ring(xy_index, nside)
     else:
         raise ValueError('order should be 0 or 1')
@@ -317,7 +317,7 @@ def interpolate_bilinear_lonlat(np.ndarray[double_t, ndim=1, mode="c"] lon,
 
     for i in range(n):
 
-        xy_index = radectohealpixlf(lon[i], lat[i], nside, &dx, &dy)
+        xy_index = radec_to_healpixlf(lon[i], lat[i], nside, &dx, &dy)
 
         # We now need to identify the four pixels that surround the position
         # we've identified. The neighbours are ordered as follows:
@@ -326,7 +326,7 @@ def interpolate_bilinear_lonlat(np.ndarray[double_t, ndim=1, mode="c"] lon,
         #       4   X   0
         #       5   6   7
 
-        healpix_get_neighboursl(xy_index, neighbours, nside)
+        healpixl_get_neighbours(xy_index, neighbours, nside)
 
         if dx < 0.5:
 
@@ -439,7 +439,7 @@ def healpix_neighbors(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
         for i in range(n):
 
             xy_index = healpixl_nested_to_xy(healpix_index[i], nside)
-            n_neighbours = healpix_get_neighboursl(xy_index, neighbours_indiv, nside)
+            n_neighbours = healpixl_get_neighbours(xy_index, neighbours_indiv, nside)
 
             for j in range(8):
                 k = 5 - j
@@ -456,7 +456,7 @@ def healpix_neighbors(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
 
             xy_index = healpixl_ring_to_xy(healpix_index[i], nside)
 
-            nn = healpix_get_neighboursl(xy_index, neighbours_indiv, nside)
+            nn = healpixl_get_neighbours(xy_index, neighbours_indiv, nside)
 
             for j in range(8):
                 k = 5 - j
@@ -472,3 +472,24 @@ def healpix_neighbors(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
 
 
     return neighbours
+
+
+def healpix_cone_search(double lon, double lat, double radius, int nside, int order, int approx):
+
+    cdef intp_t i
+    cdef int64_t *indices
+    cdef int64_t n_indices
+    cdef int64_t index
+
+    n_indices =  healpix_rangesearch_radec_simple(lon, lat, radius, nside, approx, &indices)
+
+    cdef np.ndarray[int64_t, ndim=1, mode="c"] result = np.zeros(n_indices, dtype=npy_int64)
+
+    for i in range(n_indices):
+        index = indices[i]
+        if order == ORDER_NESTED:
+            result[i] = healpixl_xy_to_nested(index, nside)
+        else:
+            result[i] = healpixl_xy_to_ring(index, nside)
+
+    return result

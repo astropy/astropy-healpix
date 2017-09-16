@@ -212,7 +212,7 @@ Const int64_t healpixl_compose_xy(int bighp, int x, int y, int Nside);
  healpixel, and an output resolution "outnside", returns the output
  (x,y) coordinates at the output resolution.
  */
-void healpix_convert_xy_nside(int x, int y, int nside, int outnside,
+void healpixl_convert_xy_nside(int x, int y, int nside, int outnside,
 							  int* outx, int* outy);
 
 /**
@@ -220,18 +220,14 @@ void healpix_convert_xy_nside(int x, int y, int nside, int outnside,
 an output resolution "outnside", returns the healpix index at the
 output resolution.
  */
-void healpix_convert_nside(int hp, int nside, int outnside, int* outhp);
+void healpix_convert_nside(int64_t hp, int nside, int outnside, int* outhp);
 
 /**
    Converts (RA, DEC) coordinates (in radians) to healpix index.
 */
-Const int radectohealpix(double ra, double dec, int Nside);
+Const int64_t radec_to_healpixl(double ra, double dec, int Nside);
 
-int radectohealpixf(double ra, double dec, int Nside, double* dx, double* dy);
-
-Const int64_t radectohealpixl(double ra, double dec, int Nside);
-
-int64_t radectohealpixlf(double ra, double dec, int Nside, double* dx, double* dy);
+int64_t radec_to_healpixlf(double ra, double dec, int Nside, double* dx, double* dy);
 
 /**
    Converts (RA, DEC) coordinates (in degrees) to healpix index.
@@ -274,24 +270,18 @@ int xyzarrtohealpixf(const double* xyz,int Nside, double* p_dx, double* p_dy);
    the northernmost corner, (1,0) is the easternmost, and (0,1) the
    westernmost.
 */
-void healpix_to_xyz(int hp, int Nside, double dx, double dy,
+void healpix_to_xyz(int64_t hp, int Nside, double dx, double dy,
                     double* p_x, double *p_y, double *p_z);
 
 /**
    Same as healpix_to_xyz, but (x,y,z) are stored in an array.
 */
-void healpix_to_xyzarr(int hp, int Nside, double dx, double dy,
+void healpixl_to_xyzarr(int64_t hp, int Nside, double dx, double dy,
 					   double* xyz);
 
 /**
    Same as healpix_to_xyz, but returns (RA,DEC) in radians.
 */
-void healpix_to_radec(int hp, int Nside, double dx, double dy,
-					  double* ra, double* dec);
-
-void healpix_to_radecdeg(int hp, int Nside, double dx, double dy,
-                         double* ra, double* dec);
-
 void healpixl_to_radec(int64_t hp, int Nside, double dx, double dy,
 						  double* ra, double* dec);
 
@@ -301,10 +291,10 @@ void healpixl_to_radecdeg(int64_t hp, int Nside, double dx, double dy,
 /**
    Same as healpix_to_radec, but (RA,DEC) are stored in an array.
  */
-void healpix_to_radecarr(int hp, int Nside, double dx, double dy,
+void healpix_to_radecarr(int64_t hp, int Nside, double dx, double dy,
 						 double* radec);
 
-void healpix_to_radecdegarr(int hp, int Nside, double dx, double dy,
+void healpix_to_radecdegarr(int64_t hp, int Nside, double dx, double dy,
                             double* radec);
 
 /**
@@ -327,12 +317,7 @@ double healpix_nside_for_side_length_arcmin(double arcmin);
    Healpixes in the interior of a large healpix will have eight neighbours;
    pixels near the edges can have fewer.
 */
-int healpix_get_neighbours(int hp, int* neighbours, int Nside);
-
-/**
- Same as above, but for Nsides big enough that it overflows 32-bit int.
- */
-int healpix_get_neighboursl(int64_t pix, int64_t* neighbour, int Nside);
+int healpixl_get_neighbours(int64_t pix, int64_t* neighbour, int Nside);
 
 /**
  Finds the healpixes containing and neighbouring the given xyz
@@ -342,36 +327,38 @@ int healpix_get_neighboursl(int64_t pix, int64_t* neighbour, int Nside);
 
  Returns -1 if "Nside" < 0.
  */
-int healpix_get_neighbours_within_range(double* xyz, double range, int* healpixes,
+int healpix_get_neighbours_within_range(double* xyz, double range, int64_t* healpixes,
 										int Nside);
 
 /**
  Same as above, but RA,Dec,radius in degrees.
  */
 int healpix_get_neighbours_within_range_radec(double ra, double dec, double radius,
-											  int* healpixes, int Nside);
+											  int64_t* healpixes, int Nside);
 
 /**
  Returns the minimum distance (in degrees) between the given healpix
  and the given RA,Dec (in degrees).
  */
-double healpix_distance_to_radec(int hp, int Nside, double ra, double dec,
+double healpix_distance_to_radec(int64_t hp, int Nside, double ra, double dec,
 								 double* closestradec);
 
 /**
  Returns the minimum distance (in degrees) between the given healpix
  and the given xyz (point on unit sphere).
  */
-double healpix_distance_to_xyz(int hp, int Nside, const double* xyz,
+double healpix_distance_to_xyz(int64_t hp, int Nside, const double* xyz,
 							   double* closestxyz);
 
 /**
  Returns true if the closest distance between the given healpix and
  the given RA,Dec (in degrees) is less than then given radius (in degrees).
  */
-int healpix_within_range_of_radec(int hp, int Nside, double ra, double dec,
+int healpix_within_range_of_radec(int64_t hp, int Nside, double ra, double dec,
 								   double radius);
-int healpix_within_range_of_xyz(int hp, int Nside, const double* xyz,
+int healpix_within_range_of_xyz(int64_t hp, int Nside, const double* xyz,
+								double radius);
+int healpixl_within_range_of_xyz(int64_t hp, int Nside, const double* xyz,
 								double radius);
 
 
@@ -379,7 +366,7 @@ int healpix_within_range_of_xyz(int hp, int Nside, const double* xyz,
  Computes the RA,Dec bounding-box of the given healpix.  Results are
  in degrees.  RA may be wacky for healpixes spanning RA=0.
  */
-void healpix_radec_bounds(int hp, int nside,
+void healpix_radec_bounds(int64_t hp, int nside,
 						  double* ralo, double* rahi,
 						  double* declo, double* dechi);
 

@@ -45,8 +45,8 @@ def test_roundtrip_healpix_with_offsets(order, nside_power):
     lon, lat = core_cython.healpix_with_offset_to_lonlat(index, dx, dy, nside, order)
     index_new, dx_new, dy_new = core_cython.lonlat_to_healpix_with_offset(lon, lat, nside, order)
     assert_equal(index, index_new)
-    assert_allclose(dx, dx_new, atol=1e-10)
-    assert_allclose(dy, dy_new, atol=1e-10)
+    assert_allclose(dx, dx_new, atol=1e-8)
+    assert_allclose(dy, dy_new, atol=1e-8)
 
 
 @pytest.mark.parametrize('nside_power', NSIDE_POWERS)

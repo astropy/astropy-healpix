@@ -1,7 +1,5 @@
 .. include:: references.txt
 
-.. doctest-skip-all
-
 .. _using:
 
 *************
@@ -44,9 +42,9 @@ HEALPix pixels::
 
 As described in the references above, HEALPix pixel indices can follow two
 different ordering conventions - the *nested* convention and the *ring*
-convention. By default, the :class:`~healpix.HEALPix` class assumes the nested ordering
-convention, but it is possible to explicitly specify the convention to use using
-the ``order`` argument, for example::
+convention. By default, the :class:`~healpix.HEALPix` class assumes the ring
+ordering convention, but it is possible to explicitly specify the convention to
+use using the ``order`` argument, for example::
 
     >>> hp = HEALPix(nside=16, order='ring')
 
@@ -103,7 +101,6 @@ position inside each HEALPix pixel, e.g.::
 
   >>> index, dx, dy = hp.lonlat_to_healpix([1, 3, 4] * u.deg, [5, 6, 9] * u.deg,
   ...                                      return_offsets=True)
-  return_offsets=True)
   >>> index
   array([1217, 1217, 1222])
   >>> dx
@@ -159,8 +156,8 @@ and from celestial coordinates to HEALPix indices using the
 :meth:`~healpix.CelestialHEALPix.skycoord_to_healpix` method, e.g::
 
     >>> from astropy.coordinates import SkyCoord
-    >>> coord = SkyCoord.from_name('m31')
-    >>> hp.skycoord_to_healpix(coord)
+    >>> coord = SkyCoord.from_name('m31')  # doctest: +REMOTE_DATA
+    >>> hp.skycoord_to_healpix(coord)  # doctest: +REMOTE_DATA
     array([2537])
 
 Finally, the :meth:`~healpix.CelestialHEALPix.interpolate_bilinear_skycoord` method can
@@ -168,13 +165,15 @@ be used for interpolation::
 
     >>> values = np.arange(3072)
     >>> hp.interpolate_bilinear_skycoord(coord, values)
-    array([ 167.03780645])
+    array([ 2533.90376392])
 
 and the :meth:`~healpix.CelestialHEALPix.cone_search_skycoord` method can be used for
 cone searches::
 
-    >>> hp.cone_search_skycoord(coord, values)
-    array([ 167.03780645])
+    >>> hp.cone_search_skycoord(coord, radius=5 * u.arcmin)
+    array([2537, 2540, 2542, 2539, 2538, 2536, 2530, 2531, 2534, 2535, 2541,
+           2529, 2532, 2507, 2528, 2506, 2485, 2487, 2486, 2493, 2492, 2495,
+           1344, 1345, 2543])
 
 See the `High-level interface`_ section for more details on the interpolation
 and the cone search.

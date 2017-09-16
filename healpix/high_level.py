@@ -23,7 +23,7 @@ class HEALPix(object):
         Order of HEALPix pixels
     """
 
-    def __init__(self, nside=None, order='nested'):
+    def __init__(self, nside=None, order='ring'):
         if nside is None:
             raise ValueError('nside has not been set')
         self.nside = nside
@@ -197,7 +197,7 @@ class CelestialHEALPix(HEALPix):
         The coordinate frame of the pixellization, which defaults to ICRS
     """
 
-    def __init__(self, nside=None, order='nested', frame=None):
+    def __init__(self, nside=None, order='ring', frame=None):
         super(CelestialHEALPix, self).__init__(nside=nside, order=order)
         # Note that we can't do 'frame or ICRS() here since frames evaluate as False'
         self.frame = frame if frame is not None else ICRS()

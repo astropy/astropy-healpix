@@ -4,13 +4,15 @@ import pytest
 
 import numpy as np
 from numpy.testing import assert_equal, assert_allclose
+
 from astropy import units as u
 from astropy.coordinates.angle_utilities import angular_separation
 
+from ..core import nside_to_pixel_resolution
 from .. import core_cython
 
 
-nside_POWERS = range(0, 16)
+NSIDE_POWERS = range(0, 17)
 ORDERS = (0, 1)
 
 
@@ -33,7 +35,7 @@ def test_roundtrip_healpix_no_offsets(order=1, nside_power=14):
     assert_equal(index, index_new)
 
 
-@pytest.mark.parametrize(('order', 'nside_power'), product(ORDERS, nside_POWERS))
+@pytest.mark.parametrize(('order', 'nside_power'), product(ORDERS, NSIDE_POWERS))
 def test_roundtrip_healpix_with_offsets(order, nside_power):
     nside = 2 ** nside_power
     index = get_test_indices(nside)
@@ -46,7 +48,7 @@ def test_roundtrip_healpix_with_offsets(order, nside_power):
     assert_allclose(dy, dy_new, atol=1e-10)
 
 
-@pytest.mark.parametrize('nside_power', nside_POWERS)
+@pytest.mark.parametrize('nside_power', NSIDE_POWERS)
 def test_roundtrip_nested_ring(nside_power):
     nside = 2 ** nside_power
     nested_index = get_test_indices(nside)
@@ -61,7 +63,7 @@ def test_roundtrip_nested_ring(nside_power):
         assert not np.all(nested_index == ring_index)
 
 
-@pytest.mark.parametrize(('order', 'nside_power'), product(ORDERS, nside_POWERS))
+@pytest.mark.parametrize(('order', 'nside_power'), product(ORDERS, NSIDE_POWERS))
 def test_healpix_neighbors(order, nside_power):
     # This just makes sure things run, but doesn't check the validity of result
     nside = 2 ** nside_power
@@ -70,19 +72,29 @@ def test_healpix_neighbors(order, nside_power):
     assert np.all(neighbours >= -1) and np.all(neighbours < 12 * nside ** 2)
 
 
-@pytest.mark.parametrize(('order', 'nside_power', 'radius'), product(ORDERS, range(6), [0.1, 1, 10, 100]))
-def test_healpix_cone_search(order, nside_power, radius):
-    # Since healpix_cone_search finds any overlapping healpix but the centers
-    # may not be inside the HEALPix pixel, we instead for now check that
-    # any HEALPix pixel not selected definitely has a center outside the search
-    # radius
+CASES = list()
+
+# Also add a case with very high resolution to check things work properly
+# with indices that would overflow a 32-bit int
+CASES.append((0, 16, 0.1))
+
+CASES = [(0, 6, 1)]
+
+
+@pytest.mark.parametrize(('order', 'nside_power'), product(ORDERS, NSIDE_POWERS))
+def test_healpix_cone_search(order, nside_power):
     nside = 2 ** nside_power
     lon0, lat0 = 12., 40.
-    radius = 10.
+    radius = nside_to_pixel_resolution(nside).to(u.degree).value * 10
     index_inside = core_cython.healpix_cone_search(lon0, lat0, radius, nside, order, 0)
-    index_outside = np.arange(12 * nside ** 2)
-    index_outside[index_inside] = -1
-    index_outside = index_outside[index_outside >= 0]
-    lon, lat = core_cython.healpix_to_lonlat(index_outside, nside, order)
+    n_inside = len(index_inside)
+    dx = np.array([[0.0, 0.0, 1.0, 1.0]])
+    dy = np.array([[0.0, 1.0, 1.0, 0.0]])
+    dx = np.repeat(dx, n_inside, axis=0).ravel()
+    dy = np.repeat(dy, n_inside, axis=0).ravel()
+    index_inside = np.repeat(index_inside, 4).ravel()
+    lon, lat = core_cython.healpix_with_offset_to_lonlat(index_inside, dx, dy, nside, order)
+    lon, lat = lon.reshape((n_inside, 4)), lat.reshape((n_inside, 4))
     sep = angular_separation(lon0 * u.deg, lat0 * u.deg, lon * u.rad, lat * u.rad)
-    assert np.all(sep.to(u.degree).value > radius)
+    sep = sep.min(axis=1)
+    assert np.all(sep.to(u.degree).value < radius)

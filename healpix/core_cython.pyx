@@ -487,7 +487,6 @@ def healpix_cone_search(double lon, double lat, double radius, int nside, int or
 
     for i in range(n_indices):
         index = indices[i]
-        print(index)
         if order == ORDER_NESTED:
             result[i] = healpixl_xy_to_nested(index, nside)
         else:

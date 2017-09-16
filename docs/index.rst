@@ -6,26 +6,40 @@
     That said, please have a look and try to use it for your applications.
     Feedback and contributions welcome!
 
-#####################
-HEALPix Documentation
-#####################
+What is HEALPix?
+================
 
-BSD-licensed HEALPix for Astropy.
+**healpix** is a Python package that implements the `HEALPix
+<https://en.wikipedia.org/wiki/HEALPix>`_ (Hierarchical Equal Area isoLatitude
+Pixelisation) algorithm for pixellizing a sphere. This algorithm is sometimes
+used in Astronomy to store data from all-sky surveys, but the general algorithm
+can apply to any field that has to deal with representing data on a sphere.
 
-Note that this is different from `healpy <https://github.com/healpy/healpy>`__
-See :ref:`about` for further information.
+More information about HEALPix can be found here:
 
-To get an overview of available features, see :ref:`using`.
+* http://healpix.jpl.nasa.gov/
+* http://adsabs.harvard.edu/abs/2005ApJ...622..759G
+* http://adsabs.harvard.edu/abs/2007MNRAS.381..865C
 
-* Code : https://github.com/cdeil/healpix
-* Docs : http://healpix.readthedocs.io
-* Contributors : https://github.com/cdeil/healpix/graphs/contributors
-* Releases: https://pypi.python.org/pypi/healpix
+About this package
+==================
+
+This package is a new BSD-licensed implementation that is separate from the
+original GPL-licensed `HEALPix library <http://healpix.sourceforge.net>`_ and
+associated `healpy <https://github.com/healpy/healpy>`__ Python wrapper. See
+:ref:`about` for further information about the difference between this new
+implementation and the original libraries.
+
+The code can be found on `GitHub <https://github.com/cdeil/healpix>`__, along
+with the list of `Contributors
+<https://github.com/cdeil/healpix/graphs/contributors>`__.
+
+User documentation
+==================
 
 .. toctree::
    :maxdepth: 1
 
-   about
    installation
-   using
+   getting_started
    api

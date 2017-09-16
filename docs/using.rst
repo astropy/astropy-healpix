@@ -8,21 +8,6 @@ Using healpix
 
 .. _using-intro:
 
-What is HEALPix?
-================
-
-Description of [HEALPix from Wikipedia](https://en.wikipedia.org/wiki/HEALPix):
-
-*HEALPix (sometimes written as Healpix), an acronym for Hierarchical Equal Area
-isoLatitude Pixelisation of a 2-sphere, is an algorithm for pixelisation of the
-2-sphere, and the associated class of map projections.*
-
-More information about HEALPix can be found here:
-
-* http://healpix.jpl.nasa.gov/
-* http://adsabs.harvard.edu/abs/2005ApJ...622..759G
-* http://adsabs.harvard.edu/abs/2007MNRAS.381..865C
-
 Using the healpix package
 =========================
 

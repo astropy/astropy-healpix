@@ -335,3 +335,42 @@ def healpix_neighbors(healpix_index, nside, order='nested'):
     _validate_order(order)
 
     return core_cython.healpix_neighbors(healpix_index, nside, ORDER[order])
+
+
+def healpix_cone_search(lon, lat, radius, nside, order='nested', approximate=False):
+    """
+    Find all the HEALPix pixels that are within a given radius of a longitude/latitude
+
+    Note that this function can only be used for a single lon/lat pair at a
+    time, since different calls to the function may result in a different number
+    of matches.
+
+    Parameters
+    ----------
+    lon, lat : :class:`~astropy.units.Quantity`
+        The longitude and latitude to search around
+    radius : :class:`~astropy.units.Quantity`
+        The search radius
+    nside : int
+        Number of pixels along the side of each of the 12 top-level HEALPix tiles
+    order : { 'nested' | 'ring' }
+        Order of HEALPix pixels
+    approximate : bool
+        Whether to use an approximation to speed things up.
+
+    Returns
+    -------
+    healpix_index : `~numpy.ndarray`
+        1-D array with all the matching HEALPix pixel indices.
+    """
+
+    lon = float(lon.to(u.deg).value)
+    lat = float(lat.to(u.deg).value)
+    radius = float(radius.to(u.deg).value)
+    nside = int(nside)
+    approximate = int(approximate)
+
+    _validate_nside(nside)
+    _validate_order(order)
+
+    return core_cython.healpix_cone_search(lon, lat, radius, nside, ORDER[order], approximate)

@@ -456,13 +456,13 @@ def healpix_neighbors(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
 
             xy_index = healpixl_ring_to_xy(healpix_index[i], nside)
 
-            nn = healpixl_get_neighbours(xy_index, neighbours_indiv, nside)
+            n_neighbours = healpixl_get_neighbours(xy_index, neighbours_indiv, nside)
 
             for j in range(8):
                 k = 5 - j
                 if k < 0:
                     k = k + 8
-                if neighbours_indiv[k] < 0:
+                if j >= n_neighbours or neighbours_indiv[k] < 0:
                     neighbours[j, i] = -1
                 else:
                     neighbours[j, i] = healpixl_xy_to_ring(neighbours_indiv[k], nside)

@@ -1,3 +1,8 @@
+from __future__ import print_function, division
+
+# Note: we use capfd in all tests here to make sure no errors/warnings are being
+# raised by the C code.
+
 from itertools import product
 
 import pytest
@@ -28,16 +33,18 @@ def get_test_indices(nside):
 
 
 @pytest.mark.parametrize(('order', 'nside_power'), product(ORDERS, NSIDE_POWERS))
-def test_roundtrip_healpix_no_offsets(order, nside_power):
+def test_roundtrip_healpix_no_offsets(order, nside_power, capfd):
     nside = 2 ** nside_power
     index = get_test_indices(nside)
     lon, lat = core_cython.healpix_to_lonlat(index, nside, order)
     index_new = core_cython.lonlat_to_healpix(lon, lat, nside, order)
     assert_equal(index, index_new)
+    out, err = capfd.readouterr()
+    assert out == "" and err == ""
 
 
 @pytest.mark.parametrize(('order', 'nside_power'), product(ORDERS, NSIDE_POWERS))
-def test_roundtrip_healpix_with_offsets(order, nside_power):
+def test_roundtrip_healpix_with_offsets(order, nside_power, capfd):
     nside = 2 ** nside_power
     index = get_test_indices(nside)
     dx = np.random.random(index.shape)
@@ -47,34 +54,38 @@ def test_roundtrip_healpix_with_offsets(order, nside_power):
     assert_equal(index, index_new)
     assert_allclose(dx, dx_new, atol=1e-8)
     assert_allclose(dy, dy_new, atol=1e-8)
+    out, err = capfd.readouterr()
+    assert out == "" and err == ""
 
 
 @pytest.mark.parametrize('nside_power', NSIDE_POWERS)
-def test_roundtrip_nested_ring(nside_power):
+def test_roundtrip_nested_ring(nside_power, capfd):
     nside = 2 ** nside_power
     nested_index = get_test_indices(nside)
     ring_index = core_cython.nested_to_ring(nested_index, nside)
     nested_index_new = core_cython.ring_to_nested(ring_index, nside)
-
     assert_equal(nested_index, nested_index_new)
-
     if nside == 1:
         assert np.all(nested_index == ring_index)
     else:
         assert not np.all(nested_index == ring_index)
+    out, err = capfd.readouterr()
+    assert out == "" and err == ""
 
 
 @pytest.mark.parametrize(('order', 'nside_power'), product(ORDERS, NSIDE_POWERS))
-def test_healpix_neighbors(order, nside_power):
+def test_healpix_neighbors(order, nside_power, capfd):
     # This just makes sure things run, but doesn't check the validity of result
     nside = 2 ** nside_power
     index = get_test_indices(nside)
     neighbours = core_cython.healpix_neighbors(index, nside, order)
     assert np.all(neighbours >= -1) and np.all(neighbours < 12 * nside ** 2)
+    out, err = capfd.readouterr()
+    assert out == "" and err == ""
 
 
 @pytest.mark.parametrize(('order', 'nside_power'), product(ORDERS, NSIDE_POWERS))
-def test_healpix_cone_search(order, nside_power):
+def test_healpix_cone_search(order, nside_power, capfd):
     nside = 2 ** nside_power
     lon0, lat0 = 12., 40.
     radius = nside_to_pixel_resolution(nside).to(u.degree).value * 10
@@ -90,3 +101,5 @@ def test_healpix_cone_search(order, nside_power):
     sep = angular_separation(lon0 * u.deg, lat0 * u.deg, lon * u.rad, lat * u.rad)
     sep = sep.min(axis=1)
     assert np.all(sep.to(u.degree).value < radius * 1.05)
+    out, err = capfd.readouterr()
+    assert out == "" and err == ""

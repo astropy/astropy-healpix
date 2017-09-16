@@ -54,7 +54,7 @@ def nside_to_pixel_area(nside):
     pixel_area : :class:`~astropy.units.Quantity`
         The area of the HEALPix pixels
     """
-    nside = np.asanyarray(nside)
+    nside = np.asanyarray(nside, dtype=np.int64)
     _validate_nside(nside)
     npix = 12 * nside * nside
     pixel_area = 4 * math.pi / npix * u.sr
@@ -76,7 +76,7 @@ def nside_to_pixel_resolution(nside):
     resolution : :class:`~astropy.units.Quantity`
         The resolution of the HEALPix pixels
     """
-    nside = np.asanyarray(nside)
+    nside = np.asanyarray(nside, dtype=np.int64)
     _validate_nside(nside)
     return (nside_to_pixel_area(nside) ** 0.5).to(u.arcmin)
 
@@ -95,7 +95,7 @@ def nside_to_npix(nside):
     npix : int
         The number of pixels in the HEALPix map.
     """
-    nside = np.asanyarray(nside)
+    nside = np.asanyarray(nside, dtype=np.int64)
     _validate_nside(nside)
     return 12 * nside ** 2
 
@@ -116,7 +116,7 @@ def npix_to_nside(npix):
         The number of pixels on the side of one of the 12 'top-level' HEALPix tiles.
     """
 
-    npix = np.asanyarray(npix)
+    npix = np.asanyarray(npix, dtype=np.int64)
 
     if not np.all(npix % 12 == 0):
         raise ValueError('Number of pixels should be divisible by 12')

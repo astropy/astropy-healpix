@@ -5,7 +5,8 @@ from astropy.coordinates.representation import UnitSphericalRepresentation
 
 from .core import (nside_to_pixel_area, nside_to_pixel_resolution,
                    nside_to_npix, healpix_to_lonlat, lonlat_to_healpix,
-                   interpolate_bilinear_lonlat, ring_to_nested, nested_to_ring)
+                   interpolate_bilinear_lonlat, ring_to_nested, nested_to_ring,
+                   healpix_cone_search)
 
 __all__ = ['HEALPix', 'CelestialHEALPix']
 
@@ -22,7 +23,7 @@ class HEALPix(object):
         Order of HEALPix pixels
     """
 
-    def __init__(self, nside=None, order='nested'):
+    def __init__(self, nside=None, order='ring'):
         if nside is None:
             raise ValueError('nside has not been set')
         self.nside = nside
@@ -152,6 +153,35 @@ class HEALPix(object):
             raise ValueError('values should be an array of length {0} (got {1})'.format(self.npix, len(values)))
         return interpolate_bilinear_lonlat(lon, lat, values, order=self.order)
 
+    def cone_search_lonlat(self, lon, lat, radius, approximate=False):
+        """
+        Find all the HEALPix pixels that are within a given radius of a
+        longitude/latitude.
+
+        Note that this function can only be used for a single lon/lat pair at a
+        time, since different calls to the function may result in a different
+        number of matches.
+
+        Parameters
+        ----------
+        lon, lat : :class:`~astropy.units.Quantity`
+            The longitude and latitude to search around
+        radius : :class:`~astropy.units.Quantity`
+            The search radius
+        approximate : bool
+            Whether to use an approximation to speed things up.
+
+        Returns
+        -------
+        healpix_index : `~numpy.ndarray`
+            1-D array with all the matching HEALPix pixel indices.
+        """
+        if not lon.isscalar or not lat.isscalar or not radius.isscalar:
+            raise ValueError('The longitude, latitude and radius should be '
+                             'scalar Quantity objects')
+        return healpix_cone_search(lon, lat, radius, self.nside,
+                                   order=self.order, approximate=approximate)
+
 
 class CelestialHEALPix(HEALPix):
     """
@@ -167,7 +197,7 @@ class CelestialHEALPix(HEALPix):
         The coordinate frame of the pixellization, which defaults to ICRS
     """
 
-    def __init__(self, nside=None, order='nested', frame=None):
+    def __init__(self, nside=None, order='ring', frame=None):
         super(CelestialHEALPix, self).__init__(nside=nside, order=order)
         # Note that we can't do 'frame or ICRS() here since frames evaluate as False'
         self.frame = frame if frame is not None else ICRS()
@@ -239,6 +269,35 @@ class CelestialHEALPix(HEALPix):
         result : `~numpy.ndarray`
             1-D array of interpolated values
         """
+        skycoord = skycoord.transform_to(self.frame)
         representation = skycoord.represent_as(UnitSphericalRepresentation)
         lon, lat = representation.lon, representation.lat
-        return interpolate_bilinear_lonlat(lon, lat, values)
+        return self.interpolate_bilinear_lonlat(lon, lat, values)
+
+    def cone_search_skycoord(self, skycoord, radius, approximate=False):
+        """
+        Find all the HEALPix pixels that are within a given radius of a
+        celestial position.
+
+        Note that this function can only be used for a single celestial position
+        at a time, since different calls to the function may result in a
+        different number of matches.
+
+        Parameters
+        ----------
+        lon, lat : :class:`~astropy.units.Quantity`
+            The longitude and latitude to search around
+        radius : :class:`~astropy.units.Quantity`
+            The search radius
+        approximate : bool
+            Whether to use an approximation to speed things up.
+
+        Returns
+        -------
+        healpix_index : `~numpy.ndarray`
+            1-D array with all the matching HEALPix pixel indices.
+        """
+        skycoord = skycoord.transform_to(self.frame)
+        representation = skycoord.represent_as(UnitSphericalRepresentation)
+        lon, lat = representation.lon, representation.lat
+        return self.cone_search_lonlat(lon, lat, radius, self.nside)

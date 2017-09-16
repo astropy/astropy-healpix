@@ -203,7 +203,6 @@ void healpixl_decompose_xy(int64_t finehp, int* bighp, int* x, int* y, int Nside
    Composes an XY index given the "base healpix" and "x" and "y" coordinates
    within that healpix.
 */
-Const int healpix_compose_xy(int bighp, int x, int y, int Nside);
 
 Const int64_t healpixl_compose_xy(int bighp, int x, int y, int Nside);
 

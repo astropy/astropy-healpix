@@ -128,7 +128,7 @@ def npix_to_nside(npix):
     return np.round(square_root).astype(int)
 
 
-def healpix_to_lonlat(healpix_index, nside, dx=None, dy=None, order='nested'):
+def healpix_to_lonlat(healpix_index, nside, dx=None, dy=None, order='ring'):
     """
     Convert HEALPix indices (optionally with offsets) to longitudes/latitudes.
 
@@ -180,7 +180,7 @@ def healpix_to_lonlat(healpix_index, nside, dx=None, dy=None, order='nested'):
     return lon, lat
 
 
-def lonlat_to_healpix(lon, lat, nside, return_offsets=False, order='nested'):
+def lonlat_to_healpix(lon, lat, nside, return_offsets=False, order='ring'):
     """
     Convert longitudes/latitudes to HEALPix indices
 
@@ -272,7 +272,7 @@ def ring_to_nested(ring_index, nside):
     return core_cython.ring_to_nested(ring_index, nside)
 
 
-def interpolate_bilinear_lonlat(lon, lat, values, order='nested'):
+def interpolate_bilinear_lonlat(lon, lat, values, order='ring'):
     """
     Interpolate values at specific longitudes/latitudes using bilinear interpolation
 
@@ -307,7 +307,7 @@ def interpolate_bilinear_lonlat(lon, lat, values, order='nested'):
     return core_cython.interpolate_bilinear_lonlat(lon, lat, values, ORDER[order])
 
 
-def healpix_neighbors(healpix_index, nside, order='nested'):
+def healpix_neighbors(healpix_index, nside, order='ring'):
     """
     Find all the HEALPix pixels that are the neighbours of a HEALPix pixel
 
@@ -335,3 +335,42 @@ def healpix_neighbors(healpix_index, nside, order='nested'):
     _validate_order(order)
 
     return core_cython.healpix_neighbors(healpix_index, nside, ORDER[order])
+
+
+def healpix_cone_search(lon, lat, radius, nside, order='ring', approximate=False):
+    """
+    Find all the HEALPix pixels that are within a given radius of a longitude/latitude
+
+    Note that this function can only be used for a single lon/lat pair at a
+    time, since different calls to the function may result in a different number
+    of matches.
+
+    Parameters
+    ----------
+    lon, lat : :class:`~astropy.units.Quantity`
+        The longitude and latitude to search around
+    radius : :class:`~astropy.units.Quantity`
+        The search radius
+    nside : int
+        Number of pixels along the side of each of the 12 top-level HEALPix tiles
+    order : { 'nested' | 'ring' }
+        Order of HEALPix pixels
+    approximate : bool
+        Whether to use an approximation to speed things up.
+
+    Returns
+    -------
+    healpix_index : `~numpy.ndarray`
+        1-D array with all the matching HEALPix pixel indices.
+    """
+
+    lon = float(lon.to(u.deg).value)
+    lat = float(lat.to(u.deg).value)
+    radius = float(radius.to(u.deg).value)
+    nside = int(nside)
+    approximate = int(approximate)
+
+    _validate_nside(nside)
+    _validate_order(order)
+
+    return core_cython.healpix_cone_search(lon, lat, radius, nside, ORDER[order], approximate)

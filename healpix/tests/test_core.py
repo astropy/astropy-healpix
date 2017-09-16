@@ -11,7 +11,7 @@ from astropy.coordinates import Longitude, Latitude
 from ..core import (nside_to_pixel_area, nside_to_pixel_resolution,
                     nside_to_npix, npix_to_nside, healpix_to_lonlat,
                     lonlat_to_healpix, interpolate_bilinear_lonlat,
-                    healpix_neighbors)
+                    healpix_neighbors, healpix_cone_search)
 
 
 def test_nside_to_pixel_area():
@@ -173,3 +173,12 @@ def test_healpix_neighbors_invalid():
     with pytest.raises(ValueError) as exc:
         healpix_neighbors([1, 2, 3], 4, order='banana')
     assert exc.value.args[0] == "order should be 'nested' or 'ring'"
+
+
+@pytest.mark.parametrize('order', ['nested', 'ring'])
+def test_healpix_cone_search(order):
+
+    indices = healpix_cone_search(10 * u.deg, 20 * u.deg, 1 * u.deg,
+                                  nside=256, order=order)
+
+    assert len(indices) == 80

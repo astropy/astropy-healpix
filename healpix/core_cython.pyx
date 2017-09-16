@@ -79,7 +79,7 @@ def healpix_with_offset_to_lonlat(np.ndarray[int64_t, ndim=1, mode="c"] healpix_
 
     This function takes relative offsets in x and y inside the HEALPix pixels.
     If you are only interested in the centers of the pixels, see
-    `healpixl_to_lonlat`.
+    `healpix_to_lonlat`.
 
     Parameters
     ----------
@@ -456,13 +456,13 @@ def healpix_neighbors(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
 
             xy_index = healpixl_ring_to_xy(healpix_index[i], nside)
 
-            nn = healpixl_get_neighbours(xy_index, neighbours_indiv, nside)
+            n_neighbours = healpixl_get_neighbours(xy_index, neighbours_indiv, nside)
 
             for j in range(8):
                 k = 5 - j
                 if k < 0:
                     k = k + 8
-                if neighbours_indiv[k] < 0:
+                if j >= n_neighbours or neighbours_indiv[k] < 0:
                     neighbours[j, i] = -1
                 else:
                     neighbours[j, i] = healpixl_xy_to_ring(neighbours_indiv[k], nside)
@@ -475,7 +475,33 @@ def healpix_neighbors(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
 
 
 def healpix_cone_search(double lon, double lat, double radius, int nside, int order, int approx):
+    """
+    Find all the HEALPix pixels that are within a given radius of a longitude/latitude
 
+    Note that this function can only be used for a single lon/lat pair at a
+    time, since different calls to the function may result in a different number
+    of matches.
+
+    Parameters
+    ----------
+    lon, lat : float
+        The longitude and latitude to search around, in degrees
+    radius : float
+        The search radius, in degrees
+    nside : int
+        Number of pixels along the side of each of the 12 top-level HEALPix tiles
+    order : int
+        Order of HEALPix pixels. Set this to 0 for nested order or 1 for ring
+        order.
+    approx : int
+        Whether to use an approximation to speed things up. Set to 0 for the
+        proper solution, and 1 for an approximate solution.
+
+    Returns
+    -------
+    healpix_index : `~numpy.ndarray`
+        1-D array with all the matching HEALPix pixel indices.
+    """
     cdef intp_t i
     cdef int64_t *indices
     cdef int64_t n_indices

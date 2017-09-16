@@ -75,6 +75,17 @@ class TestHEALPix:
                                                  [3, 2, 6] * u.deg, values)
         assert exc.value.args[0] == 'values should be an array of length 786432 (got 222)'
 
+    def test_cone_search_lonlat(self):
+        lon, lat = 1 * u.deg, 4 * u.deg
+        result = self.pix.cone_search_lonlat(lon, lat, 1 * u.deg)
+        assert len(result) == 77
+
+    def test_cone_search_lonlat_invalid(self):
+        lon, lat = [1, 2] * u.deg, [3, 4] * u.deg
+        with pytest.raises(ValueError) as exc:
+            self.pix.cone_search_lonlat(lon, lat, 1 * u.deg)
+        assert exc.value.args[0] == 'The longitude, latitude and radius should be scalar Quantity objects'
+
 
 class TestCelestialHEALPix:
 
@@ -114,7 +125,25 @@ class TestCelestialHEALPix:
         assert_allclose(dy, [0.5, 0.4, 0.7])
 
     def test_interpolate_bilinear_skycoord(self):
-        values = np.ones(192) * 3
+
+        values = np.ones(12 * 256 ** 2) * 3
         coord = SkyCoord([1, 2, 3] * u.deg, [4, 3, 1] * u.deg, frame='fk4')
         result = self.pix.interpolate_bilinear_skycoord(coord, values)
         assert_allclose(result, [3, 3, 3])
+
+        # Make sure that coordinate system is correctly taken into account
+
+        values = np.arange(12 * 256 ** 2) * 3
+        coord = SkyCoord([1, 2, 3] * u.deg, [4, 3, 1] * u.deg, frame='fk4')
+
+        result1 = self.pix.interpolate_bilinear_skycoord(coord, values)
+        result2 = self.pix.interpolate_bilinear_skycoord(coord.icrs, values)
+
+        assert_allclose(result1, result2)
+
+    def test_cone_search_skycoord(self):
+        coord = SkyCoord(1 * u.deg, 4 * u.deg, frame='galactic')
+        result1 = self.pix.cone_search_skycoord(coord, 1 * u.deg)
+        assert len(result1) == 77
+        result2 = self.pix.cone_search_skycoord(coord.icrs, 1 * u.deg)
+        assert_allclose(result1, result2)

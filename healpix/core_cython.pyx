@@ -79,7 +79,7 @@ def healpix_with_offset_to_lonlat(np.ndarray[int64_t, ndim=1, mode="c"] healpix_
 
     This function takes relative offsets in x and y inside the HEALPix pixels.
     If you are only interested in the centers of the pixels, see
-    `healpixl_to_lonlat`.
+    `healpix_to_lonlat`.
 
     Parameters
     ----------

@@ -70,7 +70,7 @@ As you can see, when appropriate the properties and the methods on the
 :class:`~astropy.units.Quantity`, :class:`~astropy.coordinates.SkyCoord`, and so
 on.
 
-The following method can be used to convert HEALPix indices to
+The :meth:`~healpix.HEALPix.healpix_to_lonlat` method can be used to convert HEALPix indices to
 :class:`~astropy.coordinates.Longitude` and
 :class:`~astropy.coordinates.Latitude` objects:
 
@@ -111,16 +111,24 @@ position inside each HEALPix pixel, e.g.::
   >>> dy
   array([ 0.86809114,  0.72100823,  0.16610247])
 
-Finally, the :class:`~healpix.HEALPix` class can be used to interpolate a
-HEALPix map at given coordinates. A HEALPix map is typically given as a 1-d
-array with as many values as pixels in the HEALPix map, and either in nested or
-ring ordering. Assuming that we have an array of values in the correct order,
-we can carry out bilinear interpolation at custom positions using::
+The :meth:`~healpix.HEALPix.interpolate_bilinear_lonlat` can be used to
+interpolate a HEALPix map at given coordinates. A HEALPix map is typically given
+as a 1-d array with as many values as pixels in the HEALPix map, and either in
+nested or ring ordering. Assuming that we have an array of values in the correct
+order, we can carry out bilinear interpolation at custom positions using::
 
     >>> import numpy as np
     >>> values = np.arange(3072)
     >>> hp.interpolate_bilinear_lonlat([1, 2, 3] * u.deg, [5, 8, 10] * u.deg, values)
     array([ 1217.45982896,  1220.20594161,  1222.41978026])
+
+Finally, the :meth:`~healpix.HEALPix.cone_search_lonlat` method can be used to
+find all HEALpix pixels within a certain radius from a longitude/latitude::
+
+    >>> hp.cone_search_lonlat(10 * u.deg, 30 * u.deg, radius=10 * u.deg)
+    array([1269,  160,  162, 1271, 1270, 1268, 1246, 1247,  138,  139,  161,
+           1245,  136,  137,  140,  142,  130,  131, 1239, 1244, 1238, 1241,
+           1243, 1265, 1267, 1276, 1273, 1277,  168,  169,  163,  166,  164])
 
 Celestial HEALPix pixellization
 -------------------------------
@@ -140,24 +148,36 @@ which specifies the frame in which the HEALPix pixellization is defined::
     >>> from astropy.coordinates import Galactic
     >>> hp = CelestialHEALPix(nside=16, order='nested', frame=Galactic())
 
-This can then be used to convert from HEALPix indices to celestial coordinates::
+This can then be used to convert from HEALPix indices to celestial coordinates
+using the :meth:`~healpix.CelestialHEALPix.healpix_to_skycoord` method::
 
     >>> hp.healpix_to_skycoord([144, 231])
     <SkyCoord (Galactic): (l, b) in deg
         [( 33.75      ,  32.7971683 ), ( 32.14285714,  69.42254649)]>
 
-and from celestial coordinates to HEALPix indices, e.g::
+and from celestial coordinates to HEALPix indices using the
+:meth:`~healpix.CelestialHEALPix.skycoord_to_healpix` method, e.g::
 
     >>> from astropy.coordinates import SkyCoord
     >>> coord = SkyCoord.from_name('m31')
     >>> hp.skycoord_to_healpix(coord)
     array([2537])
 
-Finally, this can be used for interpolation::
+Finally, the :meth:`~healpix.CelestialHEALPix.interpolate_bilinear_skycoord` method can
+be used for interpolation::
 
     >>> values = np.arange(3072)
     >>> hp.interpolate_bilinear_skycoord(coord, values)
     array([ 167.03780645])
+
+and the :meth:`~healpix.CelestialHEALPix.cone_search_skycoord` method can be used for
+cone searches::
+
+    >>> hp.cone_search_skycoord(coord, values)
+    array([ 167.03780645])
+
+See the `High-level interface`_ section for more details on the interpolation
+and the cone search.
 
 Converting between ring and nested conventions
 ----------------------------------------------
@@ -165,12 +185,12 @@ Converting between ring and nested conventions
 The :class:`~healpix.HEALPix` class (and by extension the
 :class:`~healpix.CelestialHEALPix` class) have methods that can be used to
 convert HEALPix pixel indices between the ring and nested convention. These
-are::
+are :meth:`~healpix.HEALPix.nested_to_ring`::
 
     >>> hp.nested_to_ring([30])
     array([873])
 
-and::
+and :meth:`~healpix.HEALPix.ring_to_nested`::
 
     >>> hp.ring_to_nested([1, 2, 3])
     array([ 511,  767, 1023])

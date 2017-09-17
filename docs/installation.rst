@@ -40,8 +40,8 @@ Installing the latest stable version is possible either using pip or conda.
 Using pip
 ---------
 
-To install **healpix** with `pip <http://www.pip-installer.org/en/latest/>`_
-from `PyPI <https://pypi.python.org/pypi/regions>`_
+To install **healpix** with `pip <http://www.pip-installer.org/en/latest/>`__
+from `PyPI <https://pypi.python.org/pypi/regions>`__
 simply run::
 
     pip install --no-deps healpix

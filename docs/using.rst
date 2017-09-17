@@ -195,22 +195,3 @@ and :meth:`~healpix.HEALPix.ring_to_nested`::
 
     >>> hp.ring_to_nested([1, 2, 3])
     array([ 511,  767, 1023])
-
-Low-level interface(s)
-----------------------
-
-If you would prefer to use a functional interface, you can use the functions
-from `healpix.core`. These functions include sanity checking of the input, so if
-performance is paramount and you want to access the Cython functions directly,
-you can do so via the `healpix.core_cython` sub-package. Be sure to read the
-documentation for the functions you want to use, since the Cython functions
-require the data to be in specific numerical types in order to work properly.
-
-Healpy-compatible interface
----------------------------
-
-In addition to the above high- and low-level interfaces, we have provided
-a `healpy <http://healpy.readthedocs.io>`_-compatible interface in
-`healpix.healpy`. Note that this only includes a subset of the healpy functions.
-This is not the recommended interface, and is only provided as a convenience
-for packages that want to support both heapy and this package.

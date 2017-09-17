@@ -35,6 +35,13 @@ def test_nside2npix(nside):
     assert_equal(actual, expected)
 
 
+@pytest.mark.parametrize('level', [0, 3, 7])
+def test_order2nside(level):
+    actual = hp_compat.order2nside(level)
+    expected = hp.order2nside(level)
+    assert_equal(actual, expected)
+
+
 @pytest.mark.parametrize('npix', [12 * 2**(2*n)for n in range(1, 6)])
 def test_npix2nside(npix):
     actual = hp_compat.npix2nside(npix)

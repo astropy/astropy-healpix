@@ -11,10 +11,10 @@ from astropy import units as u
 
 from .core_cython import lonlat_to_healpix, healpix_to_lonlat
 from .core import (nside_to_pixel_resolution, nside_to_pixel_area,
-                   nside_to_npix, npix_to_nside)
+                   nside_to_npix, npix_to_nside, level_to_nside)
 
 __all__ = ['nside2resol', 'nside2pixarea', 'nside2npix', 'npix2nside',
-           'pix2ang', 'ang2pix']
+           'pix2ang', 'ang2pix', 'order2nside']
 
 
 def nside2resol(nside, arcmin=False):
@@ -39,6 +39,10 @@ def nside2npix(nside):
 
 def npix2nside(npix):
     return npix_to_nside(npix)
+
+
+def order2nside(order):
+    return level_to_nside(order)
 
 
 def pix2ang(nside, ipix, nest=False):

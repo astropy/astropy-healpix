@@ -1,3 +1,5 @@
+:orphan:
+
 .. include:: references.txt
 
 .. _about:

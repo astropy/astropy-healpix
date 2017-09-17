@@ -18,7 +18,7 @@ ORDER = {'nested': 0,
 
 
 def _validate_order(order):
-    if order not in ORDER:
+    if order.lower() not in ORDER:
         raise ValueError("order should be 'nested' or 'ring'")
 
 
@@ -166,13 +166,13 @@ def healpix_to_lonlat(healpix_index, nside, dx=None, dy=None, order='ring'):
     _validate_order(order)
 
     if dx is None:
-        lon, lat = core_cython.healpix_to_lonlat(healpix_index, nside, ORDER[order])
+        lon, lat = core_cython.healpix_to_lonlat(healpix_index, nside, ORDER[order.lower()])
     else:
         dx = np.asarray(dx, dtype=np.float)
         dy = np.asarray(dy, dtype=np.float)
         _validate_offset('x', dx)
         _validate_offset('y', dy)
-        lon, lat = core_cython.healpix_with_offset_to_lonlat(healpix_index, dx, dy, nside, ORDER[order])
+        lon, lat = core_cython.healpix_with_offset_to_lonlat(healpix_index, dx, dy, nside, ORDER[order.lower()])
 
     lon = Longitude(lon, unit=u.rad, copy=False)
     lat = Latitude(lat, unit=u.rad, copy=False)
@@ -215,9 +215,9 @@ def lonlat_to_healpix(lon, lat, nside, return_offsets=False, order='ring'):
     _validate_order(order)
 
     if return_offsets:
-        return core_cython.lonlat_to_healpix_with_offset(lon, lat, nside, ORDER[order])
+        return core_cython.lonlat_to_healpix_with_offset(lon, lat, nside, ORDER[order.lower()])
     else:
-        return core_cython.lonlat_to_healpix(lon, lat, nside, ORDER[order])
+        return core_cython.lonlat_to_healpix(lon, lat, nside, ORDER[order.lower()])
 
 
 def nested_to_ring(nested_index, nside):
@@ -304,7 +304,7 @@ def interpolate_bilinear_lonlat(lon, lat, values, order='ring'):
     if values.ndim != 1:
         raise ValueError("values should be a 1-dimensional array")
 
-    return core_cython.interpolate_bilinear_lonlat(lon, lat, values, ORDER[order])
+    return core_cython.interpolate_bilinear_lonlat(lon, lat, values, ORDER[order.lower()])
 
 
 def healpix_neighbors(healpix_index, nside, order='ring'):
@@ -334,7 +334,7 @@ def healpix_neighbors(healpix_index, nside, order='ring'):
     _validate_nside(nside)
     _validate_order(order)
 
-    return core_cython.healpix_neighbors(healpix_index, nside, ORDER[order])
+    return core_cython.healpix_neighbors(healpix_index, nside, ORDER[order.lower()])
 
 
 def healpix_cone_search(lon, lat, radius, nside, order='ring', approximate=False):
@@ -373,7 +373,7 @@ def healpix_cone_search(lon, lat, radius, nside, order='ring', approximate=False
     _validate_nside(nside)
     _validate_order(order)
 
-    return core_cython.healpix_cone_search(lon, lat, radius, nside, ORDER[order], approximate)
+    return core_cython.healpix_cone_search(lon, lat, radius, nside, ORDER[order.lower()], approximate)
 
 
 def boundaries_lonlat(healpix_index, step, nside, order='ring'):

@@ -13,7 +13,15 @@ from astropy.coordinates import Longitude, Latitude
 from ..core import (nside_to_pixel_area, nside_to_pixel_resolution,
                     nside_to_npix, npix_to_nside, healpix_to_lonlat,
                     lonlat_to_healpix, interpolate_bilinear_lonlat,
-                    healpix_neighbors, healpix_cone_search, boundaries_lonlat)
+                    healpix_neighbors, healpix_cone_search, boundaries_lonlat,
+                    level_to_nside)
+
+
+def test_level_to_nside():
+    assert level_to_nside(5) == 2 ** 5
+    with pytest.raises(ValueError) as exc:
+        level_to_nside(-1)
+    assert exc.value.args[0] == 'level should be positive'
 
 
 def test_nside_to_pixel_area():

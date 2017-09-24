@@ -125,43 +125,6 @@ Const int64_t healpixl_compose_ring(int64_t ring, int longind, int Nside) {
 }
 
 void healpixl_decompose_ring(int64_t hp, int Nside, int* p_ring, int* p_longind) {
-	// FIXME: this could be written in closed form...
-	int64_t longind;
-	int64_t offset = 0;
-	int ring;
-	for (ring=1; ring<=Nside; ring++) {
-		if (offset + ring*4 > hp) {
-			longind = hp - offset;
-			goto gotit;
-		}
-		offset += ring*4;
-	}
-	for (; ring<(3*Nside); ring++) {
-		if (offset + Nside*4 > hp) {
-			longind = hp - offset;
-			goto gotit;
-		}
-		offset += Nside*4;
-	}
-	for (; ring<(4*Nside); ring++) {
-		if (offset + (Nside*4 - ring)*4 > hp) {
-			longind = hp - offset;
-			goto gotit;
-		}
-		offset += (Nside*4 - ring)*4;
-	}
-	fprintf(stderr, "healpix_decompose_ring: shouldn't get here!\n");
-	if (p_ring) *p_ring = -1;
-	if (p_longind) *p_longind = -1;
-	return;
- gotit:
-	if (p_ring)
-		*p_ring = ring;
-	if (p_longind)
-		*p_longind = (int)longind;
-}
-
-void healpixl_decompose_ring_closed(int64_t hp, int Nside, int* p_ring, int* p_longind) {
 	int64_t longind;
 	int64_t offset = 0;
 	int ring;

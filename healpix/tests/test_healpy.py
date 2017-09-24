@@ -56,7 +56,7 @@ def test_npix2nside(npix):
 # For the test below, we exclude latitudes that fall exactly on the pole or
 # the equator since points that fall at exact boundaries are ambiguous.
 
-@given(nside_pow=integers(0, 22), nest=booleans(), lonlat=booleans(),
+@given(nside_pow=integers(0, 29), nest=booleans(), lonlat=booleans(),
        lon=floats(0, 360, allow_nan=False, allow_infinity=False),
        lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(lambda lat: abs(lat) < 90 and lat != 0))
 @settings(max_examples=1000)
@@ -71,7 +71,7 @@ def test_ang2pix(nside_pow, lon, lat, nest, lonlat):
     assert ipix1 == ipix2
 
 
-@given(nside_pow=integers(0, 22), nest=booleans(), lonlat=booleans(),
+@given(nside_pow=integers(0, 29), nest=booleans(), lonlat=booleans(),
        frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1))
 @settings(max_examples=1000)
 def test_pix2ang(nside_pow, frac, nest, lonlat):
@@ -79,8 +79,14 @@ def test_pix2ang(nside_pow, frac, nest, lonlat):
     ipix = int(frac * 12 * nside ** 2)
     theta1, phi1 = hp_compat.pix2ang(nside, ipix, nest=nest, lonlat=lonlat)
     theta2, phi2 = hp.pix2ang(nside, ipix, nest=nest, lonlat=lonlat)
-    assert_allclose(phi1, phi2, atol=1e-10)
-    assert_allclose(theta1, theta2, atol=1e-8)
+    if lonlat:
+        assert_allclose(phi1, phi2, atol=1e-8)
+        if abs(phi1) < 90:
+            assert_allclose(theta1, theta2, atol=1e-10)
+    else:
+        assert_allclose(theta1, theta2, atol=1e-8)
+        if theta1 > 0:
+            assert_allclose(phi1, phi2, atol=1e-10)
 
 
 @given(nside_pow=integers(0, 29),

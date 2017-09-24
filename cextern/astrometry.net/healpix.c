@@ -125,36 +125,33 @@ Const int64_t healpixl_compose_ring(int64_t ring, int longind, int Nside) {
 }
 
 void healpixl_decompose_ring(int64_t hp, int Nside, int* p_ring, int* p_longind) {
-	// FIXME: this could be written in closed form...
 	int64_t longind;
 	int64_t offset = 0;
+	int64_t Nside64;
+	int64_t ns2;
 	int ring;
-	for (ring=1; ring<=Nside; ring++) {
-		if (offset + ring*4 > hp) {
+	double x;
+	Nside64 = (int64_t)Nside;
+	ns2 = Nside64 * Nside64;
+	if (hp < 2 * ns2) {
+		ring = (int)(0.5 + sqrt(0.25 + 0.5 * hp));
+		offset = 2 * ring * (ring - 1);
+		longind = hp - offset;
+	} else {
+		offset = 2 * Nside64 * (Nside64 - 1);
+		if (hp < 10 * ns2) {
+			ring = (int)((hp - offset) / (Nside * 4)) + Nside;
+			offset += 4 * (ring - Nside64) * Nside64;
 			longind = hp - offset;
-			goto gotit;
+		} else {
+			 offset += 8 * ns2;
+			 x = (2 * Nside64 + 1 - sqrt((2 * Nside64 + 1) * (2 * Nside64 + 1) - 2 * (hp - offset)))*0.5;
+			 ring = (int)x;
+			 offset += 2 * ring * (2 * Nside64 + 1 - ring);
+			 longind = (int)(hp - offset);
+			 ring += 3 * Nside;
 		}
-		offset += ring*4;
 	}
-	for (; ring<(3*Nside); ring++) {
-		if (offset + Nside*4 > hp) {
-			longind = hp - offset;
-			goto gotit;
-		}
-		offset += Nside*4;
-	}
-	for (; ring<(4*Nside); ring++) {
-		if (offset + (Nside*4 - ring)*4 > hp) {
-			longind = hp - offset;
-			goto gotit;
-		}
-		offset += (Nside*4 - ring)*4;
-	}
-	fprintf(stderr, "healpix_decompose_ring: shouldn't get here!\n");
-	if (p_ring) *p_ring = -1;
-	if (p_longind) *p_longind = -1;
-	return;
- gotit:
 	if (p_ring)
 		*p_ring = ring;
 	if (p_longind)

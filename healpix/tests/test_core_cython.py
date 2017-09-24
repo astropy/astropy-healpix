@@ -27,7 +27,7 @@ def get_test_indices(nside):
         try:
             return np.random.randint(0, 12 * nside ** 2, 12 * 8 ** 2, dtype=np.int64)
         except TypeError:  # Numpy 1.9 and 1.10
-            return (np.random.random(12 * 8 ** 2) * (12 * float(nside) ** 2)).astype(np.int64)
+            return (np.random.random(12 * 8 ** 2) * (12 * float(nside) ** 2)).astype(np.int64, copy=False)
     else:
         return np.arange(12 * nside ** 2, dtype=np.int64)
 

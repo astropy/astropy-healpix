@@ -19,6 +19,7 @@ cdef int ORDER_NESTED = 0
 cdef int ORDER_RING = 1
 
 
+@cython.boundscheck(False)
 def healpix_to_lonlat(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
                       int nside, int order):
     """
@@ -57,8 +58,6 @@ def healpix_to_lonlat(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
     if order == ORDER_NESTED:
         for i in range(n):
             xy_index = healpixl_nested_to_xy(healpix_index[i], nside)
-            if xy_index < 0:
-                raise Exception("xy_index: " + str(xy_index))
             healpixl_to_radec(xy_index, nside, dx, dy, &lon[i], &lat[i])
     elif order == ORDER_RING:
         for i in range(n):

@@ -53,7 +53,7 @@ def test_npix2nside(npix):
     assert_equal(actual, expected)
 
 
-@given(nside_pow=integers(0, 29), nest=booleans(), lonlat=booleans(),
+@given(nside_pow=integers(0, 16), nest=booleans(), lonlat=booleans(),
        lon=floats(0, 360, allow_nan=False, allow_infinity=False),
        lat=floats(-90, 90, allow_nan=False, allow_infinity=False))
 @settings(max_examples=1000)
@@ -68,7 +68,7 @@ def test_ang2pix(nside_pow, lon, lat, nest, lonlat):
     assert ipix1 == ipix2
 
 
-@given(nside_pow=integers(0, 29), nest=booleans(), lonlat=booleans(),
+@given(nside_pow=integers(0, 16), nest=booleans(), lonlat=booleans(),
        frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1))
 @settings(max_examples=1000)
 def test_pix2ang(nside_pow, frac, nest, lonlat):
@@ -80,7 +80,7 @@ def test_pix2ang(nside_pow, frac, nest, lonlat):
     assert_allclose(theta1, theta2, atol=1e-8)
 
 
-@given(nside_pow=integers(0, 29),
+@given(nside_pow=integers(0, 16),
        frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1))
 @settings(max_examples=1000)
 def test_nest2ring(nside_pow, frac):
@@ -91,7 +91,7 @@ def test_nest2ring(nside_pow, frac):
     assert ring1 == ring2
 
 
-@given(nside_pow=integers(0, 29),
+@given(nside_pow=integers(0, 16),
        frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1))
 @settings(max_examples=1000)
 def test_ring2nest(nside_pow, frac):

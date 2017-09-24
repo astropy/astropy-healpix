@@ -277,8 +277,8 @@ Const int64_t healpixl_xy_to_ring(int64_t hp, int Nside) {
 	 [3Nside, 4Nside-1] : s pole
 	 */
 	// this probably can't happen...
-	if ((ring < 1) || (ring >= 4*Nside)) {
-		fprintf(stderr, "Invalid ring index: %i\n", ring);
+	if ((ring < 1) || (ring >= 4L*Nside)) {
+		fprintf(stderr, "Invalid ring index: %i %i\n", ring, 4*Nside);
 		return -1;
 	}
 	if (ring <= Nside) {
@@ -289,13 +289,13 @@ Const int64_t healpixl_xy_to_ring(int64_t hp, int Nside) {
 		index += ((bighp % 4) * ring);
 		// offset from the other rings
 		index += (int64_t)ring*(ring-1)*2;
-	} else if (ring >= 3*Nside) {
+	} else if (ring >= 3L*Nside) {
 		// south polar.
 		// Here I first flip everything so that we label the pixels
 		// at zero starting in the southeast corner, increasing to the
 		// west and north, then subtract that from the total number of
 		// healpixels.
-		int ri = 4*Nside - ring;
+		int ri = 4L*Nside - ring;
 		// index within this healpix
 		index = (ri-1) - x;
 		// big healpixes
@@ -483,10 +483,9 @@ static int healpix_get_neighbour(int hp, int dx, int dy)
 	return -1;
 }
 
-static int get_neighbours(hp_t hp, hp_t* neighbour, int Nside) {
+static void get_neighbours(hp_t hp, hp_t* neighbour, int Nside) {
 	int base;
 	int x, y;
-	int nn = 0;
 	int nbase;
 	int nx, ny;
 
@@ -506,10 +505,9 @@ static int get_neighbours(hp_t hp, hp_t* neighbour, int Nside) {
 	} else
 		nbase = base;
 
-	neighbour[nn].bighp = nbase;
-	neighbour[nn].x = nx;
-	neighbour[nn].y = ny;
-	nn++;
+	neighbour[0].bighp = nbase;
+	neighbour[0].x = nx;
+	neighbour[0].y = ny;
 
 	// ( + , + )
 	nx = (x + 1) % Nside;
@@ -537,12 +535,9 @@ static int get_neighbours(hp_t hp, hp_t* neighbour, int Nside) {
 
 	//printf("(+ +): nbase=%i, nx=%i, ny=%i, pix=%i\n", nbase, nx, ny, nbase*Ns2+xy_to_pnprime(nx,ny,Nside));
 
-	if (nbase != -1) {
-		neighbour[nn].bighp = nbase;
-		neighbour[nn].x = nx;
-		neighbour[nn].y = ny;
-		nn++;
-	}
+	neighbour[1].bighp = nbase;
+	neighbour[1].x = nx;
+	neighbour[1].y = ny;
 
 	// ( 0 , + )
 	nx = x;
@@ -558,10 +553,9 @@ static int get_neighbours(hp_t hp, hp_t* neighbour, int Nside) {
 
 	//printf("(0 +): nbase=%i, nx=%i, ny=%i, pix=%i\n", nbase, nx, ny, nbase*Ns2+xy_to_pnprime(nx,ny,Nside));
 
-	neighbour[nn].bighp = nbase;
-	neighbour[nn].x = nx;
-	neighbour[nn].y = ny;
-	nn++;
+	neighbour[2].bighp = nbase;
+	neighbour[2].x = nx;
+	neighbour[2].y = ny;
 
 	// ( - , + )
 	nx = (x + Nside - 1) % Nside;
@@ -588,12 +582,9 @@ static int get_neighbours(hp_t hp, hp_t* neighbour, int Nside) {
 
 	//printf("(- +): nbase=%i, nx=%i, ny=%i, pix=%i\n", nbase, nx, ny, nbase*Ns2+xy_to_pnprime(nx,ny,Nside));
 
-	if (nbase != -1) {
-		neighbour[nn].bighp = nbase;
-		neighbour[nn].x = nx;
-		neighbour[nn].y = ny;
-		nn++;
-	}
+	neighbour[3].bighp = nbase;
+	neighbour[3].x = nx;
+	neighbour[3].y = ny;
 
 	// ( - , 0 )
 	nx = (x + Nside - 1) % Nside;
@@ -609,10 +600,9 @@ static int get_neighbours(hp_t hp, hp_t* neighbour, int Nside) {
 
 	//printf("(- 0): nbase=%i, nx=%i, ny=%i, pix=%i\n", nbase, nx, ny, nbase*Ns2+xy_to_pnprime(nx,ny,Nside));
 
-	neighbour[nn].bighp = nbase;
-	neighbour[nn].x = nx;
-	neighbour[nn].y = ny;
-	nn++;
+	neighbour[4].bighp = nbase;
+	neighbour[4].x = nx;
+	neighbour[4].y = ny;
 
 	// ( - , - )
 	nx = (x + Nside - 1) % Nside;
@@ -640,12 +630,9 @@ static int get_neighbours(hp_t hp, hp_t* neighbour, int Nside) {
 
 	//printf("(- -): nbase=%i, nx=%i, ny=%i, pix=%i\n", nbase, nx, ny, nbase*Ns2+xy_to_pnprime(nx,ny,Nside));
 
-	if (nbase != -1) {
-		neighbour[nn].bighp = nbase;
-		neighbour[nn].x = nx;
-		neighbour[nn].y = ny;
-		nn++;
-	}
+	neighbour[5].bighp = nbase;
+	neighbour[5].x = nx;
+	neighbour[5].y = ny;
 
 	// ( 0 , - )
 	ny = (y + Nside - 1) % Nside;
@@ -661,10 +648,9 @@ static int get_neighbours(hp_t hp, hp_t* neighbour, int Nside) {
 
 	//printf("(0 -): nbase=%i, nx=%i, ny=%i, pix=%i\n", nbase, nx, ny, nbase*Ns2+xy_to_pnprime(nx,ny,Nside));
 
-	neighbour[nn].bighp = nbase;
-	neighbour[nn].x = nx;
-	neighbour[nn].y = ny;
-	nn++;
+	neighbour[6].bighp = nbase;
+	neighbour[6].x = nx;
+	neighbour[6].y = ny;
 
 	// ( + , - )
 	nx = (x + 1) % Nside;
@@ -692,26 +678,24 @@ static int get_neighbours(hp_t hp, hp_t* neighbour, int Nside) {
 
 	//printf("(+ -): nbase=%i, nx=%i, ny=%i, pix=%i\n", nbase, nx, ny, nbase*Ns2+xy_to_pnprime(nx,ny,Nside));
 
-	if (nbase != -1) {
-		neighbour[nn].bighp = nbase;
-		neighbour[nn].x = nx;
-		neighbour[nn].y = ny;
-		nn++;
-	}
+	neighbour[7].bighp = nbase;
+	neighbour[7].x = nx;
+	neighbour[7].y = ny;
 
-	return nn;
 }
 
-int healpixl_get_neighbours(int64_t pix, int64_t* neighbour, int Nside) {
+void healpixl_get_neighbours(int64_t pix, int64_t* neighbour, int Nside) {
 	hp_t neigh[8];
 	hp_t hp;
-	int nn;
 	int i;
 	intltohp(pix, &hp, Nside);
-	nn = get_neighbours(hp, neigh, Nside);
-	for (i=0; i<nn; i++)
-		neighbour[i] = hptointl(neigh[i], Nside);
-	return nn;
+	get_neighbours(hp, neigh, Nside);
+	for (i=0; i<8; i++)
+		if (neigh[i].bighp < 0) {
+			neighbour[i] = -1;
+		} else {
+			neighbour[i] = hptointl(neigh[i], Nside);
+		}
 }
 
 static hp_t xyztohp(double vx, double vy, double vz, int Nside,

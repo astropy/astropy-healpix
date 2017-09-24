@@ -42,8 +42,10 @@ ll* healpix_region_search(int seed, ll* seeds, int Nside,
 			int i, nn;
 			int64_t neigh[8];
 			hp = ll_get(frontier, j);
-			nn = healpixl_get_neighbours(hp, neigh, Nside);
-			for (i=0; i<nn; i++) {
+			healpixl_get_neighbours(hp, neigh, Nside);
+			for (i=0; i<8; i++) {
+				if (neigh[i] < 0)
+					continue;
 				if (ll_contains(frontier, neigh[i]))
 					continue;
 				if (ll_contains(rejected, neigh[i]))
@@ -82,8 +84,10 @@ static ll* hp_rangesearch(const double* xyz, double radius, int Nside, ll* hps, 
 		int64_t nn, neighbours[8];
 		int64_t i;
 		hp = ll_pop(frontier);
-		nn = healpixl_get_neighbours(hp, neighbours, Nside);
-		for (i=0; i<nn; i++) {
+		healpixl_get_neighbours(hp, neighbours, Nside);
+		for (i=0; i<8; i++) {
+			if (neighbours[i] < 0)
+				continue;
 			anbool tst;
 			double nxyz[3];
 			if (ll_contains(frontier, neighbours[i]))

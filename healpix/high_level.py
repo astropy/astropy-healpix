@@ -134,6 +134,8 @@ class HEALPix(object):
         """
         Interpolate values at specific longitudes/latitudes using bilinear interpolation
 
+        If a position does not have four neighbours, this currently returns NaN.
+
         Parameters
         ----------
         lon, lat : :class:`~astropy.units.Quantity`
@@ -278,6 +280,8 @@ class CelestialHEALPix(HEALPix):
     def interpolate_bilinear_skycoord(self, skycoord, values):
         """
         Interpolate values at specific celestial coordinates using bilinear interpolation.
+
+        If a position does not have four neighbours, this currently returns NaN.
 
         Parameters
         ----------

@@ -316,7 +316,7 @@ double healpix_nside_for_side_length_arcmin(double arcmin);
    Healpixes in the interior of a large healpix will have eight neighbours;
    pixels near the edges can have fewer.
 */
-int healpixl_get_neighbours(int64_t pix, int64_t* neighbour, int Nside);
+void healpixl_get_neighbours(int64_t pix, int64_t* neighbour, int Nside);
 
 /**
  Finds the healpixes containing and neighbouring the given xyz

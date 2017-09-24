@@ -86,10 +86,10 @@ static ll* hp_rangesearch(const double* xyz, double radius, int Nside, ll* hps, 
 		hp = ll_pop(frontier);
 		healpixl_get_neighbours(hp, neighbours, Nside);
 		for (i=0; i<8; i++) {
-			if (neighbours[i] < 0)
-				continue;
 			anbool tst;
 			double nxyz[3];
+			if (neighbours[i] < 0)
+				continue;
 			if (ll_contains(frontier, neighbours[i]))
 				continue;
 			if (ll_contains(bad, neighbours[i]))

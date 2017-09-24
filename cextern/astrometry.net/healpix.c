@@ -175,7 +175,7 @@ Const int64_t healpixl_ring_to_xy(int64_t ring, int Nside) {
 		v = F1*Nside - ringind - 1;
 		x = v - y;
 		return healpixl_compose_xy(bighp, x, y, Nside);
-	} else if (ringind < 3*Nside) {
+	} else if (ringind < 3L*Nside) {
 		int panel;
 		int ind;
 		int bottomleft;
@@ -188,7 +188,7 @@ Const int64_t healpixl_ring_to_xy(int64_t ring, int Nside) {
 		panel = longind / Nside;
 		ind = longind % Nside;
 		bottomleft = ind < (ringind - Nside + 1) / 2;
-		topleft = ind < (3*Nside - ringind + 1)/2;
+		topleft = ind < (3L*Nside - ringind + 1)/2;
 
 		if (!bottomleft && topleft) {
 			// top row.
@@ -203,7 +203,7 @@ Const int64_t healpixl_ring_to_xy(int64_t ring, int Nside) {
 			// right side.
 			bighp = 4 + (panel + 1) % 4;
 			if (bighp == 4) {
-				longind -= (4*Nside - 1);
+				longind -= (4L*Nside - 1);
 				// Gah!  Wacky hack - it seems that since
 				// "longind" is negative in this case, the
 				// rounding behaves differently, so we end up

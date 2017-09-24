@@ -166,19 +166,16 @@ void healpixl_decompose_ring_closed(int64_t hp, int Nside, int* p_ring, int* p_l
 	int64_t offset = 0;
 	int ring;
 	double x;
-
 	ring = (int)(0.5 + sqrt(0.25 + 0.5 * hp));
 	if (ring <= Nside) {
 		offset = 2 * ring * (ring - 1);
 		longind = hp - offset;
-		goto gotit;
 	} else {
 		offset = 2 * Nside * (Nside - 1);
 		ring = (int)((hp - offset) / (Nside * 4)) + Nside;
 		if (ring < 3 * Nside) {
 			offset += 4 * (ring - Nside) * Nside;
 			longind = hp - offset;
-			goto gotit;
 		} else {
 			 offset += 4 * (3 * Nside - Nside) * Nside;
 			 x = (2 * Nside + 1 - sqrt((2 * Nside + 1) * (2 * Nside + 1) - 2 * (hp - offset)))*0.5;
@@ -186,14 +183,8 @@ void healpixl_decompose_ring_closed(int64_t hp, int Nside, int* p_ring, int* p_l
 			 offset += 2 * ring * (2 * Nside + 1 - ring);
 			 longind = (int)(hp - offset);
 			 ring += 3 * Nside;
-			 goto gotit;
 		}
 	}
-	fprintf(stderr, "healpix_decompose_ring: shouldn't get here!\n");
-	if (p_ring) *p_ring = -1;
-	if (p_longind) *p_longind = -1;
-	return;
- gotit:
 	if (p_ring)
 		*p_ring = ring;
 	if (p_longind)

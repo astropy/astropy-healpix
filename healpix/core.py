@@ -33,10 +33,34 @@ def _validate_offset(label, offset):
         raise ValueError('d{0} should be in the range [0:1]'.format(label))
 
 
+def _validate_level(level):
+    if level < 0:
+        raise ValueError('level should be positive')
+
+
 def _validate_nside(nside):
     log_2_nside = np.round(np.log2(nside))
     if not np.all(2 ** log_2_nside == nside):
         raise ValueError('nside should be a power of two')
+
+
+def level_to_nside(level):
+    """
+    Find the pixel dimensions of the top-level HEALPix tiles given the
+    resolution level (this is given by 2**level).
+
+    Parameters
+    ----------
+    level : int
+        The resolution level
+
+    Returns
+    -------
+    nside : int
+        The number of pixels on the side of one of the 12 'top-level' HEALPix tiles.
+    """
+    _validate_level(level)
+    return 2 ** level
 
 
 def nside_to_pixel_area(nside):

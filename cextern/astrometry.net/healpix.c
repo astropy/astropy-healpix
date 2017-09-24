@@ -127,23 +127,25 @@ Const int64_t healpixl_compose_ring(int64_t ring, int longind, int Nside) {
 void healpixl_decompose_ring(int64_t hp, int Nside, int* p_ring, int* p_longind) {
 	int64_t longind;
 	int64_t offset = 0;
+	int64_t Nside64;
 	int ring;
 	double x;
+	Nside64 = (int64_t)Nside;
 	ring = (int)(0.5 + sqrt(0.25 + 0.5 * hp));
 	if (ring <= Nside) {
 		offset = 2 * ring * (ring - 1);
 		longind = hp - offset;
 	} else {
-		offset = 2 * Nside * (Nside - 1);
+		offset = 2 * Nside64 * (Nside64 - 1);
 		ring = (int)((hp - offset) / (Nside * 4)) + Nside;
 		if (ring < 3 * Nside) {
-			offset += 4 * (ring - Nside) * Nside;
+			offset += 4 * (ring - Nside64) * Nside64;
 			longind = hp - offset;
 		} else {
-			 offset += 4 * (3 * Nside - Nside) * Nside;
-			 x = (2 * Nside + 1 - sqrt((2 * Nside + 1) * (2 * Nside + 1) - 2 * (hp - offset)))*0.5;
+			 offset += 8 * Nside64 * Nside64;
+			 x = (2 * Nside64 + 1 - sqrt((2 * Nside64 + 1) * (2 * Nside64 + 1) - 2 * (hp - offset)))*0.5;
 			 ring = (int)x;
-			 offset += 2 * ring * (2 * Nside + 1 - ring);
+			 offset += 2 * ring * (2 * Nside64 + 1 - ring);
 			 longind = (int)(hp - offset);
 			 ring += 3 * Nside;
 		}

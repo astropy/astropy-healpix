@@ -12,7 +12,7 @@ from .. import healpy as hp_compat
 
 hp = pytest.importorskip('healpy')
 
-from hypothesis import given, settings
+from hypothesis import given, settings, example
 from hypothesis.strategies import integers, floats, booleans
 
 NSIDE_VALUES = [2**n for n in range(1, 6)]
@@ -57,6 +57,7 @@ def test_npix2nside(npix):
        lon=floats(0, 360, allow_nan=False, allow_infinity=False),
        lat=floats(-90, 90, allow_nan=False, allow_infinity=False))
 @settings(max_examples=1000)
+@example(nside_pow=10, lon=0.08789062500000001, lat=0.0, nest=False, lonlat=False)
 def test_ang2pix(nside_pow, lon, lat, nest, lonlat):
     nside = 2 ** nside_pow
     if lonlat:

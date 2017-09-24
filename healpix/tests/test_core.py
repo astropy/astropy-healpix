@@ -149,23 +149,24 @@ def test_healpix_neighbors(order):
     neighbours = healpix_neighbors([1, 2, 3], 4, order=order)
 
     if order == 'nested':
-        expected = [[90, 69, 0],
-                    [0, 71, 2],
+        expected = [[0, 71, 2],
                     [2, 77, 8],
                     [3, 8, 9],
                     [6, 9, 12],
                     [4, 3, 6],
                     [94, 1, 4],
-                    [91, 0, 1]]
+                    [91, 0, 1],
+                    [90, 69, 0]]
     else:
-        expected = [[16, 19, 22],
-                    [6, 8, 10],
+
+        expected = [[6, 8, 10],
                     [5, 7, 9],
                     [0, 1, 2],
                     [3, 0, 1],
                     [2, 3, 0],
                     [8, 10, 4],
-                    [7, 9, 11]]
+                    [7, 9, 11],
+                    [16, 19, 22]]
 
     assert_equal(neighbours, expected)
 

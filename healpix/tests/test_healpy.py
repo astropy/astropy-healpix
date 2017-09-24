@@ -53,11 +53,13 @@ def test_npix2nside(npix):
     assert_equal(actual, expected)
 
 
+# For the test below, we exclude latitudes that fall exactly on the pole or
+# the equator since points that fall at exact boundaries are ambiguous.
+
 @given(nside_pow=integers(0, 22), nest=booleans(), lonlat=booleans(),
        lon=floats(0, 360, allow_nan=False, allow_infinity=False),
-       lat=floats(-90, 90, allow_nan=False, allow_infinity=False))
+       lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(lambda lat: abs(lat) < 90 and lat != 0))
 @settings(max_examples=1000)
-@example(nside_pow=10, lon=0.08789062500000001, lat=0.0, nest=False, lonlat=False)
 def test_ang2pix(nside_pow, lon, lat, nest, lonlat):
     nside = 2 ** nside_pow
     if lonlat:

@@ -274,6 +274,8 @@ def interpolate_bilinear_lonlat(np.ndarray[double_t, ndim=1, mode="c"] lon,
     """
     Interpolate values at specific longitudes/latitudes using bilinear interpolation
 
+    If a position does not have four neighbours, this currently returns NaN.
+
     Parameters
     ----------
     lon, lat : `~numpy.ndarray`
@@ -417,7 +419,6 @@ def healpix_neighbors(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
     cdef int j, k
     cdef np.ndarray[int64_t, ndim=2, mode="c"] neighbours = np.zeros((8, n), dtype=npy_int64)
     cdef int64_t neighbours_indiv[8]
-    cdef int n_neighbours
 
     # The neighbours above are ordered as follows:
     #
@@ -438,13 +439,13 @@ def healpix_neighbors(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
         for i in range(n):
 
             xy_index = healpixl_nested_to_xy(healpix_index[i], nside)
-            n_neighbours = healpixl_get_neighbours(xy_index, neighbours_indiv, nside)
+            healpixl_get_neighbours(xy_index, neighbours_indiv, nside)
 
             for j in range(8):
-                k = 5 - j
+                k = 4 - j
                 if k < 0:
                     k = k + 8
-                if j >= n_neighbours or neighbours_indiv[k] < 0:
+                if neighbours_indiv[k] < 0:
                     neighbours[j, i] = -1
                 else:
                     neighbours[j, i] = healpixl_xy_to_nested(neighbours_indiv[k], nside)
@@ -455,20 +456,19 @@ def healpix_neighbors(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
 
             xy_index = healpixl_ring_to_xy(healpix_index[i], nside)
 
-            n_neighbours = healpixl_get_neighbours(xy_index, neighbours_indiv, nside)
+            healpixl_get_neighbours(xy_index, neighbours_indiv, nside)
 
             for j in range(8):
-                k = 5 - j
+                k = 4 - j
                 if k < 0:
                     k = k + 8
-                if j >= n_neighbours or neighbours_indiv[k] < 0:
+                if neighbours_indiv[k] < 0:
                     neighbours[j, i] = -1
                 else:
                     neighbours[j, i] = healpixl_xy_to_ring(neighbours_indiv[k], nside)
 
     else:
         raise ValueError('order should be 0 or 1')
-
 
     return neighbours
 

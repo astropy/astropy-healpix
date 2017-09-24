@@ -300,6 +300,8 @@ def interpolate_bilinear_lonlat(lon, lat, values, order='ring'):
     """
     Interpolate values at specific longitudes/latitudes using bilinear interpolation
 
+    If a position does not have four neighbours, this currently returns NaN.
+
     Parameters
     ----------
     lon, lat : :class:`~astropy.units.Quantity`

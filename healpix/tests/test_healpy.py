@@ -4,12 +4,16 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from itertools import product
 
 import pytest
+import numpy as np
 
 from numpy.testing import assert_equal, assert_allclose
 
 from .. import healpy as hp_compat
 
 hp = pytest.importorskip('healpy')
+
+from hypothesis import given, settings, example
+from hypothesis.strategies import integers, floats, booleans
 
 NSIDE_VALUES = [2**n for n in range(1, 6)]
 
@@ -42,32 +46,60 @@ def test_order2nside(level):
     assert_equal(actual, expected)
 
 
-@pytest.mark.parametrize('npix', [12 * 2**(2*n)for n in range(1, 6)])
+@pytest.mark.parametrize('npix', [12 * 2**(2 * n) for n in range(1, 6)])
 def test_npix2nside(npix):
     actual = hp_compat.npix2nside(npix)
     expected = hp.npix2nside(npix)
     assert_equal(actual, expected)
 
 
-@pytest.mark.parametrize('nside,theta,phi,nest', [
-    (256, 0.0000000000000000, 0.0000000000000000, True),
-    (256, 0.0000000000000000, 1.2566370614359172, True),
-    (256, 0.0000000000000000, 2.5132741228718345, True),
-    (256, 0.0000000000000000, 3.7699111843077517, True),
-    (256, 0.0000000000000000, 5.0265482457436690, True),
-    (256, 0.0000000000000000, 6.2831853071795862, True)])
-def test_ang2pix(nside, theta, phi, nest):
-    ipix1 = hp_compat.ang2pix(nside, theta, phi, nest=nest)
-    ipix2 = hp.ang2pix(nside, theta, phi, nest=nest)
+# For the test below, we exclude latitudes that fall exactly on the pole or
+# the equator since points that fall at exact boundaries are ambiguous.
+
+@given(nside_pow=integers(0, 22), nest=booleans(), lonlat=booleans(),
+       lon=floats(0, 360, allow_nan=False, allow_infinity=False),
+       lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(lambda lat: abs(lat) < 90 and lat != 0))
+@settings(max_examples=1000)
+def test_ang2pix(nside_pow, lon, lat, nest, lonlat):
+    nside = 2 ** nside_pow
+    if lonlat:
+        theta, phi = lon, lat
+    else:
+        theta, phi = np.pi / 2. - np.radians(lat), np.radians(lon)
+    ipix1 = hp_compat.ang2pix(nside, theta, phi, nest=nest, lonlat=lonlat)
+    ipix2 = hp.ang2pix(nside, theta, phi, nest=nest, lonlat=lonlat)
     assert ipix1 == ipix2
 
 
-@pytest.mark.parametrize('nside,ipix,nest', [
-    (2, 0, True),
-    (2, 1, True),
-    (2, 2, True)])
-def test_pix2ang(nside, ipix, nest):
-    theta1, phi1 = hp_compat.pix2ang(nside, ipix, nest=nest)
-    theta2, phi2 = hp.pix2ang(nside, ipix, nest=nest)
-    assert_allclose(phi1, phi2, rtol=1e-10)
-    assert_allclose(theta1, theta2, rtol=1e-10)
+@given(nside_pow=integers(0, 22), nest=booleans(), lonlat=booleans(),
+       frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1))
+@settings(max_examples=1000)
+def test_pix2ang(nside_pow, frac, nest, lonlat):
+    nside = 2 ** nside_pow
+    ipix = int(frac * 12 * nside ** 2)
+    theta1, phi1 = hp_compat.pix2ang(nside, ipix, nest=nest, lonlat=lonlat)
+    theta2, phi2 = hp.pix2ang(nside, ipix, nest=nest, lonlat=lonlat)
+    assert_allclose(phi1, phi2, atol=1e-10)
+    assert_allclose(theta1, theta2, atol=1e-8)
+
+
+@given(nside_pow=integers(0, 28),
+       frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1))
+@settings(max_examples=1000)
+def test_nest2ring(nside_pow, frac):
+    nside = 2 ** nside_pow
+    nest = int(frac * 12 * nside ** 2)
+    ring1 = hp_compat.nest2ring(nside, nest)
+    ring2 = hp.nest2ring(nside, nest)
+    assert ring1 == ring2
+
+
+@given(nside_pow=integers(0, 28),
+       frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1))
+@settings(max_examples=1000)
+def test_ring2nest(nside_pow, frac):
+    nside = 2 ** nside_pow
+    nest = int(frac * 12 * nside ** 2)
+    nest1 = hp_compat.ring2nest(nside, nest)
+    nest2 = hp.ring2nest(nside, nest)
+    assert nest1 == nest2

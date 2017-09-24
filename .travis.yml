@@ -28,12 +28,12 @@ env:
         # to repeat them for all configurations.
         - NUMPY_VERSION=stable
         - ASTROPY_VERSION=stable
-        - SETUP_CMD='test'
+        - SETUP_CMD='test --skip-docs'
 
         # For this package-template, we include examples of Cython modules,
         # so Cython is required for testing. If your package does not include
         # Cython code, you can set CONDA_DEPENDENCIES=''
-        - CONDA_DEPENDENCIES='Cython healpy'
+        - CONDA_DEPENDENCIES='Cython healpy>1.10 hypothesis'
 
         # Conda packages for affiliated packages are hosted in channel
         # "astropy" while builds for astropy LTS with recent numpy versions
@@ -50,7 +50,7 @@ env:
         # Make sure that egg_info works without dependencies
         - SETUP_CMD='egg_info'
         # Try all python versions with the latest numpy
-        - SETUP_CMD='test'
+        - SETUP_CMD='test --skip-docs'
 
 matrix:
     include:

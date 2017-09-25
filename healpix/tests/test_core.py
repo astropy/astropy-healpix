@@ -21,7 +21,7 @@ def test_level_to_nside():
     assert level_to_nside(5) == 2 ** 5
     with pytest.raises(ValueError) as exc:
         level_to_nside(-1)
-    assert exc.value.args[0] == 'level should be positive'
+    assert exc.value.args[0] == 'level must be positive'
 
 
 def test_nside_to_pixel_area():
@@ -45,7 +45,7 @@ def test_nside_to_npix():
 
     with pytest.raises(ValueError) as exc:
         nside_to_npix(15)
-    assert exc.value.args[0] == 'nside should be a power of two'
+    assert exc.value.args[0] == 'nside must be a power of two'
 
 
 def test_npix_to_nside():
@@ -57,7 +57,7 @@ def test_npix_to_nside():
 
     with pytest.raises(ValueError) as exc:
         npix_to_nside(7)
-    assert exc.value.args[0] == 'Number of pixels should be divisible by 12'
+    assert exc.value.args[0] == 'Number of pixels must be divisible by 12'
 
     with pytest.raises(ValueError) as exc:
         npix_to_nside(12 * 8 * 9)
@@ -102,23 +102,23 @@ def test_healpix_to_lonlat_invalid():
 
     with pytest.raises(ValueError) as exc:
         lon, lat = healpix_to_lonlat([-1, 2, 3], 4)
-    assert exc.value.args[0] == 'healpix_index should be in the range [0:192]'
+    assert exc.value.args[0] == 'healpix_index must be in the range [0:192]'
 
     with pytest.raises(ValueError) as exc:
         lon, lat = healpix_to_lonlat([1, 2, 3], 5)
-    assert exc.value.args[0] == 'nside should be a power of two'
+    assert exc.value.args[0] == 'nside must be a power of two'
 
     with pytest.raises(ValueError) as exc:
-        lon, lat = healpix_to_lonlat([1, 2, 3], 4, order='NESTED')
+        lon, lat = healpix_to_lonlat([1, 2, 3], 4, order='banana')
     assert exc.value.args[0] == "order must be 'nested' or 'ring'"
 
     with pytest.raises(ValueError) as exc:
         lon, lat = healpix_to_lonlat([1, 2, 3], 4, dx=[-0.1, 0.4, 0.5], dy=dy)
-    assert exc.value.args[0] == 'dx should be in the range [0:1]'
+    assert exc.value.args[0] == 'dx must be in the range [0:1]'
 
     with pytest.raises(ValueError) as exc:
         lon, lat = healpix_to_lonlat([1, 2, 3], 4, dx=dx, dy=[-0.1, 0.4, 0.5])
-    assert exc.value.args[0] == 'dy should be in the range [0:1]'
+    assert exc.value.args[0] == 'dy must be in the range [0:1]'
 
 
 @pytest.mark.parametrize('order', ['nested', 'ring'])
@@ -134,7 +134,7 @@ def test_interpolate_bilinear_invalid():
     values = np.ones(133)
     with pytest.raises(ValueError) as exc:
         interpolate_bilinear_lonlat([1, 3, 4] * u.deg, [3, 2, 6] * u.deg, values)
-    assert exc.value.args[0] == 'Number of pixels should be divisible by 12'
+    assert exc.value.args[0] == 'Number of pixels must be divisible by 12'
 
     values = np.ones(192)
     with pytest.raises(ValueError) as exc:
@@ -175,11 +175,11 @@ def test_healpix_neighbors_invalid():
 
     with pytest.raises(ValueError) as exc:
         healpix_neighbors([-1, 2, 3], 4)
-    assert exc.value.args[0] == 'healpix_index should be in the range [0:192]'
+    assert exc.value.args[0] == 'healpix_index must be in the range [0:192]'
 
     with pytest.raises(ValueError) as exc:
         healpix_neighbors([1, 2, 3], 5)
-    assert exc.value.args[0] == 'nside should be a power of two'
+    assert exc.value.args[0] == 'nside must be a power of two'
 
     with pytest.raises(ValueError) as exc:
         healpix_neighbors([1, 2, 3], 4, order='banana')

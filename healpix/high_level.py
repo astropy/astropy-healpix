@@ -59,7 +59,7 @@ class HEALPix(object):
         healpix_index : `~numpy.ndarray`
             1-D array of HEALPix indices
         dx, dy : `~numpy.ndarray`, optional
-            1-D arrays of offsets inside the HEALPix pixel, which should be in
+            1-D arrays of offsets inside the HEALPix pixel, which must be in
             the range [0:1] (0.5 is the center of the HEALPix pixels). If not
             specified, the position at the center of the pixel is used.
 
@@ -142,7 +142,7 @@ class HEALPix(object):
             The longitude and latitude values as :class:`~astropy.units.Quantity` instances
             with angle units.
         values : `~numpy.ndarray`
-            1-D array with the values in each HEALPix pixel. This should have a
+            1-D array with the values in each HEALPix pixel. This must have a
             length of the form 12 * nside ** 2 (and nside is determined
             automatically from this).
 
@@ -152,7 +152,7 @@ class HEALPix(object):
             1-D array of interpolated values
         """
         if len(values) != self.npix:
-            raise ValueError('values should be an array of length {0} (got {1})'.format(self.npix, len(values)))
+            raise ValueError('values must be an array of length {0} (got {1})'.format(self.npix, len(values)))
         return interpolate_bilinear_lonlat(lon, lat, values, order=self.order)
 
     def cone_search_lonlat(self, lon, lat, radius, approximate=False):
@@ -179,7 +179,7 @@ class HEALPix(object):
             1-D array with all the matching HEALPix pixel indices.
         """
         if not lon.isscalar or not lat.isscalar or not radius.isscalar:
-            raise ValueError('The longitude, latitude and radius should be '
+            raise ValueError('The longitude, latitude and radius must be '
                              'scalar Quantity objects')
         return healpix_cone_search(lon, lat, radius, self.nside,
                                    order=self.order, approximate=approximate)
@@ -237,7 +237,7 @@ class CelestialHEALPix(HEALPix):
         healpix_index : `~numpy.ndarray`
             1-D array of HEALPix indices
         dx, dy : `~numpy.ndarray`, optional
-            1-D arrays of offsets inside the HEALPix pixel, which should be in
+            1-D arrays of offsets inside the HEALPix pixel, which must be in
             the range [0:1] (0.5 is the center of the HEALPix pixels). If not
             specified, the position at the center of the pixel is used.
 
@@ -288,7 +288,7 @@ class CelestialHEALPix(HEALPix):
         skycoord : :class:`~astropy.coordinates.SkyCoord`
             The celestial coordinates at which to interpolate
         values : `~numpy.ndarray`
-            1-D array with the values in each HEALPix pixel. This should have a
+            1-D array with the values in each HEALPix pixel. This must have a
             length of the form 12 * nside ** 2 (and nside is determined
             automatically from this).
 

@@ -64,7 +64,7 @@ def healpix_to_lonlat(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
             xy_index = healpixl_ring_to_xy(healpix_index[i], nside)
             healpixl_to_radec(xy_index, nside, dx, dy, &lon[i], &lat[i])
     else:
-        raise ValueError('order should be 0 or 1')
+        raise ValueError('order must be 0 or 1')
 
     return lon, lat
 
@@ -85,7 +85,7 @@ def healpix_with_offset_to_lonlat(np.ndarray[int64_t, ndim=1, mode="c"] healpix_
     healpix_index : `~numpy.ndarray`
         1-D array of HEALPix indices
     dx, dy : `~numpy.ndarray`
-        1-D arrays of offsets inside the HEALPix pixel, which should be in the
+        1-D arrays of offsets inside the HEALPix pixel, which must be in the
         range [0:1] (0.5 is the center of the HEALPix pixels)
     nside : int
         Number of pixels along the side of each of the 12 top-level HEALPix tiles
@@ -114,7 +114,7 @@ def healpix_with_offset_to_lonlat(np.ndarray[int64_t, ndim=1, mode="c"] healpix_
             xy_index = healpixl_ring_to_xy(healpix_index[i], nside)
             healpixl_to_radec(xy_index, nside, dx[i], dy[i], &lon[i], &lat[i])
     else:
-        raise ValueError('order should be 0 or 1')
+        raise ValueError('order must be 0 or 1')
 
     return lon, lat
 
@@ -159,7 +159,7 @@ def lonlat_to_healpix(np.ndarray[double_t, ndim=1, mode="c"] lon,
             xy_index = radec_to_healpixlf(lon[i], lat[i], nside, &dx, &dy)
             healpix_index[i] = healpixl_xy_to_ring(xy_index, nside)
     else:
-        raise ValueError('order should be 0 or 1')
+        raise ValueError('order must be 0 or 1')
 
     return healpix_index
 
@@ -208,7 +208,7 @@ def lonlat_to_healpix_with_offset(np.ndarray[double_t, ndim=1, mode="c"] lon,
             xy_index = radec_to_healpixlf(lon[i], lat[i], nside, &dx[i], &dy[i])
             healpix_index[i] = healpixl_xy_to_ring(xy_index, nside)
     else:
-        raise ValueError('order should be 0 or 1')
+        raise ValueError('order must be 0 or 1')
 
     return healpix_index, dx, dy
 
@@ -281,7 +281,7 @@ def interpolate_bilinear_lonlat(np.ndarray[double_t, ndim=1, mode="c"] lon,
     lon, lat : `~numpy.ndarray`
         1-D arrays of longitude and latitude in radians
     values : `~numpy.ndarray`
-        1-D array with the values in each HEALPix pixel. This should have a
+        1-D array with the values in each HEALPix pixel. This must have a
         length of the form 12 * nside ** 2 (and nside is determined
         automatically from this).
     order : int
@@ -307,7 +307,7 @@ def interpolate_bilinear_lonlat(np.ndarray[double_t, ndim=1, mode="c"] lon,
     cdef double square_root
 
     if npix % 12 != 0:
-        raise ValueError('Number of pixels should be divisible by 12')
+        raise ValueError('Number of pixels must be divisible by 12')
 
     square_root = (npix / 12.) ** 0.5
 
@@ -468,7 +468,7 @@ def healpix_neighbors(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
                     neighbours[j, i] = healpixl_xy_to_ring(neighbours_indiv[k], nside)
 
     else:
-        raise ValueError('order should be 0 or 1')
+        raise ValueError('order must be 0 or 1')
 
     return neighbours
 

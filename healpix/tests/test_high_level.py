@@ -73,7 +73,7 @@ class TestHEALPix:
         with pytest.raises(ValueError) as exc:
             self.pix.interpolate_bilinear_lonlat([1, 3, 4] * u.deg,
                                                  [3, 2, 6] * u.deg, values)
-        assert exc.value.args[0] == 'values should be an array of length 786432 (got 222)'
+        assert exc.value.args[0] == 'values must be an array of length 786432 (got 222)'
 
     def test_cone_search_lonlat(self):
         lon, lat = 1 * u.deg, 4 * u.deg
@@ -84,7 +84,7 @@ class TestHEALPix:
         lon, lat = [1, 2] * u.deg, [3, 4] * u.deg
         with pytest.raises(ValueError) as exc:
             self.pix.cone_search_lonlat(lon, lat, 1 * u.deg)
-        assert exc.value.args[0] == 'The longitude, latitude and radius should be scalar Quantity objects'
+        assert exc.value.args[0] == 'The longitude, latitude and radius must be scalar Quantity objects'
 
     def test_boundaries_lonlat(self):
         lon, lat = self.pix.boundaries_lonlat([10, 20, 30], 4)

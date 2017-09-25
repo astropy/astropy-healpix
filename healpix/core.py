@@ -22,9 +22,12 @@ __all__ = [
 
 
 def _order_str_to_int(order):
-    if order == 'nested':
+    # We also support upper-case, to support directly the values
+    # ORDERING = {'RING', 'NESTED'} in FITS headers
+    # This is currently undocumented in the docstrings.
+    if order in {'nested', 'NESTED'}:
         return 0
-    elif order == 'ring':
+    elif order in {'ring', 'RING'}:
         return 1
     else:
         raise ValueError("order must be 'nested' or 'ring'")
@@ -33,23 +36,23 @@ def _order_str_to_int(order):
 def _validate_healpix_index(label, healpix_index, nside):
     npix = nside_to_npix(nside)
     if np.any((healpix_index < 0) | (healpix_index > npix - 1)):
-        raise ValueError('{0} should be in the range [0:{1}]'.format(label, npix))
+        raise ValueError('{0} must be in the range [0:{1}]'.format(label, npix))
 
 
 def _validate_offset(label, offset):
     if np.any((offset < 0) | (offset > 1)):
-        raise ValueError('d{0} should be in the range [0:1]'.format(label))
+        raise ValueError('d{0} must be in the range [0:1]'.format(label))
 
 
 def _validate_level(level):
     if level < 0:
-        raise ValueError('level should be positive')
+        raise ValueError('level must be positive')
 
 
 def _validate_nside(nside):
     log_2_nside = np.round(np.log2(nside))
     if not np.all(2 ** log_2_nside == nside):
-        raise ValueError('nside should be a power of two')
+        raise ValueError('nside must be a power of two')
 
 
 def level_to_nside(level):
@@ -151,7 +154,7 @@ def npix_to_nside(npix):
     npix = np.asanyarray(npix, dtype=np.int64)
 
     if not np.all(npix % 12 == 0):
-        raise ValueError('Number of pixels should be divisible by 12')
+        raise ValueError('Number of pixels must be divisible by 12')
 
     square_root = np.sqrt(npix / 12)
     if not np.all(square_root ** 2 == npix / 12):
@@ -174,7 +177,7 @@ def healpix_to_lonlat(healpix_index, nside, dx=None, dy=None, order='ring'):
     nside : int
         Number of pixels along the side of each of the 12 top-level HEALPix tiles
     dx, dy : `~numpy.ndarray`, optional
-        1-D arrays of offsets inside the HEALPix pixel, which should be in the
+        1-D arrays of offsets inside the HEALPix pixel, which must be in the
         range [0:1] (0.5 is the center of the HEALPix pixels)
     order : { 'nested' | 'ring' }, optional
         Order of HEALPix pixels
@@ -188,7 +191,7 @@ def healpix_to_lonlat(healpix_index, nside, dx=None, dy=None, order='ring'):
     """
 
     if (dx is None and dy is not None) or (dx is not None and dy is None):
-        raise ValueError('Either both or neither dx and dy should be specified')
+        raise ValueError('Either both or neither dx and dy must be specified')
 
     healpix_index = np.asarray(healpix_index, dtype=np.int64)
     nside = int(nside)
@@ -316,7 +319,7 @@ def interpolate_bilinear_lonlat(lon, lat, values, order='ring'):
         The longitude and latitude values as :class:`~astropy.units.Quantity` instances
         with angle units.
     values : `~numpy.ndarray`
-        1-D array with the values in each HEALPix pixel. This should have a
+        1-D array with the values in each HEALPix pixel. This must have a
         length of the form 12 * nside ** 2 (and nside is determined
         automatically from this).
     order : { 'nested' | 'ring' }
@@ -336,7 +339,7 @@ def interpolate_bilinear_lonlat(lon, lat, values, order='ring'):
 
     # TODO: in future we could potentially support higher-dimensional arrays
     if values.ndim != 1:
-        raise ValueError("values should be a 1-dimensional array")
+        raise ValueError("values must be a 1-dimensional array")
 
     return core_cython.interpolate_bilinear_lonlat(lon, lat, values, order)
 
@@ -441,7 +444,7 @@ def boundaries_lonlat(healpix_index, step, nside, order='ring'):
     step = int(step)
 
     if step < 1:
-        raise ValueError('step should be at least 1')
+        raise ValueError('step must be at least 1')
 
     # PERF: this could be optimized by writing a Cython routine to do this to
     # avoid allocating temporary arrays

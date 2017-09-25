@@ -109,8 +109,8 @@ def test_healpix_to_lonlat_invalid():
     assert exc.value.args[0] == 'nside should be a power of two'
 
     with pytest.raises(ValueError) as exc:
-        lon, lat = healpix_to_lonlat([1, 2, 3], 4, order='banana')
-    assert exc.value.args[0] == "order should be 'nested' or 'ring'"
+        lon, lat = healpix_to_lonlat([1, 2, 3], 4, order='NESTED')
+    assert exc.value.args[0] == "order must be 'nested' or 'ring'"
 
     with pytest.raises(ValueError) as exc:
         lon, lat = healpix_to_lonlat([1, 2, 3], 4, dx=[-0.1, 0.4, 0.5], dy=dy)
@@ -140,7 +140,7 @@ def test_interpolate_bilinear_invalid():
     with pytest.raises(ValueError) as exc:
         interpolate_bilinear_lonlat([1, 3, 4] * u.deg, [3, 2, 6] * u.deg,
                                     values, order='banana')
-    assert exc.value.args[0] == "order should be 'nested' or 'ring'"
+    assert exc.value.args[0] == "order must be 'nested' or 'ring'"
 
 
 @pytest.mark.parametrize('order', ['nested', 'ring'])
@@ -183,7 +183,7 @@ def test_healpix_neighbors_invalid():
 
     with pytest.raises(ValueError) as exc:
         healpix_neighbors([1, 2, 3], 4, order='banana')
-    assert exc.value.args[0] == "order should be 'nested' or 'ring'"
+    assert exc.value.args[0] == "order must be 'nested' or 'ring'"
 
 
 @pytest.mark.parametrize('order', ['nested', 'ring'])

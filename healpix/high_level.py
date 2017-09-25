@@ -328,7 +328,7 @@ class CelestialHEALPix(HEALPix):
         skycoord = skycoord.transform_to(self.frame)
         representation = skycoord.represent_as(UnitSphericalRepresentation)
         lon, lat = representation.lon, representation.lat
-        return self.cone_search_lonlat(lon, lat, radius, self.nside)
+        return self.cone_search_lonlat(lon, lat, radius, approximate=approximate)
 
     def boundaries_skycoord(self, healpix_index, step):
         """

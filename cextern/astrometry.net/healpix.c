@@ -135,12 +135,12 @@ void healpixl_decompose_ring(int64_t hp, int Nside, int* p_ring, int* p_longind)
 	ns2 = Nside64 * Nside64;
 	if (hp < 2 * ns2) {
 		ring = (int)(0.5 + sqrt(0.25 + 0.5 * hp));
-		offset = 2 * ring * (ring - 1);
+		offset = 2 * (int64_t)ring * ((int64_t)ring - 1);
 		longind = hp - offset;
 	} else {
 		offset = 2 * Nside64 * (Nside64 - 1);
 		if (hp < 10 * ns2) {
-			ring = (int)((hp - offset) / (Nside * 4)) + Nside;
+			ring = (int)((hp - offset) / ((int64_t)Nside * 4) + (int64_t)Nside);
 			offset += 4 * (ring - Nside64) * Nside64;
 			longind = hp - offset;
 		} else {

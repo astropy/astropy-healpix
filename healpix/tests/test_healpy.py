@@ -12,7 +12,7 @@ from .. import healpy as hp_compat
 
 hp = pytest.importorskip('healpy')
 
-from hypothesis import given, settings, example
+from hypothesis import given, settings
 from hypothesis.strategies import integers, floats, booleans
 
 NSIDE_VALUES = [2**n for n in range(1, 6)]
@@ -56,10 +56,10 @@ def test_npix2nside(npix):
 # For the test below, we exclude latitudes that fall exactly on the pole or
 # the equator since points that fall at exact boundaries are ambiguous.
 
-@given(nside_pow=integers(0, 22), nest=booleans(), lonlat=booleans(),
-       lon=floats(0, 360, allow_nan=False, allow_infinity=False),
-       lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(lambda lat: abs(lat) < 90 and lat != 0))
-@settings(max_examples=1000)
+@given(nside_pow=integers(0, 29), nest=booleans(), lonlat=booleans(),
+       lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(lambda lon: abs(lon) > 1e-10),
+       lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(lambda lat: abs(lat) < 89.99 and abs(lat) > 1e-10))
+@settings(max_examples=2000, derandomize=True)
 def test_ang2pix(nside_pow, lon, lat, nest, lonlat):
     nside = 2 ** nside_pow
     if lonlat:
@@ -71,21 +71,27 @@ def test_ang2pix(nside_pow, lon, lat, nest, lonlat):
     assert ipix1 == ipix2
 
 
-@given(nside_pow=integers(0, 22), nest=booleans(), lonlat=booleans(),
+@given(nside_pow=integers(0, 29), nest=booleans(), lonlat=booleans(),
        frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1))
-@settings(max_examples=1000)
+@settings(max_examples=2000, derandomize=True)
 def test_pix2ang(nside_pow, frac, nest, lonlat):
     nside = 2 ** nside_pow
     ipix = int(frac * 12 * nside ** 2)
     theta1, phi1 = hp_compat.pix2ang(nside, ipix, nest=nest, lonlat=lonlat)
     theta2, phi2 = hp.pix2ang(nside, ipix, nest=nest, lonlat=lonlat)
-    assert_allclose(phi1, phi2, atol=1e-10)
-    assert_allclose(theta1, theta2, atol=1e-8)
+    if lonlat:
+        assert_allclose(phi1, phi2, atol=1e-8)
+        if abs(phi1) < 90:
+            assert_allclose(theta1, theta2, atol=1e-10)
+    else:
+        assert_allclose(theta1, theta2, atol=1e-8)
+        if theta1 > 0:
+            assert_allclose(phi1, phi2, atol=1e-10)
 
 
-@given(nside_pow=integers(0, 28),
+@given(nside_pow=integers(0, 29),
        frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1))
-@settings(max_examples=1000)
+@settings(max_examples=2000, derandomize=True)
 def test_nest2ring(nside_pow, frac):
     nside = 2 ** nside_pow
     nest = int(frac * 12 * nside ** 2)
@@ -94,12 +100,12 @@ def test_nest2ring(nside_pow, frac):
     assert ring1 == ring2
 
 
-@given(nside_pow=integers(0, 28),
+@given(nside_pow=integers(0, 29),
        frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1))
-@settings(max_examples=1000)
+@settings(max_examples=2000, derandomize=True)
 def test_ring2nest(nside_pow, frac):
     nside = 2 ** nside_pow
-    nest = int(frac * 12 * nside ** 2)
-    nest1 = hp_compat.ring2nest(nside, nest)
-    nest2 = hp.ring2nest(nside, nest)
+    ring = int(frac * 12 * nside ** 2)
+    nest1 = hp_compat.ring2nest(nside, ring)
+    nest2 = hp.ring2nest(nside, ring)
     assert nest1 == nest2

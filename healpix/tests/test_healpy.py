@@ -58,7 +58,7 @@ def test_npix2nside(npix):
 
 @given(nside_pow=integers(0, 29), nest=booleans(), lonlat=booleans(),
        lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(lambda lon: abs(lon) > 1e-10),
-       lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(lambda lat: abs(lat) < 90 and abs(lat) > 1e-10))
+       lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(lambda lat: abs(lat) < 89.99 and abs(lat) > 1e-10))
 @settings(max_examples=2000, derandomize=True)
 def test_ang2pix(nside_pow, lon, lat, nest, lonlat):
     nside = 2 ** nside_pow

@@ -55,3 +55,6 @@ distribute-*.tar.gz
 healpix/_compiler.c
 healpix/raw/wrap.c
 healpix/core_cython.c
+
+# pytest cache folder
+v

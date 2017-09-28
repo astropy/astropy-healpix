@@ -30,6 +30,4 @@ specific celestial coordinates::
     >>> from astropy.coordinates import SkyCoord
     >>> coord = SkyCoord('00h42m44.3503s +41d16m08.634s')
     >>> hp.cone_search_skycoord(coord, radius=5 * u.arcmin)
-    array([2537, 2540, 2542, 2539, 2538, 2536, 2530, 2531, 2534, 2535, 2541,
-           2529, 2532, 2507, 2528, 2506, 2485, 2487, 2486, 2493, 2492, 2495,
-           1344, 1345, 2543])
+    array([2537])

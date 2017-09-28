@@ -99,7 +99,7 @@ and to convert from celestial coordinates to HEALPix indices you can use the
     >>> from astropy.coordinates import SkyCoord
     >>> coord = SkyCoord('00h42m44.3503s +41d16m08.634s')
     >>> hp.skycoord_to_healpix(coord)
-    array([2537])
+    2537
 
 Converting between ring and nested conventions
 ----------------------------------------------

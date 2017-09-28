@@ -58,3 +58,5 @@ healpix/core_cython.c
 
 # pytest cache folder
 v
+
+.hypothesis

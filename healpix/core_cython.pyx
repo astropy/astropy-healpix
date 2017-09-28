@@ -398,8 +398,8 @@ def healpix_neighbors(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
 
     Parameters
     ----------
-    healpix_pixel : `~numpy.ndarray`
-        1-D array of HEALPix pixels
+    healpix_index : `~numpy.ndarray`
+        1-D array of HEALPix indices
     nside : int
         Number of pixels along the side of each of the 12 top-level HEALPix tiles
     order : int

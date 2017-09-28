@@ -16,6 +16,8 @@ uname -m
 echo "Output of sys.maxsize in Python:"
 python -c 'import sys; print(sys.maxsize)'
 
+pip install six
+
 # We only test the docs output on 64-bit Linux so as not to have to 
 # degrade the output with ellipses to work on all platforms.
 python setup.py test -V -a "-s" --skip-docs

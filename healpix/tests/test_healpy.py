@@ -167,5 +167,5 @@ def test_vec2ang(vectors, lonlat, ndim):
     theta2, phi2 = hp.vec2ang(vectors, lonlat=lonlat)
     # Healpy sometimes returns NaNs for phi (somewhat incorrectly)
     phi2 = np.nan_to_num(phi2)
-    assert_allclose(theta1, theta1)
-    assert_allclose(phi1, phi2)
+    assert_allclose(theta1, theta1, atol=1e-10)
+    assert_allclose(phi1, phi2, atol=1e-10)

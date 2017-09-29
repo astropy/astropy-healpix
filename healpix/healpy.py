@@ -4,7 +4,7 @@
 This submodule provides a healpy-compatible interface.
 """
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 from astropy import units as u

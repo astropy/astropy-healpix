@@ -8,6 +8,7 @@ from astropy import units as u
 from astropy.coordinates import Longitude, Latitude
 
 from . import core_cython
+from .core_cython import _validate_order
 
 __all__ = [
     'nside_to_pixel_area',
@@ -21,16 +22,18 @@ __all__ = [
 ]
 
 
-def _order_str_to_int(order):
-    # We also support upper-case, to support directly the values
-    # ORDERING = {'RING', 'NESTED'} in FITS headers
-    # This is currently undocumented in the docstrings.
-    if order in {'nested', 'NESTED'}:
-        return 0
-    elif order in {'ring', 'RING'}:
-        return 1
+def _restore_shape(*args, **kwargs):
+    shape = kwargs['shape']
+    if shape:
+        if len(args) > 1:
+            return [arg.reshape(shape) for arg in args]
+        else:
+            return args[0].reshape(shape)
     else:
-        raise ValueError("order must be 'nested' or 'ring'")
+        if len(args) > 1:
+            return [np.asscalar(arg) for arg in args]
+        else:
+            return np.asscalar(args[0])
 
 
 def _validate_healpix_index(label, healpix_index, nside):
@@ -172,13 +175,13 @@ def healpix_to_lonlat(healpix_index, nside, dx=None, dy=None, order='ring'):
 
     Parameters
     ----------
-    healpix_index : `~numpy.ndarray`
-        1-D array of HEALPix indices
+    healpix_index : int or `~numpy.ndarray`
+        HEALPix indices (as a scalar or array)
     nside : int
         Number of pixels along the side of each of the 12 top-level HEALPix tiles
-    dx, dy : `~numpy.ndarray`, optional
-        1-D arrays of offsets inside the HEALPix pixel, which must be in the
-        range [0:1] (0.5 is the center of the HEALPix pixels)
+    dx, dy : float or `~numpy.ndarray`, optional
+        Offsets inside the HEALPix pixel, which must be in the range [0:1],
+        where 0.5 is the center of the HEALPix pixels (as scalars or arrays)
     order : { 'nested' | 'ring' }, optional
         Order of HEALPix pixels
 
@@ -194,25 +197,38 @@ def healpix_to_lonlat(healpix_index, nside, dx=None, dy=None, order='ring'):
         raise ValueError('Either both or neither dx and dy must be specified')
 
     healpix_index = np.asarray(healpix_index, dtype=np.int64)
-    nside = int(nside)
 
-    _validate_healpix_index('healpix_index', healpix_index, nside)
-    _validate_nside(nside)
-    order = _order_str_to_int(order)
+    if dx is None and dy is not None:
+        dx = 0.5
+    elif dx is not None and dy is None:
+        dy = 0.5
 
-    if dx is None:
-        lon, lat = core_cython.healpix_to_lonlat(healpix_index, nside, order)
-    else:
+    if dx is not None:
         dx = np.asarray(dx, dtype=np.float)
         dy = np.asarray(dy, dtype=np.float)
         _validate_offset('x', dx)
         _validate_offset('y', dy)
+        healpix_index, dx, dy = np.broadcast_arrays(healpix_index, dx, dy)
+        dx = dx.ravel()
+        dy = dy.ravel()
+
+    shape = healpix_index.shape
+    healpix_index = healpix_index.ravel()
+    nside = int(nside)
+
+    _validate_healpix_index('healpix_index', healpix_index, nside)
+    _validate_nside(nside)
+    order = _validate_order(order)
+
+    if dx is None:
+        lon, lat = core_cython.healpix_to_lonlat(healpix_index, nside, order)
+    else:
         lon, lat = core_cython.healpix_with_offset_to_lonlat(healpix_index, dx, dy, nside, order)
 
     lon = Longitude(lon, unit=u.rad, copy=False)
     lat = Latitude(lat, unit=u.rad, copy=False)
 
-    return lon, lat
+    return _restore_shape(lon, lat, shape=shape)
 
 
 def lonlat_to_healpix(lon, lat, nside, return_offsets=False, order='ring'):
@@ -222,8 +238,8 @@ def lonlat_to_healpix(lon, lat, nside, return_offsets=False, order='ring'):
     Parameters
     ----------
     lon, lat : :class:`~astropy.units.Quantity`
-        The longitude and latitude values as :class:`~astropy.units.Quantity` instances
-        with angle units.
+        The longitude and latitude values as :class:`~astropy.units.Quantity`
+        instances with angle units.
     nside : int
         Number of pixels along the side of each of the 12 top-level HEALPix tiles
     order : { 'nested' | 'ring' }
@@ -235,24 +251,33 @@ def lonlat_to_healpix(lon, lat, nside, return_offsets=False, order='ring'):
 
     Returns
     -------
-    healpix_index : `~numpy.ndarray`
-        1-D array of HEALPix indices
+    healpix_index : int or `~numpy.ndarray`
+        The HEALPix indices
     dx, dy : `~numpy.ndarray`
-        1-D arrays of offsets inside the HEALPix pixel in the range [0:1] (0.5
-        is the center of the HEALPix pixels)
+        Offsets inside the HEALPix pixel in the range [0:1], where 0.5 is the
+        center of the HEALPix pixels
     """
 
-    lon = np.atleast_1d(lon.to(u.rad).value).astype(np.float)
-    lat = np.atleast_1d(lat.to(u.rad).value).astype(np.float)
-    nside = int(nside)
+    lon = lon.to(u.rad).value
+    lat = lat.to(u.rad).value
 
+    lon, lat = np.broadcast_arrays(lon, lat)
+
+    shape = np.shape(lon)
+
+    lon = lon.astype(float).ravel()
+    lat = lat.astype(float).ravel()
+
+    nside = int(nside)
     _validate_nside(nside)
-    order = _order_str_to_int(order)
+    order = _validate_order(order)
 
     if return_offsets:
-        return core_cython.lonlat_to_healpix_with_offset(lon, lat, nside, order)
+        healpix_index, dx, dy = core_cython.lonlat_to_healpix_with_offset(lon, lat, nside, order)
+        return _restore_shape(healpix_index, dx, dy, shape=shape)
     else:
-        return core_cython.lonlat_to_healpix(lon, lat, nside, order)
+        healpix_index = core_cython.lonlat_to_healpix(lon, lat, nside, order)
+        return _restore_shape(healpix_index, shape=shape)
 
 
 def nested_to_ring(nested_index, nside):
@@ -261,24 +286,27 @@ def nested_to_ring(nested_index, nside):
 
     Parameters
     ----------
-    nested_index : `~numpy.ndarray`
+    nested_index : int or `~numpy.ndarray`
         Healpix index using the 'nested' ordering
     nside : int
         Number of pixels along the side of each of the 12 top-level HEALPix tiles
 
     Returns
     -------
-    ring_index : `~numpy.ndarray`
+    ring_index : int or `~numpy.ndarray`
         Healpix index using the 'ring' ordering
     """
 
-    nested_index = np.atleast_1d(np.asarray(nested_index, dtype=np.int64))
+    nested_index = np.asarray(nested_index, dtype=np.int64)
+    shape = nested_index.shape
+    nested_index = nested_index.ravel()
     nside = int(nside)
 
     _validate_healpix_index('nested_index', nested_index, nside)
     _validate_nside(nside)
 
-    return core_cython.nested_to_ring(nested_index, nside)
+    ring_index = core_cython.nested_to_ring(nested_index, nside)
+    return _restore_shape(ring_index, shape=shape)
 
 
 def ring_to_nested(ring_index, nside):
@@ -287,24 +315,27 @@ def ring_to_nested(ring_index, nside):
 
     Parameters
     ----------
-    ring_index : `~numpy.ndarray`
+    ring_index : int or `~numpy.ndarray`
         Healpix index using the 'ring' ordering
     nside : int
         Number of pixels along the side of each of the 12 top-level HEALPix tiles
 
     Returns
     -------
-    nested_index : `~numpy.ndarray`
+    nested_index : int or `~numpy.ndarray`
         Healpix index using the 'nested' ordering
     """
 
-    ring_index = np.atleast_1d(np.asarray(ring_index, dtype=np.int64))
+    ring_index = np.asarray(ring_index, dtype=np.int64)
+    shape = ring_index.shape
+    ring_index = ring_index.ravel()
     nside = int(nside)
 
     _validate_healpix_index('ring_index', ring_index, nside)
     _validate_nside(nside)
 
-    return core_cython.ring_to_nested(ring_index, nside)
+    nested_index = core_cython.ring_to_nested(ring_index, nside)
+    return _restore_shape(nested_index, shape=shape)
 
 
 def interpolate_bilinear_lonlat(lon, lat, values, order='ring'):
@@ -327,21 +358,30 @@ def interpolate_bilinear_lonlat(lon, lat, values, order='ring'):
 
     Returns
     -------
-    result : `~numpy.ndarray`
-        1-D array of interpolated values
+    result : float `~numpy.ndarray`
+        The interpolated values
     """
 
-    lon = np.atleast_1d(lon.to(u.rad).value).astype(np.float)
-    lat = np.atleast_1d(lat.to(u.rad).value).astype(np.float)
+    lon = lon.to(u.rad).value
+    lat = lat.to(u.rad).value
+
+    lon, lat = np.broadcast_arrays(lon, lat)
+
+    shape = np.shape(lon)
+
+    lon = lon.astype(float).ravel()
+    lat = lat.astype(float).ravel()
+
     values = np.asarray(values, dtype=float)
 
-    order = _order_str_to_int(order)
+    order = _validate_order(order)
 
     # TODO: in future we could potentially support higher-dimensional arrays
     if values.ndim != 1:
         raise ValueError("values must be a 1-dimensional array")
 
-    return core_cython.interpolate_bilinear_lonlat(lon, lat, values, order)
+    result = core_cython.interpolate_bilinear_lonlat(lon, lat, values, order)
+    return _restore_shape(result, shape=shape)
 
 
 def healpix_neighbors(healpix_index, nside, order='ring'):
@@ -369,7 +409,7 @@ def healpix_neighbors(healpix_index, nside, order='ring'):
 
     _validate_healpix_index('healpix_index', healpix_index, nside)
     _validate_nside(nside)
-    order = _order_str_to_int(order)
+    order = _validate_order(order)
 
     return core_cython.healpix_neighbors(healpix_index, nside, order)
 
@@ -408,7 +448,7 @@ def healpix_cone_search(lon, lat, radius, nside, order='ring', approximate=False
     approximate = int(approximate)
 
     _validate_nside(nside)
-    order = _order_str_to_int(order)
+    order = _validate_order(order)
 
     return core_cython.healpix_cone_search(lon, lat, radius, nside, order, approximate)
 

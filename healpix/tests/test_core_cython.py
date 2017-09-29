@@ -18,7 +18,7 @@ from .. import core_cython
 
 
 NSIDE_POWERS = range(0, 21)
-ORDERS = (0, 1)
+ORDERS = ('nested', 'ring')
 
 
 def get_test_indices(nside):

@@ -2,6 +2,7 @@ from __future__ import print_function, division
 
 from itertools import product
 
+import six
 import pytest
 
 import numpy as np
@@ -14,7 +15,7 @@ from ..core import (nside_to_pixel_area, nside_to_pixel_resolution,
                     nside_to_npix, npix_to_nside, healpix_to_lonlat,
                     lonlat_to_healpix, interpolate_bilinear_lonlat,
                     healpix_neighbors, healpix_cone_search, boundaries_lonlat,
-                    level_to_nside)
+                    level_to_nside, nested_to_ring, ring_to_nested)
 
 
 def test_level_to_nside():
@@ -121,6 +122,49 @@ def test_healpix_to_lonlat_invalid():
     assert exc.value.args[0] == 'dy must be in the range [0:1]'
 
 
+def test_healpix_to_lonlat_shape():
+
+    lon, lat = healpix_to_lonlat(2, 8)
+    assert lon.isscalar and lat.isscalar
+
+    lon, lat = healpix_to_lonlat([[1, 2, 3], [3, 4, 4]], 8)
+    assert lon.shape == (2, 3) and lat.shape == (2, 3)
+
+    lon, lat = healpix_to_lonlat([[1], [2], [3]], nside=8, dx=0.2, dy=[[0.1, 0.3]])
+    assert lon.shape == (3, 2) and lat.shape == (3, 2)
+
+
+def test_lonlat_to_healpix_shape():
+
+    healpix_index = lonlat_to_healpix(2 * u.deg, 3 * u.deg, 8)
+    assert isinstance(healpix_index, six.integer_types)
+
+    lon, lat = np.ones((2, 4)) * u.deg, np.zeros((2, 4)) * u.deg
+    healpix_index = lonlat_to_healpix(lon, lat, 8)
+    assert healpix_index.shape == (2, 4)
+
+    healpix_index, dx, dy = lonlat_to_healpix(2 * u.deg, 3 * u.deg, 8, return_offsets=True)
+    assert isinstance(healpix_index, six.integer_types)
+    assert isinstance(dx, float)
+    assert isinstance(dy, float)
+
+    lon, lat = np.ones((2, 4)) * u.deg, np.zeros((2, 4)) * u.deg
+    healpix_index, dx, dy = lonlat_to_healpix(lon, lat, 8, return_offsets=True)
+    assert healpix_index.shape == (2, 4)
+    assert dx.shape == (2, 4)
+    assert dy.shape == (2, 4)
+
+
+@pytest.mark.parametrize('function', [nested_to_ring, ring_to_nested])
+def test_nested_ring_shape(function):
+
+    index = function(1, 8)
+    assert isinstance(index, six.integer_types)
+
+    index = function([[1, 2, 3], [2, 3, 4]], 8)
+    assert index.shape == (2, 3)
+
+
 @pytest.mark.parametrize('order', ['nested', 'ring'])
 def test_interpolate_bilinear_lonlat(order):
     values = np.ones(192) * 3
@@ -141,6 +185,18 @@ def test_interpolate_bilinear_invalid():
         interpolate_bilinear_lonlat([1, 3, 4] * u.deg, [3, 2, 6] * u.deg,
                                     values, order='banana')
     assert exc.value.args[0] == "order must be 'nested' or 'ring'"
+
+
+def test_interpolate_bilinear_lonlat_shape():
+
+    values = np.ones(192) * 3
+
+    result = interpolate_bilinear_lonlat(3 * u.deg, 4 * u.deg, values)
+    assert isinstance(result, float)
+
+    result = interpolate_bilinear_lonlat([[1, 2, 3], [2, 3, 4]] * u.deg,
+                                         [[1, 2, 3], [2, 3, 4]] * u.deg, values)
+    assert result.shape == (2, 3)
 
 
 @pytest.mark.parametrize('order', ['nested', 'ring'])

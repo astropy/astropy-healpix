@@ -4,15 +4,14 @@
 This submodule provides a healpy-compatible interface.
 """
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 from astropy import units as u
 
-from .core_cython import lonlat_to_healpix, healpix_to_lonlat
 from .core import (nside_to_pixel_resolution, nside_to_pixel_area,
                    nside_to_npix, npix_to_nside, nested_to_ring, ring_to_nested,
-                   level_to_nside)
+                   level_to_nside, lonlat_to_healpix, healpix_to_lonlat)
 
 RAD2DEG = 180 / np.pi
 
@@ -62,18 +61,19 @@ def order2nside(order):
 
 def pix2ang(nside, ipix, nest=False, lonlat=False):
     """Drop-in replacement for healpy `~healpy.pixelfunc.pix2ang`."""
-    ipix = np.atleast_1d(ipix).astype(np.int64, copy=False)
-    lon, lat = healpix_to_lonlat(ipix, nside, 1 - int(nest))
+    lon, lat = healpix_to_lonlat(ipix, nside, order='nested' if nest else 'ring')
     # We use in-place operations below to avoid making temporary arrays - this
     # is safe because the lon/lat arrays returned from healpix_to_lonlat are
     # new and not used elsewhere.
     if lonlat:
-        lon *= RAD2DEG
-        lat *= RAD2DEG
-        return lon, lat
+        return lon.to(u.deg).value, lat.to(u.deg).value
     else:
-        np.subtract(0.5 * np.pi, lat, out=lat)
-        return lat, lon
+        lat, lon = lat.to(u.rad).value, lon.to(u.rad).value
+        if np.isscalar(lon):
+            return 0.5 * np.pi - lat, lon
+        else:
+            lat = np.subtract(0.5 * np.pi, lat, out=lat)
+            return lat, lon
 
 
 def ang2pix(nside, theta, phi, nest=False, lonlat=False):
@@ -81,10 +81,13 @@ def ang2pix(nside, theta, phi, nest=False, lonlat=False):
     # Unlike in pix2ang, we don't use in-place operations since we don't
     # want to modify theta and phi since the user may be using them elsewhere.
     if lonlat:
-        lon, lat = np.atleast_1d(theta) / RAD2DEG, np.atleast_1d(phi) / RAD2DEG
+        lon = np.asarray(theta) / RAD2DEG
+        lat = np.asarray(phi) / RAD2DEG
     else:
-        lat, lon = np.pi / 2. - np.atleast_1d(theta), np.atleast_1d(phi)
-    return lonlat_to_healpix(lon, lat, nside, 1 - int(nest))
+        lat = np.pi / 2. - np.asarray(theta)
+        lon = np.asarray(phi)
+    lon, lat = u.Quantity(lon, u.rad, copy=False), u.Quantity(lat, u.rad, copy=False)
+    return lonlat_to_healpix(lon, lat, nside, order='nested' if nest else 'ring')
 
 
 def nest2ring(nside, ipix):

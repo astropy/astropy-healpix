@@ -490,8 +490,8 @@ def boundaries_lonlat(healpix_index, step, nside, order='ring'):
     # avoid allocating temporary arrays
 
     frac = np.linspace(0., 1., step + 1)[:-1]
-    dx = np.hstack([frac, np.repeat(1, step), 1 - frac, np.repeat(0, step)])
-    dy = np.hstack([np.repeat(0, step), frac, np.repeat(1, step), 1 - frac])
+    dx = np.hstack([1 - frac, np.repeat(0, step), frac, np.repeat(1, step)])
+    dy = np.hstack([np.repeat(1, step), 1 - frac, np.repeat(0, step), frac])
 
     healpix_index, dx, dy = np.broadcast_arrays(healpix_index.reshape(-1, 1), dx, dy)
 

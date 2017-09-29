@@ -23,7 +23,7 @@ env:
         # to repeat them for all configurations.
         - NUMPY_VERSION=stable
         - ASTROPY_VERSION=stable
-        - SETUP_CMD='test --skip-docs'
+        - SETUP_CMD='test'
 
         # For this package-template, we include examples of Cython modules,
         # so Cython is required for testing. If your package does not include
@@ -70,11 +70,11 @@ matrix:
 
         # Try Astropy development version
         - os: linux
-          env: PYTHON_VERSION=3.6 ASTROPY_VERSION=development
+          env: PYTHON_VERSION=3.6 ASTROPY_VERSION=development SETUP_CMD='test --skip-docs'
         - os: linux
           env: PYTHON_VERSION=2.7 ASTROPY_VERSION=1.2
         - os: linux
-          env: PYTHON_VERSION=3.6 ASTROPY_VERSION=1.2
+          env: PYTHON_VERSION=3.6 ASTROPY_VERSION=1.2 SETUP_CMD='test --skip-docs'
 
         # Try older numpy versions
         - os: linux
@@ -88,7 +88,7 @@ matrix:
 
         # Try numpy pre-release
         - os: linux
-          env: PYTHON_VERSION=3.6 NUMPY_VERSION=prerelease
+          env: PYTHON_VERSION=3.6 NUMPY_VERSION=prerelease SETUP_CMD='test --skip-docs'
 
 install:
 

@@ -485,13 +485,14 @@ def healpix_neighbors(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
     return neighbours
 
 
-def healpix_cone_search(double lon, double lat, double radius, int nside, str order, int approx):
+def healpix_cone_search(double lon, double lat, double radius, int nside, str order):
     """
-    Find all the HEALPix pixels that are within a given radius of a longitude/latitude
+    Find all the HEALPix pixels within a given radius of a longitude/latitude.
 
-    Note that this function can only be used for a single lon/lat pair at a
-    time, since different calls to the function may result in a different number
-    of matches.
+    Note that this returns all pixels that overlap, including partially, with
+    the search cone. This function can only be used for a single lon/lat pair at
+    a time, since different calls to the function may result in a different
+    number of matches.
 
     Parameters
     ----------
@@ -503,9 +504,6 @@ def healpix_cone_search(double lon, double lat, double radius, int nside, str or
         Number of pixels along the side of each of the 12 top-level HEALPix tiles
     order : { 'nested' | 'ring' }
         Order of HEALPix pixels
-    approx : int
-        Whether to use an approximation to speed things up. Set to 0 for the
-        proper solution, and 1 for an approximate solution.
 
     Returns
     -------
@@ -517,7 +515,7 @@ def healpix_cone_search(double lon, double lat, double radius, int nside, str or
     cdef int64_t n_indices
     cdef int64_t index
 
-    n_indices =  healpix_rangesearch_radec_simple(lon, lat, radius, nside, approx, &indices)
+    n_indices =  healpix_rangesearch_radec_simple(lon, lat, radius, nside, 0, &indices)
 
     cdef np.ndarray[int64_t, ndim=1, mode="c"] result = np.zeros(n_indices, dtype=npy_int64)
 

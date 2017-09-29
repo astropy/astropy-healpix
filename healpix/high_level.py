@@ -155,13 +155,13 @@ class HEALPix(object):
             raise ValueError('values must be an array of length {0} (got {1})'.format(self.npix, len(values)))
         return interpolate_bilinear_lonlat(lon, lat, values, order=self.order)
 
-    def cone_search_lonlat(self, lon, lat, radius, approximate=False):
+    def cone_search_lonlat(self, lon, lat, radius):
         """
-        Find all the HEALPix pixels that are within a given radius of a
-        longitude/latitude.
+        Find all the HEALPix pixels within a given radius of a longitude/latitude.
 
-        Note that this function can only be used for a single lon/lat pair at a
-        time, since different calls to the function may result in a different
+        Note that this returns all pixels that overlap, including partially, with
+        the search cone. This function can only be used for a single lon/lat pair at
+        a time, since different calls to the function may result in a different
         number of matches.
 
         Parameters
@@ -170,8 +170,6 @@ class HEALPix(object):
             The longitude and latitude to search around
         radius : :class:`~astropy.units.Quantity`
             The search radius
-        approximate : bool
-            Whether to use an approximation to speed things up.
 
         Returns
         -------
@@ -181,8 +179,7 @@ class HEALPix(object):
         if not lon.isscalar or not lat.isscalar or not radius.isscalar:
             raise ValueError('The longitude, latitude and radius must be '
                              'scalar Quantity objects')
-        return healpix_cone_search(lon, lat, radius, self.nside,
-                                   order=self.order, approximate=approximate)
+        return healpix_cone_search(lon, lat, radius, self.nside, order=self.order)
 
     def boundaries_lonlat(self, healpix_index, step):
         """
@@ -302,14 +299,14 @@ class CelestialHEALPix(HEALPix):
         lon, lat = representation.lon, representation.lat
         return self.interpolate_bilinear_lonlat(lon, lat, values)
 
-    def cone_search_skycoord(self, skycoord, radius, approximate=False):
+    def cone_search_skycoord(self, skycoord, radius):
         """
-        Find all the HEALPix pixels that are within a given radius of a
-        celestial position.
+        Find all the HEALPix pixels within a given radius of a celestial position.
 
-        Note that this function can only be used for a single celestial position
-        at a time, since different calls to the function may result in a
-        different number of matches.
+        Note that this returns all pixels that overlap, including partially,
+        with the search cone. This function can only be used for a single
+        celestial position at a time, since different calls to the function may
+        result in a different number of matches.
 
         Parameters
         ----------
@@ -317,8 +314,6 @@ class CelestialHEALPix(HEALPix):
             The celestial coordinates to use for the cone search
         radius : :class:`~astropy.units.Quantity`
             The search radius
-        approximate : bool
-            Whether to use an approximation to speed things up.
 
         Returns
         -------
@@ -328,7 +323,7 @@ class CelestialHEALPix(HEALPix):
         skycoord = skycoord.transform_to(self.frame)
         representation = skycoord.represent_as(UnitSphericalRepresentation)
         lon, lat = representation.lon, representation.lat
-        return self.cone_search_lonlat(lon, lat, radius, approximate=approximate)
+        return self.cone_search_lonlat(lon, lat, radius)
 
     def boundaries_skycoord(self, healpix_index, step):
         """

@@ -17,15 +17,16 @@ from .core import (nside_to_pixel_resolution, nside_to_pixel_area,
 
 RAD2DEG = 180 / np.pi
 
-__all__ = [
-    'nside2resol',
-    'nside2pixarea',
-    'nside2npix',
-    'npix2nside',
-    'pix2ang',
-    'ang2pix',
-    'order2nside',
-]
+__all__ = ['nside2resol',
+           'nside2pixarea',
+           'nside2npix',
+           'npix2nside',
+           'pix2ang',
+           'ang2pix',
+           'order2nside',
+           'nest2ring',
+           'ring2nest',
+           'boundaries']
 
 
 def nside2resol(nside, arcmin=False):

@@ -89,7 +89,7 @@ def test_healpix_cone_search(order, nside_power, capfd):
     nside = 2 ** nside_power
     lon0, lat0 = 12., 40.
     radius = nside_to_pixel_resolution(nside).to(u.degree).value * 10
-    index_inside = core_cython.healpix_cone_search(lon0, lat0, radius, nside, order, 0)
+    index_inside = core_cython.healpix_cone_search(lon0, lat0, radius, nside, order)
     n_inside = len(index_inside)
     dx = np.array([[0.0, 0.0, 1.0, 1.0]])
     dy = np.array([[0.0, 1.0, 1.0, 0.0]])

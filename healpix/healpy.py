@@ -8,7 +8,7 @@ from __future__ import absolute_import, division, print_function
 
 import numpy as np
 from astropy import units as u
-from astropy.coordinates.representation import UnitSphericalRepresentation
+from astropy.coordinates.representation import CartesianRepresentation, UnitSphericalRepresentation
 
 from .core import (nside_to_pixel_resolution, nside_to_pixel_area,
                    nside_to_npix, npix_to_nside, nested_to_ring, ring_to_nested,
@@ -27,6 +27,20 @@ __all__ = ['nside2resol',
            'nest2ring',
            'ring2nest',
            'boundaries']
+
+def _healpy_lonlat(lon, lat, lonlat=False):
+    # We use in-place operations below to avoid making temporary arrays - this
+    # is safe because the lon/lat arrays returned from healpix_to_lonlat are
+    # new and not used elsewhere.
+    if lonlat:
+        return lon.to(u.deg).value, lat.to(u.deg).value
+    else:
+        lat, lon = lat.to(u.rad).value, lon.to(u.rad).value
+        if np.isscalar(lon):
+            return 0.5 * np.pi - lat, lon
+        else:
+            lat = np.subtract(0.5 * np.pi, lat, out=lat)
+            return lat, lon
 
 
 def nside2resol(nside, arcmin=False):
@@ -65,18 +79,7 @@ def order2nside(order):
 def pix2ang(nside, ipix, nest=False, lonlat=False):
     """Drop-in replacement for healpy `~healpy.pixelfunc.pix2ang`."""
     lon, lat = healpix_to_lonlat(ipix, nside, order='nested' if nest else 'ring')
-    # We use in-place operations below to avoid making temporary arrays - this
-    # is safe because the lon/lat arrays returned from healpix_to_lonlat are
-    # new and not used elsewhere.
-    if lonlat:
-        return lon.to(u.deg).value, lat.to(u.deg).value
-    else:
-        lat, lon = lat.to(u.rad).value, lon.to(u.rad).value
-        if np.isscalar(lon):
-            return 0.5 * np.pi - lat, lon
-        else:
-            lat = np.subtract(0.5 * np.pi, lat, out=lat)
-            return lat, lon
+    return _healpy_lonlat(lon, lat, lonlat=lonlat)
 
 
 def ang2pix(nside, theta, phi, nest=False, lonlat=False):
@@ -106,12 +109,23 @@ def ring2nest(nside, ipix):
 
 
 def boundaries(nside, pix, step=1, nest=False):
-    """Drop-in replacement for healpy `~healpy.pixelfunc.boundaries`."""
-    pix = np.atleast_1d(pix)
-    if pix.shape != (1,):
-        raise ValueError('boundaries can only take a single pixel in `pix`')
+    """Drop-in replacement for healpy `~healpy.boundaries`."""
+    pix = np.asarray(pix)
+    if pix.ndim > 1:
+        # For consistency with healpy we only support scalars or 1D arrays
+        raise ValueError("Array has to be one dimensional")
     lon, lat = boundaries_lonlat(pix, step, nside, order='nested' if nest else 'ring')
-    rep_sph = UnitSphericalRepresentation(lon[0], lat[0])
-    rep_car = rep_sph.to_cartesian()
-    x, y, z = rep_car.xyz
-    return x.value, y.value, z.value
+    rep_sph = UnitSphericalRepresentation(lon, lat)
+    rep_car = rep_sph.to_cartesian().xyz.value.swapaxes(0, 1)
+    if rep_car.shape[0] == 1:
+        return rep_car[0]
+    else:
+        return rep_car
+
+
+def vec2ang(vectors, lonlat=False):
+    """Drop-in replacement for healpy `~healpy.vec2ang`."""
+    x, y, z = vectors.transpose()
+    rep_car = CartesianRepresentation(x, y, z)
+    rep_sph = rep_car.to(UnitSphericalRepresentation)
+    return _healpy_lonlat(rep_sph.lon, rep_sph.lat, lonlat=lonlat)

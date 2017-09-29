@@ -16,6 +16,7 @@ hp = pytest.importorskip('healpy')
 
 from hypothesis import given, settings
 from hypothesis.strategies import integers, floats, booleans
+from hypothesis.extra.numpy import arrays
 
 NSIDE_VALUES = [2**n for n in range(1, 6)]
 
@@ -142,3 +143,26 @@ def test_boundaries(nside_pow, frac, step, nest):
     b1 = hp_compat.boundaries(nside, pix, step=step, nest=nest)
     b2 = hp.boundaries(nside, pix, step=step, nest=nest)
     assert_allclose(b1, b2, atol=1e-8)
+
+
+def test_boundaries_shape():
+
+    pix = 1
+    b1 = hp_compat.boundaries(8, pix, step=4)
+    b2 = hp.boundaries(8, pix, step=4)
+    assert b1.shape == b2.shape
+
+    pix = [1, 2, 3, 4, 5]
+    b1 = hp_compat.boundaries(8, pix, step=4)
+    b2 = hp.boundaries(8, pix, step=4)
+    assert b1.shape == b2.shape
+
+
+@given(vectors=arrays(float, 10, elements=floats(-1, 1)),
+       lonlat=booleans())
+@settings(max_examples=500, derandomize=True)
+def test_vec2ang(vectors, lonlat):
+    theta1, phi1 = hp_compat.vec2ang(vectors, lonlat=lonlat)
+    theta2, phi2 = hp.vec2ang(vectors, lonlat=lonlat)
+    assert_allclose(theta1, theta1)
+    assert_allclose(phi1, phi2)

@@ -3,6 +3,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from itertools import product
 
+import six
+
 import pytest
 import numpy as np
 
@@ -69,6 +71,26 @@ def test_ang2pix(nside_pow, lon, lat, nest, lonlat):
     ipix1 = hp_compat.ang2pix(nside, theta, phi, nest=nest, lonlat=lonlat)
     ipix2 = hp.ang2pix(nside, theta, phi, nest=nest, lonlat=lonlat)
     assert ipix1 == ipix2
+
+
+def test_ang2pix_shape():
+
+    ipix = hp_compat.ang2pix(8, 1., 2.)
+    assert isinstance(ipix, six.integer_types)
+
+    ipix = hp_compat.ang2pix(8, [[1., 2.], [3., 4.]], [[1., 2.], [3., 4.]])
+    assert ipix.shape == (2, 2)
+
+
+def test_pix2ang_shape():
+
+    lon, lat = hp_compat.pix2ang(8, 1)
+    assert isinstance(lon, float)
+    assert isinstance(lat, float)
+
+    lon, lat = hp_compat.pix2ang(8, [[1, 2, 3], [4, 5, 6]])
+    assert lon.shape == (2, 3)
+    assert lat.shape == (2, 3)
 
 
 @given(nside_pow=integers(0, 29), nest=booleans(), lonlat=booleans(),

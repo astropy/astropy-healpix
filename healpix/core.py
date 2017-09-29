@@ -316,7 +316,8 @@ def nested_to_ring(nested_index, nside):
     _validate_healpix_index('nested_index', nested_index, nside)
     _validate_nside(nside)
 
-    return _restore_shape(core_cython.nested_to_ring(nested_index, nside), shape=shape)
+    ring_index = core_cython.nested_to_ring(nested_index, nside)
+    return _restore_shape(ring_index, shape=shape)
 
 
 def ring_to_nested(ring_index, nside):
@@ -344,7 +345,8 @@ def ring_to_nested(ring_index, nside):
     _validate_healpix_index('ring_index', ring_index, nside)
     _validate_nside(nside)
 
-    return _restore_shape(core_cython.ring_to_nested(ring_index, nside), shape=shape)
+    nested_index = core_cython.ring_to_nested(ring_index, nside)
+    return _restore_shape(nested_index, shape=shape)
 
 
 def interpolate_bilinear_lonlat(lon, lat, values, order='ring'):
@@ -389,7 +391,8 @@ def interpolate_bilinear_lonlat(lon, lat, values, order='ring'):
     if values.ndim != 1:
         raise ValueError("values must be a 1-dimensional array")
 
-    return _restore_shape(core_cython.interpolate_bilinear_lonlat(lon, lat, values, order), shape=shape)
+    result = core_cython.interpolate_bilinear_lonlat(lon, lat, values, order)
+    return _restore_shape(result, shape=shape)
 
 
 def healpix_neighbors(healpix_index, nside, order='ring'):

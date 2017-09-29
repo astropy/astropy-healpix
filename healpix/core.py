@@ -35,14 +35,14 @@ def _restore_shape(*args, **kwargs):
             return np.asscalar(args[0])
 
 
-def _order_str_to_int(order):
+def _validate_order(order):
     # We also support upper-case, to support directly the values
     # ORDERING = {'RING', 'NESTED'} in FITS headers
     # This is currently undocumented in the docstrings.
     if order in {'nested', 'NESTED'}:
-        return 0
+        return 'nested'
     elif order in {'ring', 'RING'}:
-        return 1
+        return 'ring'
     else:
         raise ValueError("order must be 'nested' or 'ring'")
 
@@ -229,7 +229,7 @@ def healpix_to_lonlat(healpix_index, nside, dx=None, dy=None, order='ring'):
 
     _validate_healpix_index('healpix_index', healpix_index, nside)
     _validate_nside(nside)
-    order = _order_str_to_int(order)
+    order = _validate_order(order)
 
     if dx is None:
         lon, lat = core_cython.healpix_to_lonlat(healpix_index, nside, order)
@@ -281,7 +281,7 @@ def lonlat_to_healpix(lon, lat, nside, return_offsets=False, order='ring'):
 
     nside = int(nside)
     _validate_nside(nside)
-    order = _order_str_to_int(order)
+    order = _validate_order(order)
 
     if return_offsets:
         healpix_index, dx, dy = core_cython.lonlat_to_healpix_with_offset(lon, lat, nside, order)
@@ -385,7 +385,7 @@ def interpolate_bilinear_lonlat(lon, lat, values, order='ring'):
 
     values = np.asarray(values, dtype=float)
 
-    order = _order_str_to_int(order)
+    order = _validate_order(order)
 
     # TODO: in future we could potentially support higher-dimensional arrays
     if values.ndim != 1:
@@ -420,7 +420,7 @@ def healpix_neighbors(healpix_index, nside, order='ring'):
 
     _validate_healpix_index('healpix_index', healpix_index, nside)
     _validate_nside(nside)
-    order = _order_str_to_int(order)
+    order = _validate_order(order)
 
     return core_cython.healpix_neighbors(healpix_index, nside, order)
 
@@ -459,7 +459,7 @@ def healpix_cone_search(lon, lat, radius, nside, order='ring', approximate=False
     approximate = int(approximate)
 
     _validate_nside(nside)
-    order = _order_str_to_int(order)
+    order = _validate_order(order)
 
     return core_cython.healpix_cone_search(lon, lat, radius, nside, order, approximate)
 

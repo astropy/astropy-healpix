@@ -12,8 +12,8 @@ Dependencies
 Required dependencies
 ---------------------
 
-The **healpix** package works with Python 2.7 or 3.5 and later, and requires the
-following dependencies:
+The **healpix** package works with Python 2.7 or 3.5 and later (on Linux, MacOS
+X and Windows), and requires the following dependencies:
 
 * `Numpy <http://www.numpy.org>`__ 1.10 or later
 * `Astropy <http://www.astropy.org>`__ 1.2 or later

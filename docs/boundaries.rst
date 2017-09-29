@@ -10,7 +10,7 @@ sample points long the edge of one or more HEALPix pixels::
     >>> from healpix import HEALPix
     >>> hp = HEALPix(nside=16, order='nested')
     >>> hp.boundaries_lonlat([120], step=1)  # doctest: +FLOAT_CMP
-    (<Longitude [[ 1.12199738, 1.20830487, 1.17809725, 1.08747438]] rad>, <Latitude [[ 0.84022258, 0.89458259, 0.94842784, 0.89458259]] rad>)
+    (<Longitude [[ 1.17809725, 1.08747438, 1.12199738, 1.20830487]] rad>, <Latitude [[ 0.94842784, 0.89458259, 0.84022258, 0.89458259]] rad>)
 
 This method takes a ``step`` argument which specifies how many points to sample
 along each edge. Setting ``step`` to 1 returns the corner positions, while
@@ -53,5 +53,5 @@ return the celestial coordinates of the boundaries as a
     >>> hp = CelestialHEALPix(nside=16, order='nested', frame=Galactic())
     >>> hp.boundaries_skycoord([120], step=1)  # doctest: +FLOAT_CMP
     <SkyCoord (Galactic): (l, b) in deg
-        [[( 64.28571429,  48.14120779), ( 69.23076923,  51.25580695),
-          ( 67.5       ,  54.3409123 ), ( 62.30769231,  51.25580695)]]>
+        [[( 67.5       ,  54.3409123 ), ( 62.30769231,  51.25580695),
+          ( 64.28571429,  48.14120779), ( 69.23076923,  51.25580695)]]>

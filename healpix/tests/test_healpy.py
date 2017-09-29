@@ -158,11 +158,14 @@ def test_boundaries_shape():
     assert b1.shape == b2.shape
 
 
-@given(vectors=arrays(float, 10, elements=floats(-1, 1)),
-       lonlat=booleans())
+@given(vectors=arrays(float, (3,), elements=floats(-1, 1)),
+       lonlat=booleans(), ndim=integers(0, 4))
 @settings(max_examples=500, derandomize=True)
-def test_vec2ang(vectors, lonlat):
+def test_vec2ang(vectors, lonlat, ndim):
+    vectors = np.broadcast_to(vectors, (2,) * ndim + (3,))
     theta1, phi1 = hp_compat.vec2ang(vectors, lonlat=lonlat)
     theta2, phi2 = hp.vec2ang(vectors, lonlat=lonlat)
+    # Healpy sometimes returns NaNs for phi (somewhat incorrectly)
+    phi2 = np.nan_to_num(phi2)
     assert_allclose(theta1, theta1)
     assert_allclose(phi1, phi2)

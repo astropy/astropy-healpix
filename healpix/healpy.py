@@ -127,5 +127,5 @@ def vec2ang(vectors, lonlat=False):
     """Drop-in replacement for healpy `~healpy.vec2ang`."""
     x, y, z = vectors.transpose()
     rep_car = CartesianRepresentation(x, y, z)
-    rep_sph = rep_car.to(UnitSphericalRepresentation)
-    return _healpy_lonlat(rep_sph.lon, rep_sph.lat, lonlat=lonlat)
+    rep_sph = rep_car.represent_as(UnitSphericalRepresentation)
+    return _healpy_lonlat(rep_sph.lon.ravel(), rep_sph.lat.ravel(), lonlat=lonlat)

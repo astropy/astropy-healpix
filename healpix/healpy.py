@@ -8,10 +8,12 @@ from __future__ import absolute_import, division, print_function
 
 import numpy as np
 from astropy import units as u
+from astropy.coordinates.representation import UnitSphericalRepresentation
 
 from .core import (nside_to_pixel_resolution, nside_to_pixel_area,
                    nside_to_npix, npix_to_nside, nested_to_ring, ring_to_nested,
-                   level_to_nside, lonlat_to_healpix, healpix_to_lonlat)
+                   level_to_nside, lonlat_to_healpix, healpix_to_lonlat,
+                   boundaries_lonlat)
 
 RAD2DEG = 180 / np.pi
 
@@ -100,3 +102,15 @@ def ring2nest(nside, ipix):
     """Drop-in replacement for healpy `~healpy.pixelfunc.ring2nest`."""
     ipix = np.atleast_1d(ipix).astype(np.int64, copy=False)
     return ring_to_nested(ipix, nside)
+
+
+def boundaries(nside, pix, step=1, nest=False):
+    """Drop-in replacement for healpy `~healpy.pixelfunc.boundaries`."""
+    pix = np.atleast_1d(pix)
+    if pix.shape != (1,):
+        raise ValueError('boundaries can only take a single pixel in `pix`')
+    lon, lat = boundaries_lonlat(pix, step, nside, order='nested' if nest else 'ring')
+    rep_sph = UnitSphericalRepresentation(lon[0], lat[0])
+    rep_car = rep_sph.to_cartesian()
+    x, y, z = rep_car.xyz
+    return x.value, y.value, z.value

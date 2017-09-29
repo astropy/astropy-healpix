@@ -131,3 +131,14 @@ def test_ring2nest(nside_pow, frac):
     nest1 = hp_compat.ring2nest(nside, ring)
     nest2 = hp.ring2nest(nside, ring)
     assert nest1 == nest2
+
+
+@given(nside_pow=integers(0, 29), step=integers(1, 10), nest=booleans(),
+       frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1))
+@settings(max_examples=500, derandomize=True)
+def test_boundaries(nside_pow, frac, step, nest):
+    nside = 2 ** nside_pow
+    pix = int(frac * 12 * nside ** 2)
+    b1 = hp_compat.boundaries(nside, pix, step=step, nest=nest)
+    b2 = hp.boundaries(nside, pix, step=step, nest=nest)
+    assert_allclose(b1, b2, atol=1e-8)

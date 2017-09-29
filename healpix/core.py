@@ -8,6 +8,7 @@ from astropy import units as u
 from astropy.coordinates import Longitude, Latitude
 
 from . import core_cython
+from .core_cython import _validate_order
 
 __all__ = [
     'nside_to_pixel_area',
@@ -33,18 +34,6 @@ def _restore_shape(*args, **kwargs):
             return [np.asscalar(arg) for arg in args]
         else:
             return np.asscalar(args[0])
-
-
-def _validate_order(order):
-    # We also support upper-case, to support directly the values
-    # ORDERING = {'RING', 'NESTED'} in FITS headers
-    # This is currently undocumented in the docstrings.
-    if order in {'nested', 'NESTED'}:
-        return 'nested'
-    elif order in {'ring', 'RING'}:
-        return 'ring'
-    else:
-        raise ValueError("order must be 'nested' or 'ring'")
 
 
 def _validate_healpix_index(label, healpix_index, nside):

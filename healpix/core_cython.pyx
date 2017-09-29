@@ -16,6 +16,18 @@ npy_intp = np.intp
 npy_int64 = np.int64
 
 
+def _validate_order(str order):
+    # We also support upper-case, to support directly the values
+    # ORDERING = {'RING', 'NESTED'} in FITS headers
+    # This is currently undocumented in the docstrings.
+    if order == 'nested' or order == 'NESTED':
+        return 'nested'
+    elif order == 'ring' or order == 'RING':
+        return 'ring'
+    else:
+        raise ValueError("order must be 'nested' or 'ring'")
+
+
 @cython.boundscheck(False)
 def healpix_to_lonlat(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
                       int nside, str order):
@@ -51,6 +63,8 @@ def healpix_to_lonlat(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
     dx = 0.5
     dy = 0.5
 
+    order = _validate_order(order)
+
     if order == 'nested':
         for i in range(n):
             xy_index = healpixl_nested_to_xy(healpix_index[i], nside)
@@ -59,8 +73,6 @@ def healpix_to_lonlat(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
         for i in range(n):
             xy_index = healpixl_ring_to_xy(healpix_index[i], nside)
             healpixl_to_radec(xy_index, nside, dx, dy, &lon[i], &lat[i])
-    else:
-      raise ValueError("order must be 'nested' or 'ring'")
 
     return lon, lat
 
@@ -101,6 +113,8 @@ def healpix_with_offset_to_lonlat(np.ndarray[int64_t, ndim=1, mode="c"] healpix_
     cdef np.ndarray[double_t, ndim=1, mode="c"] lon = np.zeros(n, dtype=npy_double)
     cdef np.ndarray[double_t, ndim=1, mode="c"] lat = np.zeros(n, dtype=npy_double)
 
+    order = _validate_order(order)
+
     if order == 'nested':
         for i in range(n):
             xy_index = healpixl_nested_to_xy(healpix_index[i], nside)
@@ -109,8 +123,6 @@ def healpix_with_offset_to_lonlat(np.ndarray[int64_t, ndim=1, mode="c"] healpix_
         for i in range(n):
             xy_index = healpixl_ring_to_xy(healpix_index[i], nside)
             healpixl_to_radec(xy_index, nside, dx[i], dy[i], &lon[i], &lat[i])
-    else:
-      raise ValueError("order must be 'nested' or 'ring'")
 
     return lon, lat
 
@@ -146,6 +158,8 @@ def lonlat_to_healpix(np.ndarray[double_t, ndim=1, mode="c"] lon,
     cdef double dx, dy;
     cdef np.ndarray[int64_t, ndim=1, mode="c"] healpix_index = np.zeros(n, dtype=npy_int64)
 
+    order = _validate_order(order)
+
     if order == 'nested':
         for i in range(n):
             xy_index = radec_to_healpixlf(lon[i], lat[i], nside, &dx, &dy)
@@ -154,8 +168,6 @@ def lonlat_to_healpix(np.ndarray[double_t, ndim=1, mode="c"] lon,
         for i in range(n):
             xy_index = radec_to_healpixlf(lon[i], lat[i], nside, &dx, &dy)
             healpix_index[i] = healpixl_xy_to_ring(xy_index, nside)
-    else:
-      raise ValueError("order must be 'nested' or 'ring'")
 
     return healpix_index
 
@@ -194,6 +206,8 @@ def lonlat_to_healpix_with_offset(np.ndarray[double_t, ndim=1, mode="c"] lon,
     cdef np.ndarray[double_t, ndim=1, mode="c"] dx = np.zeros(n, dtype=npy_double)
     cdef np.ndarray[double_t, ndim=1, mode="c"] dy = np.zeros(n, dtype=npy_double)
 
+    order = _validate_order(order)
+
     if order == 'nested':
         for i in range(n):
             xy_index = radec_to_healpixlf(lon[i], lat[i], nside, &dx[i], &dy[i])
@@ -202,8 +216,6 @@ def lonlat_to_healpix_with_offset(np.ndarray[double_t, ndim=1, mode="c"] lon,
         for i in range(n):
             xy_index = radec_to_healpixlf(lon[i], lat[i], nside, &dx[i], &dy[i])
             healpix_index[i] = healpixl_xy_to_ring(xy_index, nside)
-    else:
-        raise ValueError("order must be 'nested' or 'ring'")
 
     return healpix_index, dx, dy
 
@@ -311,12 +323,12 @@ def interpolate_bilinear_lonlat(np.ndarray[double_t, ndim=1, mode="c"] lon,
 
     nside = int(square_root)
 
+    order = _validate_order(order)
+
     if order == 'nested':
         order_int = 0
     elif order == 'ring':
         order_int = 1
-    else:
-        raise ValueError("order must be 'nested' or 'ring'")
 
     for i in range(n):
 
@@ -435,6 +447,8 @@ def healpix_neighbors(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
     #
     # so we reorder these on-the-fly
 
+    order = _validate_order(order)
+
     if order == 'nested':
 
         for i in range(n):
@@ -467,9 +481,6 @@ def healpix_neighbors(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
                     neighbours[j, i] = -1
                 else:
                     neighbours[j, i] = healpixl_xy_to_ring(neighbours_indiv[k], nside)
-
-    else:
-        raise ValueError("order must be 'nested' or 'ring'")
 
     return neighbours
 
@@ -510,6 +521,8 @@ def healpix_cone_search(double lon, double lat, double radius, int nside, str or
 
     cdef np.ndarray[int64_t, ndim=1, mode="c"] result = np.zeros(n_indices, dtype=npy_int64)
 
+    order = _validate_order(order)
+
     if order == 'nested':
         for i in range(n_indices):
             index = indices[i]
@@ -518,7 +531,5 @@ def healpix_cone_search(double lon, double lat, double radius, int nside, str or
         for i in range(n_indices):
             index = indices[i]
             result[i] = healpixl_xy_to_ring(index, nside)
-    else:
-        raise ValueError("order must be 'nested' or 'ring'")
 
     return result

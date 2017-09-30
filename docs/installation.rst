@@ -91,7 +91,7 @@ run the automated tests of this package by executing the ``test`` function:
 Development version
 ===================
 
-Install the latest development version from https://github.com/astropy/astropy_healpix :
+Install the latest development version from https://github.com/astropy/astropy-healpix :
 
 .. code-block:: bash
 

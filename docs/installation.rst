@@ -14,7 +14,7 @@ Dependencies
 Required dependencies
 ---------------------
 
-The **astropy_healpix** package works with Python 2.7 or 3.5 and later (on Linux, MacOS
+The **astropy-healpix** package works with Python 2.7 or 3.5 and later (on Linux, MacOS
 X and Windows), and requires the following dependencies:
 
 * `Numpy <http://www.numpy.org>`__ 1.10 or later
@@ -42,11 +42,11 @@ Installing the latest stable version is possible either using pip or conda.
 Using pip
 ---------
 
-To install **astropy_healpix** with `pip <http://www.pip-installer.org/en/latest/>`__
-from `PyPI <https://pypi.python.org/pypi/astropy_healpix>`__
+To install **astropy-healpix** with `pip <http://www.pip-installer.org/en/latest/>`__
+from `PyPI <https://pypi.python.org/pypi/astropy-healpix>`__
 simply run::
 
-    pip install --no-deps astropy_healpix
+    pip install --no-deps astropy-healpix
 
 .. note::
 
@@ -60,10 +60,10 @@ Using conda
 -----------
 
 To install healpix with `Anaconda <https://www.continuum.io/downloads>`_
-from the `conda-forge channel on anaconda.org <https://anaconda.org/conda-forge/astropy_healpix>`__
+from the `conda-forge channel on anaconda.org <https://anaconda.org/conda-forge/astropy-healpix>`__
 simply run::
 
-    conda install -c conda-forge astropy_healpix
+    conda install -c conda-forge astropy-healpix
 
 Testing installation
 --------------------
@@ -95,14 +95,14 @@ Install the latest development version from https://github.com/astropy/astropy-h
 
 .. code-block:: bash
 
-    git clone https://github.com/astropy/astropy_healpix
-    cd astropy_healpix
+    git clone https://github.com/astropy/astropy-healpix
+    cd astropy-healpix
     pip install .
 
 Contributing
 ============
 
-This section contains some tips how to hack on ``astropy_healpix``.
+This section contains some tips how to hack on **astropy-healpix**.
 
 You can run the tests in a temp folder via::
 

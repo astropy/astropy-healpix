@@ -6,8 +6,7 @@ About
 
 BSD-licensed HEALPix for Astropy.
 
-* Code : https://github.com/cdeil/healpix
-* Docs : http://healpix.readthedocs.io
+* Code : https://github.com/astropy/astropy-healpix
+* Docs : http://astropy-healpix.readthedocs.io
 
 See the docs for further information.
-

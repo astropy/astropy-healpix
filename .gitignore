@@ -52,9 +52,9 @@ distribute-*.tar.gz
 # Mac OSX
 .DS_Store
 
-healpix/_compiler.c
-healpix/raw/wrap.c
-healpix/core_cython.c
+astropy_healpix/_compiler.c
+astropy_healpix/raw/wrap.c
+astropy_healpix/core_cython.c
 
 # pytest cache folder
 v

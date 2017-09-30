@@ -1,3 +1,7 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
+
+from __future__ import absolute_import, print_function, division
+
 import os
 from distutils.core import Extension
 
@@ -25,7 +29,7 @@ def get_extensions():
     include_dirs = ['numpy', C_DIR]
 
     extension = Extension(
-        name="healpix.core_cython",
+        name="astropy_healpix.core_cython",
         sources=sources,
         include_dirs=include_dirs,
         libraries=libraries,

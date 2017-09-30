@@ -1,4 +1,6 @@
-from __future__ import print_function, division
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
+
+from __future__ import absolute_import, print_function, division
 
 import pytest
 import numpy as np
@@ -7,7 +9,7 @@ from numpy.testing import assert_allclose, assert_equal
 from astropy import units as u
 from astropy.coordinates import Longitude, Latitude, Galactic, SkyCoord
 
-from ..high_level import HEALPix, CelestialHEALPix
+from ..high_level import HEALPix
 
 
 class TestHEALPix:
@@ -33,7 +35,6 @@ class TestHEALPix:
     # specific to the high-level functions.
 
     def test_healpix_to_lonlat(self):
-
         lon, lat = self.pix.healpix_to_lonlat([1, 2, 3])
 
         assert isinstance(lon, Longitude)
@@ -95,10 +96,9 @@ class TestHEALPix:
 class TestCelestialHEALPix:
 
     def setup_class(self):
-        self.pix = CelestialHEALPix(nside=256, order='nested', frame=Galactic())
+        self.pix = HEALPix(nside=256, order='nested', frame=Galactic())
 
     def test_healpix_to_skycoord(self):
-
         coord = self.pix.healpix_to_skycoord([1, 2, 3])
 
         assert isinstance(coord, SkyCoord)
@@ -130,7 +130,6 @@ class TestCelestialHEALPix:
         assert_allclose(dy, [0.5, 0.4, 0.7])
 
     def test_interpolate_bilinear_skycoord(self):
-
         values = np.ones(12 * 256 ** 2) * 3
         coord = SkyCoord([1, 2, 3] * u.deg, [4, 3, 1] * u.deg, frame='fk4')
         result = self.pix.interpolate_bilinear_skycoord(coord, values)

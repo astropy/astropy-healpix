@@ -1,15 +1,10 @@
 Reference/API
 =============
 
-.. automodapi:: healpix
+.. automodapi:: astropy_healpix
    :no-inheritance-diagram:
    :inherited-members:
+   :no-main-docstr:
 
-.. automodapi:: healpix.core
-   :no-inheritance-diagram:
-
-.. automodapi:: healpix.core_cython
-   :no-inheritance-diagram:
-
-.. automodapi:: healpix.healpy
+.. automodapi:: astropy_healpix.healpy
    :no-inheritance-diagram:

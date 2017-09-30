@@ -1,7 +1,6 @@
-from __future__ import print_function, division
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-# Note: we use capfd in all tests here to make sure no errors/warnings are being
-# raised by the C code.
+from __future__ import absolute_import, print_function, division
 
 from itertools import product
 
@@ -15,7 +14,6 @@ from astropy.coordinates.angle_utilities import angular_separation
 
 from ..core import nside_to_pixel_resolution
 from .. import core_cython
-
 
 NSIDE_POWERS = range(0, 21)
 ORDERS = ('nested', 'ring')
@@ -31,6 +29,9 @@ def get_test_indices(nside):
     else:
         return np.arange(12 * nside ** 2, dtype=np.int64)
 
+
+# NOTE: we use capfd in all tests here to make sure no errors/warnings are being
+# raised by the C code.
 
 @pytest.mark.parametrize(('order', 'nside_power'), product(ORDERS, NSIDE_POWERS))
 def test_roundtrip_healpix_no_offsets(order, nside_power, capfd):

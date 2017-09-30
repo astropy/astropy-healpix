@@ -18,16 +18,16 @@ If you are interested in finding the value in a HEALPix map at a given
 longitude/latitude on the sphere, there are two main options:
 
 * Convert the longitude/latitude to the HEALPix pixel that the position
-  falls inside (e.g. ``index``) using :meth:`~healpix.HEALPix.lonlat_to_healpix`
-  or :meth:`~healpix.CelestialHEALPix.skycoord_to_healpix`, and extract the value
+  falls inside (e.g. ``index``) using :meth:`~astropy_healpix.HEALPix.lonlat_to_healpix`
+  or :meth:`~astropy_healpix.HEALPix.skycoord_to_healpix`, and extract the value
   of the array of map values at that index (e.g. ``values[index]``). This is
   essentially equivalent to a nearest-neighbour interpolation.
 
 * Convert the longitude/latitude to the HEALPix pixel that the position
   falls inside then find the other neighboring pixels and carry out a bilinear
   interpolation. This is trickier to do by hand, and we therefore provide the
-  methods :meth:`~healpix.HEALPix.interpolate_bilinear_lonlat` and
-  :meth:`~healpix.CelestialHEALPix.interpolate_bilinear_skycoord` methods to
+  methods :meth:`~astropy_healpix.HEALPix.interpolate_bilinear_lonlat` and
+  :meth:`~astropy_healpix.HEALPix.interpolate_bilinear_skycoord` methods to
   faciliate this. If you are not already familiar with how to access HEALPix
   data from FITS files, we have provided a `Full example`_ in the following
   section.
@@ -93,16 +93,16 @@ The last piece of information we need is that the map is in Galactic coordinates
 which is unfortunately not encoded in the header but can be found `here
 <https://lambda.gsfc.nasa.gov/product/map/dr3/maps_band_iqus_info.cfm>`__.
 
-We can now instantiate a :class:`~healpix.CelestialHEALPix` object::
+We can now instantiate a :class:`~astropy_healpix.HEALPix` object::
 
-    >>> from healpix import CelestialHEALPix
+    >>> from astropy_healpix import HEALPix
     >>> from astropy.coordinates import Galactic
     >>> nside = hdulist[1].header['NSIDE']  # doctest: +REMOTE_DATA
     >>> order = hdulist[1].header['ORDERING']  # doctest: +REMOTE_DATA
-    >>> hp = CelestialHEALPix(nside=nside, order=order, frame=Galactic())  # doctest: +REMOTE_DATA
+    >>> hp = HEALPix(nside=nside, order=order, frame=Galactic())  # doctest: +REMOTE_DATA
 
 and we can now use
-:meth:`~healpix.CelestialHEALPix.interpolate_bilinear_skycoord` to interpolate
+:meth:`~astropy_healpix.HEALPix.interpolate_bilinear_skycoord` to interpolate
 the temperature at a given position on the sky::
 
     >>> from astropy.coordinates import SkyCoord
@@ -121,11 +121,11 @@ Here is a full example that uses this to make a map of a section of the sky:
     hdulist = fits.open('https://lambda.gsfc.nasa.gov/data/map/dr3/skymaps/5yr//wmap_band_imap_r9_5yr_K_v3.fits')
 
     # Set up the HEALPix projection
-    from healpix import CelestialHEALPix
+    from astropy_healpix import HEALPix
     from astropy.coordinates import Galactic
     nside = hdulist[1].header['NSIDE']
     order = hdulist[1].header['ORDERING']
-    hp = CelestialHEALPix(nside=nside, order=order, frame=Galactic())
+    hp = HEALPix(nside=nside, order=order, frame=Galactic())
 
     # Sample a 300x200 grid in RA/Dec
     from astropy import units as u

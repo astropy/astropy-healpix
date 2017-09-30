@@ -1,6 +1,9 @@
-from __future__ import print_function, division
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-from astropy.coordinates import ICRS, SkyCoord
+from __future__ import absolute_import, print_function, division
+
+import os
+from astropy.coordinates import SkyCoord
 from astropy.coordinates.representation import UnitSphericalRepresentation
 
 from .core import (nside_to_pixel_area, nside_to_pixel_resolution,
@@ -8,7 +11,19 @@ from .core import (nside_to_pixel_area, nside_to_pixel_resolution,
                    interpolate_bilinear_lonlat, ring_to_nested, nested_to_ring,
                    healpix_cone_search, boundaries_lonlat)
 
-__all__ = ['HEALPix', 'CelestialHEALPix']
+__all__ = ['HEALPix']
+
+
+NO_FRAME_MESSAGE = """
+No frame was specified when initializing HEALPix, so SkyCoord objects cannot be
+returned. Either specify a frame when initializing HEALPix or use the {0}
+method.
+""".replace(os.linesep, ' ').strip()
+
+
+class NoFrameError(Exception):
+    def __init__(self, alternative_method):
+        super(NoFrameError, self).__init__(NO_FRAME_MESSAGE.format(alternative_method))
 
 
 class HEALPix(object):
@@ -21,13 +36,20 @@ class HEALPix(object):
         Number of pixels along the side of each of the 12 top-level HEALPix tiles
     order : { 'nested' | 'ring' }
         Order of HEALPix pixels
+    frame : :class:`~astropy.coordinates.BaseCoordinateFrame`, optional
+        The celestial coordinate frame of the pixellization. This can be
+        ommitted, in which case the pixellization will not be attached to any
+        particular celestial frame, and the methods ending in _skycoord will
+        not work (but the _lonlat methods will still work and continue to
+        return generic longitudes/latitudes).
     """
 
-    def __init__(self, nside=None, order='ring'):
+    def __init__(self, nside=None, order='ring', frame=None):
         if nside is None:
             raise ValueError('nside has not been set')
         self.nside = nside
         self.order = order
+        self.frame = frame
 
     @property
     def pixel_area(self):
@@ -205,29 +227,13 @@ class HEALPix(object):
         """
         return boundaries_lonlat(healpix_index, step, self.nside, order=self.order)
 
-
-class CelestialHEALPix(HEALPix):
-    """
-    A HEALPix pixellization of the celestial sphere
-
-    Parameters
-    ----------
-    nside : int
-        Number of pixels along the side of each of the 12 top-level HEALPix tiles
-    order : { 'nested' | 'ring' }
-        Order of HEALPix pixels
-    frame : :class:`~astropy.coordinates.BaseCoordinateFrame`, optional
-        The coordinate frame of the pixellization, which defaults to ICRS
-    """
-
-    def __init__(self, nside=None, order='ring', frame=None):
-        super(CelestialHEALPix, self).__init__(nside=nside, order=order)
-        # Note that we can't do 'frame or ICRS() here since frames evaluate as False'
-        self.frame = frame if frame is not None else ICRS()
-
     def healpix_to_skycoord(self, healpix_index, dx=None, dy=None):
         """
         Convert HEALPix indices (optionally with offsets) to celestial coordinates.
+
+        Note that this method requires that a celestial frame was specified when
+        initializing HEALPix. If you don't know or need the celestial frame, you
+        can instead use :meth:`~astropy_healpix.HEALPix.healpix_to_lonlat`.
 
         Parameters
         ----------
@@ -243,6 +249,8 @@ class CelestialHEALPix(HEALPix):
         coord : :class:`~astropy.coordinates.SkyCoord`
             The resulting celestial coordinates
         """
+        if self.frame is None:
+            raise NoFrameError("healpix_to_skycoord")
         lon, lat = self.healpix_to_lonlat(healpix_index, dx=dx, dy=dy)
         representation = UnitSphericalRepresentation(lon, lat, copy=False)
         return SkyCoord(self.frame.realize_frame(representation))
@@ -250,6 +258,10 @@ class CelestialHEALPix(HEALPix):
     def skycoord_to_healpix(self, skycoord, return_offsets=False):
         """
         Convert celestial coordinates to HEALPix indices (optionally with offsets).
+
+        Note that this method requires that a celestial frame was specified when
+        initializing HEALPix. If you don't know or need the celestial frame, you
+        can instead use :meth:`~astropy_healpix.HEALPix.lonlat_to_healpix`.
 
         Parameters
         ----------
@@ -269,6 +281,8 @@ class CelestialHEALPix(HEALPix):
             is the center of the HEALPix pixels). This is returned if
             ``return_offsets`` is `True`.
         """
+        if self.frame is None:
+            raise NoFrameError("skycoord_to_healpix")
         skycoord = skycoord.transform_to(self.frame)
         representation = skycoord.represent_as(UnitSphericalRepresentation)
         lon, lat = representation.lon, representation.lat
@@ -279,6 +293,10 @@ class CelestialHEALPix(HEALPix):
         Interpolate values at specific celestial coordinates using bilinear interpolation.
 
         If a position does not have four neighbours, this currently returns NaN.
+
+        Note that this method requires that a celestial frame was specified when
+        initializing HEALPix. If you don't know or need the celestial frame, you
+        can instead use :meth:`~astropy_healpix.HEALPix.interpolate_bilinear_lonlat`.
 
         Parameters
         ----------
@@ -294,6 +312,8 @@ class CelestialHEALPix(HEALPix):
         result : `~numpy.ndarray`
             1-D array of interpolated values
         """
+        if self.frame is None:
+            raise NoFrameError("interpolate_bilinear_skycoord")
         skycoord = skycoord.transform_to(self.frame)
         representation = skycoord.represent_as(UnitSphericalRepresentation)
         lon, lat = representation.lon, representation.lat
@@ -308,6 +328,10 @@ class CelestialHEALPix(HEALPix):
         celestial position at a time, since different calls to the function may
         result in a different number of matches.
 
+        This method requires that a celestial frame was specified when
+        initializing HEALPix.  If you don't know or need the celestial frame,
+        you can instead use :meth:`~astropy_healpix.HEALPix.cone_search_lonlat`.
+
         Parameters
         ----------
         skycoord : :class:`~astropy.coordinates.SkyCoord`
@@ -320,6 +344,8 @@ class CelestialHEALPix(HEALPix):
         healpix_index : `~numpy.ndarray`
             1-D array with all the matching HEALPix pixel indices.
         """
+        if self.frame is None:
+            raise NoFrameError("cone_search_skycoord")
         skycoord = skycoord.transform_to(self.frame)
         representation = skycoord.represent_as(UnitSphericalRepresentation)
         lon, lat = representation.lon, representation.lat
@@ -333,6 +359,10 @@ class CelestialHEALPix(HEALPix):
         HEALPIX pixel. The number of points returned for each pixel is ``4 * step``,
         so setting ``step`` to 1 returns just the corners.
 
+        This method requires that a celestial frame was specified when
+        initializing HEALPix.  If you don't know or need the celestial frame,
+        you can instead use :meth:`~astropy_healpix.HEALPix.boundaries_lonlat`.
+
         Parameters
         ----------
         healpix_index : `~numpy.ndarray`
@@ -345,6 +375,8 @@ class CelestialHEALPix(HEALPix):
         skycoord : :class:`~astropy.coordinates.SkyCoord`
             The celestial coordinates of the HEALPix pixel boundaries
         """
+        if self.frame is None:
+            raise NoFrameError("boundaries_skycoord")
         lon, lat = self.boundaries_lonlat(healpix_index, step)
         representation = UnitSphericalRepresentation(lon, lat, copy=False)
         return SkyCoord(self.frame.realize_frame(representation))

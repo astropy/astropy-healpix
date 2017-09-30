@@ -1,5 +1,7 @@
 .. include:: references.txt
 
+.. doctest-skip-all
+
 .. _install:
 
 ************
@@ -12,7 +14,7 @@ Dependencies
 Required dependencies
 ---------------------
 
-The **healpix** package works with Python 2.7 or 3.5 and later (on Linux, MacOS
+The **astropy_healpix** package works with Python 2.7 or 3.5 and later (on Linux, MacOS
 X and Windows), and requires the following dependencies:
 
 * `Numpy <http://www.numpy.org>`__ 1.10 or later
@@ -23,12 +25,12 @@ If you use :ref:`pip` or :ref:`conda`, these will be installed automatically.
 Optional dependencies
 ---------------------
 
-The following packages are optional dependencies, which can be installed if
-needed:
+The following packages are optional dependencies, which can be installed if needed:
 
 * `pytest <http://www.pytest.org>`__ for testing
 * `healpy <https://healpy.readthedocs.io>`__ for testing (but this is not required
   and the tests that require healpy will be skipped if healpy is not installed)
+* `hypothesis <hypothesis.readthedocs.io>`__ for the healpy-related tests.
 
 Stable version
 ==============
@@ -40,11 +42,11 @@ Installing the latest stable version is possible either using pip or conda.
 Using pip
 ---------
 
-To install **healpix** with `pip <http://www.pip-installer.org/en/latest/>`__
-from `PyPI <https://pypi.python.org/pypi/regions>`__
+To install **astropy_healpix** with `pip <http://www.pip-installer.org/en/latest/>`__
+from `PyPI <https://pypi.python.org/pypi/astropy_healpix>`__
 simply run::
 
-    pip install --no-deps healpix
+    pip install --no-deps astropy_healpix
 
 .. note::
 
@@ -57,30 +59,63 @@ simply run::
 Using conda
 -----------
 
-To install regions with `Anaconda <https://www.continuum.io/downloads>`_
-from the `astropy channel on anaconda.org <https://anaconda.org/astropy/regions>`__
+To install healpix with `Anaconda <https://www.continuum.io/downloads>`_
+from the `conda-forge channel on anaconda.org <https://anaconda.org/conda-forge/astropy_healpix>`__
 simply run::
 
-    conda install -c astropy healpix
+    conda install -c conda-forge astropy_healpix
 
 Testing installation
 --------------------
 
-To check if your install is OK, run the tests:
+To check that you have this package installed and which version you're using,
+start Python and execute the following code:
 
 .. code-block:: bash
 
-    python -c 'import healpix; healpix.test()'
+    $ python
+    Python 3.6.2 |Continuum Analytics, Inc.| (default, Jul 20 2017, 13:14:59)
+    [GCC 4.2.1 Compatible Apple LLVM 6.0 (clang-600.0.57)] on darwin
+    Type "help", "copyright", "credits" or "license" for more information.
+    >>> import astropy_healpix
+    >>> astropy_healpix.__version__
+    0.1
+
+To make sure that all functionality is working OK on your system, you can
+run the automated tests of this package by executing the ``test`` function:
+
+.. code-block:: bash
+
+    python -c 'import astropy_healpix; astropy_healpix.test()'
 
 Development version
 ===================
 
-Install the latest development version from https://github.com/cdeil/healpix :
+Install the latest development version from https://github.com/astropy/astropy-healpix :
 
 .. code-block:: bash
 
-    git clone https://github.com/cdeil/healpix
-    cd healpix
-    python setup.py install
-    python setup.py test
+    git clone https://github.com/astropy/astropy_healpix
+    cd astropy_healpix
+    pip install .
+
+Contributing
+============
+
+This section contains some tips how to hack on ``astropy_healpix``.
+
+You can run the tests in a temp folder via::
+
+    python setup.py test -V
+
+Or build the C / Cython extensions in-place and run the tests from the source folder::
+
+    python setup.py build_ext -i
+    python -m pytest -v astropy_healpix
+
+To build the docs::
+
     python setup.py build_docs
+    open docs/_build/html/index.html
+
+If you have any questions, just open an issue on Github and we'll help.

@@ -8,10 +8,10 @@ As described in :doc:`getting_started`, coordinates in a HEALPix pixellization
 can follow either the 'ring' or 'nested' convention. Let's start by setting up
 an example pixellization::
 
-    >>> from healpix import HEALPix
+    >>> from astropy_healpix import HEALPix
     >>> hp = HEALPix(nside=16, order='nested')
 
-The :meth:`~healpix.HEALPix.healpix_to_lonlat` method can be used
+The :meth:`~astropy_healpix.HEALPix.healpix_to_lonlat` method can be used
 to convert HEALPix indices to :class:`~astropy.coordinates.Longitude` and
 :class:`~astropy.coordinates.Latitude` objects::
 
@@ -39,7 +39,7 @@ objects, it is possible to recover HEALPix pixel indices::
     array([1217, 1217, 1222])
 
 In these examples, what is being converted is the position of the center of each
-pixel. In fact, the  :meth:`~healpix.HEALPix.lonlat_to_healpix` method can also
+pixel. In fact, the  :meth:`~astropy_healpix.HEALPix.lonlat_to_healpix` method can also
 take or give the fractional position inside each HEALPix pixel, e.g.::
 
     >>> index, dx, dy = hp.lonlat_to_healpix([1, 3, 4] * u.deg, [5, 6, 9] * u.deg,
@@ -51,7 +51,7 @@ take or give the fractional position inside each HEALPix pixel, e.g.::
     >>> dy  # doctest: +FLOAT_CMP
     array([ 0.86809114,  0.72100823,  0.16610247])
 
-and the :meth:`~healpix.HEALPix.healpix_to_lonlat` method can take offset
+and the :meth:`~astropy_healpix.HEALPix.healpix_to_lonlat` method can take offset
 positions - for example we can use this to find the position of the corners of
 a given pixel::
 
@@ -69,32 +69,27 @@ Celestial coordinates
 ---------------------
 
 For cases where the HEALPix pixellization is of the celestial sphere, a
-specialized class :class:`~healpix.CelestialHEALPix` is provided. This is a
-sub-class of :class:`~healpix.HEALPix`, and in addition to the above
-functionality, it is possible to convert HEALPix indices to celestial
-coordinates (represented by :class:`~astropy.coordinates.SkyCoord`) and
-vice-versa.
+``frame`` argument can be passed to :class:`~astropy_healpix.HEALPix`. This
+argument should specify the celestial frame (using an `astropy.coordinates
+<http://docs.astropy.org/en/stable/coordinates/index.html>`_ frame) in which the
+HEALPix pixellization is defined::
 
-Initializing the :class:`~healpix.CelestialHEALPix` class is done as for
-:class:`~healpix.HEALPix` but with an additional ``frame`` keyword argument
-which specifies the frame in which the HEALPix pixellization is defined::
-
-    >>> from healpix import CelestialHEALPix
+    >>> from astropy_healpix import HEALPix
     >>> from astropy.coordinates import Galactic
-    >>> hp = CelestialHEALPix(nside=16, order='nested', frame=Galactic())
+    >>> hp = HEALPix(nside=16, order='nested', frame=Galactic())
 
-Each method defined in :class:`~healpix.HEALPix` and ending in ``lonlat`` has an
-equivalent method ending in ``skycoord`` in the
-:meth:`~healpix.CelestialHEALPix` class. For example, to convert from HEALPix
-indices to celestial coordinates, you can use the
-:meth:`~healpix.CelestialHEALPix.healpix_to_skycoord` method::
+Each method defined in :class:`~astropy_healpix.HEALPix` and ending in
+``lonlat`` has an equivalent method ending in ``skycoord`` which can be used if
+the frame is set. For example, to convert from HEALPix indices to celestial
+coordinates, you can use the
+:meth:`~astropy_healpix.HEALPix.healpix_to_skycoord` method::
 
     >>> hp.healpix_to_skycoord([144, 231])  # doctest: +FLOAT_CMP
     <SkyCoord (Galactic): (l, b) in deg
         [( 33.75      ,  32.7971683 ), ( 32.14285714,  69.42254649)]>
 
 and to convert from celestial coordinates to HEALPix indices you can use the
-:meth:`~healpix.CelestialHEALPix.skycoord_to_healpix` method, e.g::
+:meth:`~astropy_healpix.HEALPix.skycoord_to_healpix` method, e.g::
 
     >>> from astropy.coordinates import SkyCoord
     >>> coord = SkyCoord('00h42m44.3503s +41d16m08.634s')
@@ -104,15 +99,14 @@ and to convert from celestial coordinates to HEALPix indices you can use the
 Converting between ring and nested conventions
 ----------------------------------------------
 
-The :class:`~healpix.HEALPix` class (and by extension the
-:class:`~healpix.CelestialHEALPix` class) have methods that can be used to
+The :class:`~astropy_healpix.HEALPix` class has methods that can be used to
 convert HEALPix pixel indices between the ring and nested convention. These are
-:meth:`~healpix.HEALPix.nested_to_ring`::
+:meth:`~astropy_healpix.HEALPix.nested_to_ring`::
 
     >>> hp.nested_to_ring([30])
     array([873])
 
-and :meth:`~healpix.HEALPix.ring_to_nested`::
+and :meth:`~astropy_healpix.HEALPix.ring_to_nested`::
 
     >>> hp.ring_to_nested([1, 2, 3])
     array([ 511,  767, 1023])

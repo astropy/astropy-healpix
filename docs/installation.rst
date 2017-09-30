@@ -29,6 +29,7 @@ needed:
 * `pytest <http://www.pytest.org>`__ for testing
 * `healpy <https://healpy.readthedocs.io>`__ for testing (but this is not required
   and the tests that require healpy will be skipped if healpy is not installed)
+* `hypothesis <hypothesis.readthedocs.io>`__ for the healpy-related tests.
 
 Stable version
 ==============
@@ -40,8 +41,8 @@ Installing the latest stable version is possible either using pip or conda.
 Using pip
 ---------
 
-To install **healpix** with `pip <http://www.pip-installer.org/en/latest/>`__
-from `PyPI <https://pypi.python.org/pypi/regions>`__
+To install ``healpix`` with `pip <http://www.pip-installer.org/en/latest/>`__
+from `PyPI <https://pypi.python.org/pypi/healpix>`__
 simply run::
 
     pip install --no-deps healpix
@@ -57,11 +58,11 @@ simply run::
 Using conda
 -----------
 
-To install regions with `Anaconda <https://www.continuum.io/downloads>`_
-from the `astropy channel on anaconda.org <https://anaconda.org/astropy/regions>`__
+To install healpix with `Anaconda <https://www.continuum.io/downloads>`_
+from the `conda-forge channel on anaconda.org <https://anaconda.org/conda-forge/healpix>`__
 simply run::
 
-    conda install -c astropy healpix
+    conda install -c conda-forge healpix
 
 Testing installation
 --------------------
@@ -81,6 +82,25 @@ Install the latest development version from https://github.com/cdeil/healpix :
 
     git clone https://github.com/cdeil/healpix
     cd healpix
-    python setup.py install
-    python setup.py test
+    pip install .
+
+Hacking on ``healpix``
+======================
+
+This section contains some tips how to hack on ``healpix``.
+
+You can run the tests in a temp folder via::
+
+    python setup.py test -V
+
+Or build the C / Cython extensions in-place and run the tests from the source folder::
+
+    python setup.py build_ext -i
+    python -m pytest -v healpix
+
+To build the docs::
+
     python setup.py build_docs
+    open docs/_build/html/index.html
+
+If you have any questions, just open an issue on Github and we'll help.

@@ -1,8 +1,10 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+
+from __future__ import absolute_import, print_function, division
+
 """
 This submodule provides a healpy-compatible interface.
 """
-from __future__ import absolute_import, division, print_function
 
 import numpy as np
 from astropy import units as u

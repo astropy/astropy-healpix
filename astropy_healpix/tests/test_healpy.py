@@ -1,9 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-# NOTE: If healpy is installed, we use it in these tests, but healpy is not a
-# formal dependency of astropy-healpix.
-
-from __future__ import absolute_import, division, print_function
+from __future__ import absolute_import, print_function, division
 
 from itertools import product
 
@@ -16,6 +13,8 @@ from numpy.testing import assert_equal, assert_allclose
 
 from .. import healpy as hp_compat
 
+# NOTE: If healpy is installed, we use it in these tests, but healpy is not a
+# formal dependency of astropy-healpix.
 hp = pytest.importorskip('healpy')
 
 from hypothesis import given, settings

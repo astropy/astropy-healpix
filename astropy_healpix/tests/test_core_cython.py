@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-# Note: we use capfd in all tests here to make sure no errors/warnings are being
-# raised by the C code.
-from __future__ import print_function, division
+
+from __future__ import absolute_import, print_function, division
+
 from itertools import product
 
 import pytest
@@ -29,6 +29,9 @@ def get_test_indices(nside):
     else:
         return np.arange(12 * nside ** 2, dtype=np.int64)
 
+
+# NOTE: we use capfd in all tests here to make sure no errors/warnings are being
+# raised by the C code.
 
 @pytest.mark.parametrize(('order', 'nside_power'), product(ORDERS, NSIDE_POWERS))
 def test_roundtrip_healpix_no_offsets(order, nside_power, capfd):

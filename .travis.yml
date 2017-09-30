@@ -82,9 +82,6 @@ matrix:
 
         # Now try Astropy dev and LTS vesions with the latest 3.x and 2.7.
         - os: linux
-          env: PYTHON_VERSION=3.6 ASTROPY_VERSION=development
-               EVENT_TYPE='pull_request push cron'
-        - os: linux
           env: ASTROPY_VERSION=development
                EVENT_TYPE='pull_request push cron'
         - os: linux

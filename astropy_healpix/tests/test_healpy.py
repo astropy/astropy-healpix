@@ -1,4 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+
+# NOTE: If healpy is installed, we use it in these tests, but healpy is not a
+# formal dependency of astropy-healpix.
+
 from __future__ import absolute_import, division, print_function
 
 from itertools import product

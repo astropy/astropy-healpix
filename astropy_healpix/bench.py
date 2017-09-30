@@ -16,11 +16,19 @@ you should write benchmarks with cases relevant for that application
 and check if HEALPix computations are really the bottleneck and if
 this package is fast enough for you or not.
 """
-from textwrap import dedent
+
 import timeit
+
 from astropy.table import Table
-import healpy as hp
-from . import healpy as hp_compat
+
+# NOTE: If healpy is installed, we use it in the benchmarks, but healpy is not
+# a formal dependency of astropy-healpix.
+try:
+    import healpy as hp  # noqa
+except ImportError:
+    HEALPY_INSTALLED = False
+else:
+    HEALPY_INSTALLED = True
 
 
 # Copied from https://github.com/kwgoodman/bottleneck/blob/master/bottleneck/benchmark/autotimeit.py
@@ -43,8 +51,8 @@ def autoscaler(timer, mintime):
 
 
 def get_import(package, fct):
-    if package == 'self':
-        return 'from healpix.healpy import {}'.format(fct)
+    if package == 'astropy_healpix':
+        return 'from astropy_healpix.healpy import {}'.format(fct)
     else:
         return 'from healpy import {}'.format(fct)
 
@@ -57,8 +65,7 @@ def bench_pix2ang(size, nside, nest, package):
         'import numpy as np',
         'nside={}'.format(int(nside)),
         'ipix=np.zeros({}, dtype=np.int64)'.format(shape),
-        'nest={}'.format(nest),
-    ])
+        'nest={}'.format(nest)])
 
     stmt = 'pix2ang(nside, ipix, nest)'
 
@@ -72,13 +79,19 @@ def bench_run():
     for nest in [True, False]:
         for size in [10, 1e3, 1e6]:
             for nside in [1, 128]:
-                time_self = bench_pix2ang(size=size, nside=nside, nest=nest, package='self')
-                time_healpy = bench_pix2ang(size=size, nside=nside, nest=nest, package='healpy')
 
-                results.append(dict(
-                    fct='pix2ang', size=int(size), nside=nside,
-                    time_self=time_self, time_healpy=time_healpy,
-                ))
+                time_self = bench_pix2ang(size=size, nside=nside,
+                                          nest=nest, package='astropy_healpix')
+
+                results_single = dict(fct='pix2ang', size=int(size),
+                                      nside=nside, time_self=time_self)
+
+                if HEALPY_INSTALLED:
+                    time_healpy = bench_pix2ang(size=size, nside=nside,
+                                                nest=nest, package='healpy')
+                    results_single['time_healpy'] = time_healpy
+
+                results.append(results_single)
 
     return results
 
@@ -86,20 +99,21 @@ def bench_run():
 def bench_report(results):
     """Print a report for given benchmark results to the console."""
     table = Table(rows=results)
-    table['ratio'] = table['time_self'] / table['time_healpy']
 
     table['time_self'].format = '10.7f'
-    table['time_healpy'].format = '10.7f'
-    table['ratio'].format = '7.2f'
+
+    if HEALPY_INSTALLED:
+        table['ratio'] = table['time_self'] / table['time_healpy']
+        table['time_healpy'].format = '10.7f'
+        table['ratio'].format = '7.2f'
 
     table.pprint(max_lines=-1)
 
 
 def main():
     """Run all benchmarks and print report to the console."""
-    print('Running benchmarks ...\n')
+    print('Running benchmarks...\n')
     results = bench_run()
-    print('Printint benchmark report ...\n')
     bench_report(results)
 
 

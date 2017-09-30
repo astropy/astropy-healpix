@@ -6,6 +6,24 @@
 Installation
 ************
 
+.. important::
+
+    This Python package has the name **healpix**.
+    This name is used for importing from Python (``import healpix``),
+    for installation from the Python package index PyPI (``pip install healpix``),
+    and the git repository on Github is also called ``healpix``.
+
+    However, the name was already taken on the Anaconda conda-forge channel,
+    there **healpix** refers to the C++ HEALPix package.
+    Therefore, since this package is built on Astropy and might be integrated into
+    the Astropy core package at some point, we have chosen the name ``astropy-healpix``
+    in the Anaconda conda-forge channel.
+
+    We hope this makes it clear why in the commands below sometimes ``healpix``
+    and sometimes ``astropy-healpix`` appears. For further information about this
+    package and it's relation to other HEALPix packages, see :ref:`about`.
+
+
 Dependencies
 ============
 
@@ -41,7 +59,7 @@ Installing the latest stable version is possible either using pip or conda.
 Using pip
 ---------
 
-To install ``healpix`` with `pip <http://www.pip-installer.org/en/latest/>`__
+To install **healpix** with `pip <http://www.pip-installer.org/en/latest/>`__
 from `PyPI <https://pypi.python.org/pypi/healpix>`__
 simply run::
 
@@ -59,15 +77,29 @@ Using conda
 -----------
 
 To install healpix with `Anaconda <https://www.continuum.io/downloads>`_
-from the `conda-forge channel on anaconda.org <https://anaconda.org/conda-forge/healpix>`__
+from the `conda-forge channel on anaconda.org <https://anaconda.org/conda-forge/astropy-healpix>`__
 simply run::
 
-    conda install -c conda-forge healpix
+    conda install -c conda-forge astropy-healpix
 
 Testing installation
 --------------------
 
-To check if your install is OK, run the tests:
+To check that you have this package nstalled and which version you're using,
+start Python and execute the following code:
+
+.. code-block:: bash
+
+    $ python
+    >>> import healpix
+    # The following line will print out the package install location
+    >>> healpix
+    # The following line will print the package version number
+    >>> healpix.__version__
+
+
+To make sure that all functionality is working OK on your system, you can
+run the automated tests of this package by executing the ``test`` function:
 
 .. code-block:: bash
 

@@ -76,7 +76,7 @@ def bench_run():
                 time_healpy = bench_pix2ang(size=size, nside=nside, nest=nest, package='healpy')
 
                 results.append(dict(
-                    fct='pix2ang', size=size, nside=nside,
+                    fct='pix2ang', size=int(size), nside=nside,
                     time_self=time_self, time_healpy=time_healpy,
                 ))
 
@@ -87,6 +87,11 @@ def bench_report(results):
     """Print a report for given benchmark results to the console."""
     table = Table(rows=results)
     table['ratio'] = table['time_self'] / table['time_healpy']
+
+    table['time_self'].format = '10.7f'
+    table['time_healpy'].format = '10.7f'
+    table['ratio'].format = '7.2f'
+
     table.pprint(max_lines=-1)
 
 

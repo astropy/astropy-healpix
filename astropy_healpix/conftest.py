@@ -26,6 +26,7 @@ try:
     PYTEST_HEADER_MODULES['Astropy'] = 'astropy'
     PYTEST_HEADER_MODULES['healpy'] = 'healpy'
     del PYTEST_HEADER_MODULES['h5py']
+    del PYTEST_HEADER_MODULES['Pandas']
 except (NameError, KeyError):  # NameError is needed to support Astropy < 1.0
     pass
 

@@ -45,6 +45,5 @@ User documentation
    boundaries
    cone_search
    interpolation
-   low_level_api
    healpy_compat
    api

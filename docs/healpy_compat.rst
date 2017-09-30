@@ -3,7 +3,7 @@ Healpy-compatible interface
 
 In addition to the above high- and low-level interfaces, we have provided
 a `healpy <http://healpy.readthedocs.io>`_-compatible interface in
-`healpix.healpy`. Note that this only includes a subset of the healpy functions.
+:mod:`astropy_healpix.healpy`. Note that this only includes a subset of the healpy functions.
 This is not the recommended interface, and is only provided as a convenience
 for packages that want to support both healpy and this package.
 

@@ -106,7 +106,7 @@ setup(
     version=VERSION,
     description=DESCRIPTION,
     scripts=scripts,
-    install_requires=['numpy', 'astropy', 'six'],
+    install_requires=['numpy', 'astropy'],
     author=AUTHOR,
     author_email=AUTHOR_EMAIL,
     license=LICENSE,

@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function
 
 from itertools import product
 
-import six
+from .six import integer_types
 
 import pytest
 import numpy as np
@@ -77,7 +77,7 @@ def test_ang2pix(nside_pow, lon, lat, nest, lonlat):
 def test_ang2pix_shape():
 
     ipix = hp_compat.ang2pix(8, 1., 2.)
-    assert isinstance(ipix, six.integer_types)
+    assert isinstance(ipix, integer_types)
 
     ipix = hp_compat.ang2pix(8, [[1., 2.], [3., 4.]], [[1., 2.], [3., 4.]])
     assert ipix.shape == (2, 2)

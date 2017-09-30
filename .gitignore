@@ -60,3 +60,4 @@ healpix/core_cython.c
 v
 
 .hypothesis
+.eggs

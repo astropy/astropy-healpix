@@ -69,7 +69,7 @@ matrix:
     include:
         # Try MacOS X
         - os: osx
-          env: SETUP_CMD='test'
+          env: SETUP_CMD='test' SETUP_CMD='test --skip-docs'
 
         # Do a coverage test.
         - os: linux
@@ -82,7 +82,7 @@ matrix:
 
         # Now try Astropy dev and LTS vesions with the latest 3.x and 2.7.
         - os: linux
-          env: PYTHON_VERSION=2.7 ASTROPY_VERSION=development
+          env: PYTHON_VERSION=3.6 ASTROPY_VERSION=development
                EVENT_TYPE='pull_request push cron'
         - os: linux
           env: ASTROPY_VERSION=development

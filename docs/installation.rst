@@ -69,15 +69,11 @@ Testing installation
 To check that you have this package installed and which version you're using,
 start Python and execute the following code:
 
-.. code-block:: bash
+.. code-block:: python
 
-    $ python
     >>> import astropy_healpix
-    # The following line will print out the package install location
     >>> astropy_healpix
-    # The following line will print the package version number
     >>> astropy_healpix.__version__
-
 
 To make sure that all functionality is working OK on your system, you can
 run the automated tests of this package by executing the ``test`` function:

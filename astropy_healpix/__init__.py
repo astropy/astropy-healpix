@@ -10,7 +10,7 @@ If this is accepted, this package will only be temporarily maintained as a
 separate Python package, i.e. it's not recommended for production use
 at this point.
 
-* Code : https://github.com/cdeil/healpix
+* Code : https://github.com/astropy/astropy-healpix
 * Docs : http://astropy-healpix.readthedocs.io
 """
 

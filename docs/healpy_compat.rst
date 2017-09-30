@@ -14,7 +14,7 @@ As an example, the :func:`~healpix.healpy.pix2ang` function can be used to get
 the longitude/latitude of a given HEALPix pixel (by default using the 'ring'
 convention)::
 
-  >>> from healpix.healpy import pix2ang
+  >>> from astropy_healpix.healpy import pix2ang
   >>> pix2ang(16, [100, 120])
   (array([ 0.35914432,  0.41113786]), array([ 3.70259134,  1.6689711 ]))
 
@@ -34,7 +34,7 @@ to check if the required functionality is available by changing all::
 
 to::
 
-    from healpix import healpy as hp
+    from astropy_healpix import healpy as hp
 
 and see what's missing or breaks. Please file issues or feature requests!
 

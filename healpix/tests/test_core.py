@@ -2,7 +2,7 @@ from __future__ import print_function, division
 
 from itertools import product
 
-import six
+from .six import integer_types
 import pytest
 
 import numpy as np
@@ -137,14 +137,14 @@ def test_healpix_to_lonlat_shape():
 def test_lonlat_to_healpix_shape():
 
     healpix_index = lonlat_to_healpix(2 * u.deg, 3 * u.deg, 8)
-    assert isinstance(healpix_index, six.integer_types)
+    assert isinstance(healpix_index, integer_types)
 
     lon, lat = np.ones((2, 4)) * u.deg, np.zeros((2, 4)) * u.deg
     healpix_index = lonlat_to_healpix(lon, lat, 8)
     assert healpix_index.shape == (2, 4)
 
     healpix_index, dx, dy = lonlat_to_healpix(2 * u.deg, 3 * u.deg, 8, return_offsets=True)
-    assert isinstance(healpix_index, six.integer_types)
+    assert isinstance(healpix_index, integer_types)
     assert isinstance(dx, float)
     assert isinstance(dy, float)
 
@@ -159,7 +159,7 @@ def test_lonlat_to_healpix_shape():
 def test_nested_ring_shape(function):
 
     index = function(1, 8)
-    assert isinstance(index, six.integer_types)
+    assert isinstance(index, integer_types)
 
     index = function([[1, 2, 3], [2, 3, 4]], 8)
     assert index.shape == (2, 3)

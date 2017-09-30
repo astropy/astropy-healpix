@@ -34,7 +34,6 @@ class TestHEALPix:
     # specific to the high-level functions.
 
     def test_healpix_to_lonlat(self):
-
         lon, lat = self.pix.healpix_to_lonlat([1, 2, 3])
 
         assert isinstance(lon, Longitude)
@@ -99,7 +98,6 @@ class TestCelestialHEALPix:
         self.pix = CelestialHEALPix(nside=256, order='nested', frame=Galactic())
 
     def test_healpix_to_skycoord(self):
-
         coord = self.pix.healpix_to_skycoord([1, 2, 3])
 
         assert isinstance(coord, SkyCoord)
@@ -131,7 +129,6 @@ class TestCelestialHEALPix:
         assert_allclose(dy, [0.5, 0.4, 0.7])
 
     def test_interpolate_bilinear_skycoord(self):
-
         values = np.ones(12 * 256 ** 2) * 3
         coord = SkyCoord([1, 2, 3] * u.deg, [4, 3, 1] * u.deg, frame='fk4')
         result = self.pix.interpolate_bilinear_skycoord(coord, values)

@@ -18,7 +18,7 @@ from hypothesis import given, settings
 from hypothesis.strategies import integers, floats, booleans
 from hypothesis.extra.numpy import arrays
 
-NSIDE_VALUES = [2**n for n in range(1, 6)]
+NSIDE_VALUES = [2 ** n for n in range(1, 6)]
 
 
 @pytest.mark.parametrize(('nside', 'degrees'), product(NSIDE_VALUES, (False, True)))
@@ -49,7 +49,7 @@ def test_order2nside(level):
     assert_equal(actual, expected)
 
 
-@pytest.mark.parametrize('npix', [12 * 2**(2 * n) for n in range(1, 6)])
+@pytest.mark.parametrize('npix', [12 * 2 ** (2 * n) for n in range(1, 6)])
 def test_npix2nside(npix):
     actual = hp_compat.npix2nside(npix)
     expected = hp.npix2nside(npix)
@@ -61,7 +61,8 @@ def test_npix2nside(npix):
 
 @given(nside_pow=integers(0, 29), nest=booleans(), lonlat=booleans(),
        lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(lambda lon: abs(lon) > 1e-10),
-       lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(lambda lat: abs(lat) < 89.99 and abs(lat) > 1e-10))
+       lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(
+           lambda lat: abs(lat) < 89.99 and abs(lat) > 1e-10))
 @settings(max_examples=2000, derandomize=True)
 def test_ang2pix(nside_pow, lon, lat, nest, lonlat):
     nside = 2 ** nside_pow
@@ -75,7 +76,6 @@ def test_ang2pix(nside_pow, lon, lat, nest, lonlat):
 
 
 def test_ang2pix_shape():
-
     ipix = hp_compat.ang2pix(8, 1., 2.)
     assert isinstance(ipix, integer_types)
 
@@ -84,7 +84,6 @@ def test_ang2pix_shape():
 
 
 def test_pix2ang_shape():
-
     lon, lat = hp_compat.pix2ang(8, 1)
     assert isinstance(lon, float)
     assert isinstance(lat, float)
@@ -146,7 +145,6 @@ def test_boundaries(nside_pow, frac, step, nest):
 
 
 def test_boundaries_shape():
-
     pix = 1
     b1 = hp_compat.boundaries(8, pix, step=4)
     b2 = hp.boundaries(8, pix, step=4)

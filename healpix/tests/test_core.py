@@ -73,7 +73,6 @@ def test_npix_to_nside():
 
 @pytest.mark.parametrize('order', ['nested', 'ring'])
 def test_healpix_to_lonlat(order):
-
     lon, lat = healpix_to_lonlat([1, 2, 3], 4, order=order)
 
     assert isinstance(lon, Longitude)
@@ -98,7 +97,6 @@ def test_healpix_to_lonlat(order):
 
 
 def test_healpix_to_lonlat_invalid():
-
     dx = [0.1, 0.4, 0.9]
     dy = [0.4, 0.3, 0.2]
 
@@ -124,7 +122,6 @@ def test_healpix_to_lonlat_invalid():
 
 
 def test_healpix_to_lonlat_shape():
-
     lon, lat = healpix_to_lonlat(2, 8)
     assert lon.isscalar and lat.isscalar
 
@@ -136,7 +133,6 @@ def test_healpix_to_lonlat_shape():
 
 
 def test_lonlat_to_healpix_shape():
-
     healpix_index = lonlat_to_healpix(2 * u.deg, 3 * u.deg, 8)
     assert isinstance(healpix_index, integer_types)
 
@@ -158,7 +154,6 @@ def test_lonlat_to_healpix_shape():
 
 @pytest.mark.parametrize('function', [nested_to_ring, ring_to_nested])
 def test_nested_ring_shape(function):
-
     index = function(1, 8)
     assert isinstance(index, integer_types)
 
@@ -175,7 +170,6 @@ def test_interpolate_bilinear_lonlat(order):
 
 
 def test_interpolate_bilinear_invalid():
-
     values = np.ones(133)
     with pytest.raises(ValueError) as exc:
         interpolate_bilinear_lonlat([1, 3, 4] * u.deg, [3, 2, 6] * u.deg, values)
@@ -189,7 +183,6 @@ def test_interpolate_bilinear_invalid():
 
 
 def test_interpolate_bilinear_lonlat_shape():
-
     values = np.ones(192) * 3
 
     result = interpolate_bilinear_lonlat(3 * u.deg, 4 * u.deg, values)
@@ -202,7 +195,6 @@ def test_interpolate_bilinear_lonlat_shape():
 
 @pytest.mark.parametrize('order', ['nested', 'ring'])
 def test_healpix_neighbors(order):
-
     neighbours = healpix_neighbors([1, 2, 3], 4, order=order)
 
     if order == 'nested':
@@ -229,7 +221,6 @@ def test_healpix_neighbors(order):
 
 
 def test_healpix_neighbors_invalid():
-
     with pytest.raises(ValueError) as exc:
         healpix_neighbors([-1, 2, 3], 4)
     assert exc.value.args[0] == 'healpix_index must be in the range [0:192]'
@@ -245,7 +236,6 @@ def test_healpix_neighbors_invalid():
 
 @pytest.mark.parametrize('order', ['nested', 'ring'])
 def test_healpix_cone_search(order):
-
     indices = healpix_cone_search(10 * u.deg, 20 * u.deg, 1 * u.deg,
                                   nside=256, order=order)
 

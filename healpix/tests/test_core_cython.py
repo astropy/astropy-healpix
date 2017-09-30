@@ -15,7 +15,6 @@ from astropy.coordinates.angle_utilities import angular_separation
 from ..core import nside_to_pixel_resolution
 from .. import core_cython
 
-
 NSIDE_POWERS = range(0, 21)
 ORDERS = ('nested', 'ring')
 

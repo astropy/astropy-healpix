@@ -8,7 +8,7 @@ As described in :doc:`getting_started`, coordinates in a HEALPix pixellization
 can follow either the 'ring' or 'nested' convention. Let's start by setting up
 an example pixellization::
 
-    >>> from healpix import HEALPix
+    >>> from astropy_healpix import HEALPix
     >>> hp = HEALPix(nside=16, order='nested')
 
 The :meth:`~healpix.HEALPix.healpix_to_lonlat` method can be used
@@ -79,7 +79,7 @@ Initializing the :class:`~healpix.CelestialHEALPix` class is done as for
 :class:`~healpix.HEALPix` but with an additional ``frame`` keyword argument
 which specifies the frame in which the HEALPix pixellization is defined::
 
-    >>> from healpix import CelestialHEALPix
+    >>> from astropy_healpix import CelestialHEALPix
     >>> from astropy.coordinates import Galactic
     >>> hp = CelestialHEALPix(nside=16, order='nested', frame=Galactic())
 

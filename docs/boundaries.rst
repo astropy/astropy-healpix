@@ -7,7 +7,7 @@ coordinates of the corners or edges of HEALPix pixels.
 The :meth:`~healpix.HEALPix.boundaries_lonlat` method can be used to
 sample points long the edge of one or more HEALPix pixels::
 
-    >>> from healpix import HEALPix
+    >>> from astropy_healpix import HEALPix
     >>> hp = HEALPix(nside=16, order='nested')
     >>> hp.boundaries_lonlat([120], step=1)  # doctest: +FLOAT_CMP
     (<Longitude [[ 1.17809725, 1.08747438, 1.12199738, 1.20830487]] rad>, <Latitude [[ 0.94842784, 0.89458259, 0.84022258, 0.89458259]] rad>)
@@ -28,7 +28,7 @@ just the corners (in red) and a much higher-resolution boundary computed with
    from astropy import units as u
    import matplotlib.pyplot as plt
    from matplotlib.patches import Polygon
-   from healpix.core import boundaries_lonlat
+   from astropy_healpix.core import boundaries_lonlat
 
    ax = plt.subplot(1, 1, 1)
 
@@ -48,7 +48,7 @@ equivalent :meth:`~healpix.CelestialHEALPix.boundaries_skycoord` method that can
 return the celestial coordinates of the boundaries as a
 :class:`~astropy.coordinates.SkyCoord` object::
 
-    >>> from healpix import CelestialHEALPix
+    >>> from astropy_healpix import CelestialHEALPix
     >>> from astropy.coordinates import Galactic
     >>> hp = CelestialHEALPix(nside=16, order='nested', frame=Galactic())
     >>> hp.boundaries_skycoord([120], step=1)  # doctest: +FLOAT_CMP

@@ -11,7 +11,7 @@ separate Python package, i.e. it's not recommended for production use
 at this point.
 
 * Code : https://github.com/cdeil/healpix
-* Docs : http://healpix.readthedocs.io
+* Docs : http://astropy-healpix.readthedocs.io
 """
 
 # Affiliated packages may add whatever they like to this file, but

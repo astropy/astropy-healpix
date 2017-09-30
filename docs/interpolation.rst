@@ -95,7 +95,7 @@ which is unfortunately not encoded in the header but can be found `here
 
 We can now instantiate a :class:`~healpix.CelestialHEALPix` object::
 
-    >>> from healpix import CelestialHEALPix
+    >>> from astropy_healpix import CelestialHEALPix
     >>> from astropy.coordinates import Galactic
     >>> nside = hdulist[1].header['NSIDE']  # doctest: +REMOTE_DATA
     >>> order = hdulist[1].header['ORDERING']  # doctest: +REMOTE_DATA
@@ -121,7 +121,7 @@ Here is a full example that uses this to make a map of a section of the sky:
     hdulist = fits.open('https://lambda.gsfc.nasa.gov/data/map/dr3/skymaps/5yr//wmap_band_imap_r9_5yr_K_v3.fits')
 
     # Set up the HEALPix projection
-    from healpix import CelestialHEALPix
+    from astropy_healpix import CelestialHEALPix
     from astropy.coordinates import Galactic
     nside = hdulist[1].header['NSIDE']
     order = hdulist[1].header['ORDERING']

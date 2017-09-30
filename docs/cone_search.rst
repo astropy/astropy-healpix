@@ -13,7 +13,7 @@ efficiently find all HEALpix pixels within a certain radius from a
 longitude/latitude::
 
     >>> from astropy import units as u
-    >>> from healpix import HEALPix
+    >>> from astropy_healpix import HEALPix
     >>> hp = HEALPix(nside=16, order='nested')
     >>> hp.cone_search_lonlat(10 * u.deg, 30 * u.deg, radius=10 * u.deg)
     array([1269,  160,  162, 1271, 1270, 1268, 1246, 1247,  138,  139,  161,
@@ -24,7 +24,7 @@ Likewise, if using a :class:`~healpix.CelestialHEALPix` object, you can use the
 :meth:`~healpix.CelestialHEALPix.cone_search_skycoord` method to query around
 specific celestial coordinates::
 
-    >>> from healpix import CelestialHEALPix
+    >>> from astropy_healpix import CelestialHEALPix
     >>> from astropy.coordinates import Galactic
     >>> hp = CelestialHEALPix(nside=16, order='nested', frame=Galactic())
     >>> from astropy.coordinates import SkyCoord

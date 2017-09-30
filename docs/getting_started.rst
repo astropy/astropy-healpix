@@ -13,7 +13,7 @@ should be initialized with the ``nside`` parameter which controls the resolution
 of the pixellization - it is the number of pixels on the side of each of the 12
 top-level HEALPix pixels::
 
-    >>> from healpix import HEALPix
+    >>> from astropy_healpix import HEALPix
     >>> hp = HEALPix(nside=16)
 
 As described in the references above, HEALPix pixel indices can follow two

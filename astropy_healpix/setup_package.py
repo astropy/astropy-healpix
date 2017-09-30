@@ -26,7 +26,7 @@ def get_extensions():
     include_dirs = ['numpy', C_DIR]
 
     extension = Extension(
-        name="healpix.core_cython",
+        name="astropy_healpix.core_cython",
         sources=sources,
         include_dirs=include_dirs,
         libraries=libraries,

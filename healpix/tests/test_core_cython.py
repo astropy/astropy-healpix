@@ -1,8 +1,7 @@
-from __future__ import print_function, division
-
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 # Note: we use capfd in all tests here to make sure no errors/warnings are being
 # raised by the C code.
-
+from __future__ import print_function, division
 from itertools import product
 
 import pytest

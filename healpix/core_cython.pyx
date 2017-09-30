@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 This module contains vectorized Cython functions for common HEALPix operations.
 Since they are written in Cython rather than Python, their input types are

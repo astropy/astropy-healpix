@@ -2,16 +2,6 @@
 
 """
 BSD-licensed HEALPix for Astropy.
-
-We plan to propose this package to be included in Astropy core.
-See the about page for in the docs for further information.
-
-If this is accepted, this package will only be temporarily maintained as a
-separate Python package, i.e. it's not recommended for production use
-at this point.
-
-* Code : https://github.com/astropy/astropy-healpix
-* Docs : http://astropy-healpix.readthedocs.io
 """
 
 # Affiliated packages may add whatever they like to this file, but

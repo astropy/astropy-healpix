@@ -8,7 +8,7 @@ from numpy.testing import assert_allclose, assert_equal
 from astropy import units as u
 from astropy.coordinates import Longitude, Latitude, Galactic, SkyCoord
 
-from ..high_level import HEALPix, CelestialHEALPix
+from ..high_level import HEALPix
 
 
 class TestHEALPix:
@@ -95,7 +95,7 @@ class TestHEALPix:
 class TestCelestialHEALPix:
 
     def setup_class(self):
-        self.pix = CelestialHEALPix(nside=256, order='nested', frame=Galactic())
+        self.pix = HEALPix(nside=256, order='nested', frame=Galactic())
 
     def test_healpix_to_skycoord(self):
         coord = self.pix.healpix_to_skycoord([1, 2, 3])

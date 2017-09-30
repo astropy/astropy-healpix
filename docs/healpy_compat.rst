@@ -10,7 +10,7 @@ for packages that want to support both healpy and this package.
 Example
 -------
 
-As an example, the :func:`~healpix.healpy.pix2ang` function can be used to get
+As an example, the :func:`~astropy_healpix.healpy.pix2ang` function can be used to get
 the longitude/latitude of a given HEALPix pixel (by default using the 'ring'
 convention)::
 

@@ -4,7 +4,7 @@ Pixel corners and edges
 In some cases, you may need to find out the longitude/latitude or celestial
 coordinates of the corners or edges of HEALPix pixels.
 
-The :meth:`~healpix.HEALPix.boundaries_lonlat` method can be used to
+The :meth:`~astropy_healpix.HEALPix.boundaries_lonlat` method can be used to
 sample points long the edge of one or more HEALPix pixels::
 
     >>> from astropy_healpix import HEALPix
@@ -43,14 +43,13 @@ just the corners (in red) and a much higher-resolution boundary computed with
    plt.xlim(210, 330)
    plt.ylim(-50, 50)
 
-As for other methods, the :class:`~healpix.CelestialHEALPix` class has an
-equivalent :meth:`~healpix.CelestialHEALPix.boundaries_skycoord` method that can
+As for other methods, the :class:`~astropy_healpix.HEALPix` class has an
+equivalent :meth:`~astropy_healpix.HEALPix.boundaries_skycoord` method that can
 return the celestial coordinates of the boundaries as a
-:class:`~astropy.coordinates.SkyCoord` object::
+:class:`~astropy.coordinates.SkyCoord` object if the ``frame`` is set::
 
-    >>> from astropy_healpix import CelestialHEALPix
     >>> from astropy.coordinates import Galactic
-    >>> hp = CelestialHEALPix(nside=16, order='nested', frame=Galactic())
+    >>> hp = HEALPix(nside=16, order='nested', frame=Galactic())
     >>> hp.boundaries_skycoord([120], step=1)  # doctest: +FLOAT_CMP
     <SkyCoord (Galactic): (l, b) in deg
         [[( 67.5       ,  54.3409123 ), ( 62.30769231,  51.25580695),

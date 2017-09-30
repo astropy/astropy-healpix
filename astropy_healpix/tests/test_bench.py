@@ -4,4 +4,4 @@ from ..bench import main
 
 
 def test_bench():
-    main()
+    main(fast=True)

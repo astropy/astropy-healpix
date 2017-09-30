@@ -70,8 +70,9 @@ Celestial coordinates
 
 For cases where the HEALPix pixellization is of the celestial sphere, a
 ``frame`` argument can be passed to :class:`~astropy_healpix.HEALPix`. This
-argument should specify the celestial frame in which the HEALPix pixellization
-is defined::
+argument should specify the celestial frame (using an `astropy.coordinates
+<http://docs.astropy.org/en/stable/coordinates/index.html>`_ frame) in which the
+HEALPix pixellization is defined::
 
     >>> from astropy_healpix import HEALPix
     >>> from astropy.coordinates import Galactic

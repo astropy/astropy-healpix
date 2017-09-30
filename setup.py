@@ -31,6 +31,7 @@ conf.read(['setup.cfg'])
 metadata = dict(conf.items('metadata'))
 
 PACKAGENAME = metadata.get('package_name', 'astropy_healpix')
+MODULENAME = PACKAGENAME.replace('-', '_')
 DESCRIPTION = metadata.get('description', 'BSD-licensed HEALPix for Astropy')
 AUTHOR = metadata.get('author', 'Christoph Deil, Thomas Robitaille, and Dustin Lang')
 AUTHOR_EMAIL = metadata.get('author_email', '')
@@ -57,13 +58,13 @@ elif len(glob.glob(readme_glob)) > 0:
 
 else:
     # Get the long description from the package's docstring
-    __import__(PACKAGENAME)
-    package = sys.modules[PACKAGENAME]
+    __import__(MODULENAME)
+    package = sys.modules[MODULENAME]
     LONG_DESCRIPTION = package.__doc__
 
 # Store the package name in a built-in variable so it's easy
 # to get from other parts of the setup infrastructure
-builtins._ASTROPY_PACKAGE_NAME_ = PACKAGENAME
+builtins._ASTROPY_PACKAGE_NAME_ = MODULENAME
 
 # VERSION should be PEP440 compatible (http://www.python.org/dev/peps/pep-0440)
 VERSION = metadata.get('version', '0.0.dev')
@@ -77,11 +78,11 @@ if not RELEASE:
 # Populate the dict of setup command overrides; this should be done before
 # invoking any other functionality from distutils since it can potentially
 # modify distutils' behavior.
-cmdclassd = register_commands(PACKAGENAME, VERSION, RELEASE)
+cmdclassd = register_commands(MODULENAME, VERSION, RELEASE)
 
 # Freeze build information in version.py
-generate_version_py(PACKAGENAME, VERSION, RELEASE,
-                    get_debug_option(PACKAGENAME))
+generate_version_py(MODULENAME, VERSION, RELEASE,
+                    get_debug_option(MODULENAME))
 
 # Treat everything in scripts except README* as a script to be installed
 scripts = [fname for fname in glob.glob(os.path.join('scripts', '*'))
@@ -94,8 +95,8 @@ scripts = [fname for fname in glob.glob(os.path.join('scripts', '*'))
 package_info = get_package_info()
 
 # Add the project-global data
-package_info['package_data'].setdefault(PACKAGENAME, [])
-package_info['package_data'][PACKAGENAME].append('data/*')
+package_info['package_data'].setdefault(MODULENAME, [])
+package_info['package_data'][MODULENAME].append('data/*')
 
 # Define entry points for command-line scripts
 entry_points = {'console_scripts': []}
@@ -110,13 +111,13 @@ if conf.has_section('entry_points'):
 # Cython, since we can not do this in MANIFEST.in with a "dynamic"
 # directory name.
 c_files = []
-for root, dirs, files in os.walk(PACKAGENAME):
+for root, dirs, files in os.walk(MODULENAME):
     for filename in files:
         if filename.endswith('.c'):
             c_files.append(
                 os.path.join(
-                    os.path.relpath(root, PACKAGENAME), filename))
-package_info['package_data'][PACKAGENAME].extend(c_files)
+                    os.path.relpath(root, MODULENAME), filename))
+package_info['package_data'][MODULENAME].extend(c_files)
 
 # Note that requires and provides should not be included in the call to
 # ``setup``, since these are now deprecated. See this link for more details:

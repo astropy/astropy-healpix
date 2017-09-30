@@ -71,9 +71,12 @@ Testing installation
 To check that you have this package installed and which version you're using,
 start Python and execute the following code:
 
-.. code-block:: python
+.. code-block:: bash
 
-    python
+    $ python
+    Python 3.6.2 |Continuum Analytics, Inc.| (default, Jul 20 2017, 13:14:59)
+    [GCC 4.2.1 Compatible Apple LLVM 6.0 (clang-600.0.57)] on darwin
+    Type "help", "copyright", "credits" or "license" for more information.
     >>> import astropy_healpix
     >>> astropy_healpix.__version__
     0.1

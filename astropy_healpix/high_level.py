@@ -15,8 +15,9 @@ __all__ = ['HEALPix']
 
 NO_FRAME_MESSAGE = """
 No frame was specified when initializing HEALPix, so SkyCoord objects cannot be
-returned. Either specify a frame when initializing HEALPix or use {0}).
-""".replace(os.sep, ' ').strip()
+returned. Either specify a frame when initializing HEALPix or use the {0}
+method.
+""".replace(os.linesep, ' ').strip()
 
 
 class NoFrameError(Exception):

@@ -4,7 +4,7 @@ About
 -----
 
 This is a BSD-licensed HEALPix package developed by the Astropy project
-Astropy. See the
+and based on C code written by Dustin Lang in `astrometry.net <http://astrometry.net/>`__. See the
 `Documentation <http://astropy-healpix.readthedocs.io>`__ for
 information about installing and using this package.
 

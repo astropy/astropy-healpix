@@ -60,7 +60,7 @@ def get_import(package, fct):
         return 'from healpy import {}'.format(fct)
 
 
-def bench_pix2ang(size, nside, nest, package):
+def bench_pix2ang(size, nside, nest, package, fast=False):
     shape = (int(size), )
 
     setup = '\n'.join([
@@ -72,10 +72,10 @@ def bench_pix2ang(size, nside, nest, package):
 
     stmt = 'pix2ang(nside, ipix, nest)'
 
-    return autotimeit(stmt=stmt, setup=setup, repeat=1, mintime=0.1)
+    return autotimeit(stmt=stmt, setup=setup, repeat=1, mintime=0 if fast else 0.1)
 
 
-def bench_run():
+def bench_run(fast=False):
     """Run all benchmarks. Return results as a dict."""
     results = []
 
@@ -84,14 +84,16 @@ def bench_run():
             for nside in [1, 128]:
 
                 time_self = bench_pix2ang(size=size, nside=nside,
-                                          nest=nest, package='astropy_healpix')
+                                          nest=nest, package='astropy_healpix',
+                                          fast=fast)
 
                 results_single = dict(fct='pix2ang', size=int(size),
                                       nside=nside, time_self=time_self)
 
                 if HEALPY_INSTALLED:
                     time_healpy = bench_pix2ang(size=size, nside=nside,
-                                                nest=nest, package='healpy')
+                                                nest=nest, package='healpy',
+                                                fast=fast)
                     results_single['time_healpy'] = time_healpy
 
                 results.append(results_single)
@@ -113,10 +115,10 @@ def bench_report(results):
     table.pprint(max_lines=-1)
 
 
-def main():
+def main(fast=False):
     """Run all benchmarks and print report to the console."""
     print('Running benchmarks...\n')
-    results = bench_run()
+    results = bench_run(fast=fast)
     bench_report(results)
 
 

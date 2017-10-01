@@ -8,13 +8,13 @@
 What is HEALPix?
 ================
 
-**astropy-healpix** is a Python package that implements the `HEALPix
+`HEALPix
 <https://en.wikipedia.org/wiki/HEALPix>`_ (Hierarchical Equal Area isoLatitude
-Pixelisation) algorithm for pixellizing a sphere. This algorithm is sometimes
+Pixelisation) is an algorithm for pixellizing a sphere that is sometimes
 used in Astronomy to store data from all-sky surveys, but the general algorithm
 can apply to any field that has to deal with representing data on a sphere.
 
-More information about HEALPix can be found here:
+More information about the HEALPix algorithm can be found here:
 
 * http://healpix.jpl.nasa.gov/
 * http://adsabs.harvard.edu/abs/2005ApJ...622..759G
@@ -23,7 +23,7 @@ More information about HEALPix can be found here:
 About this package
 ==================
 
-This package is a new BSD-licensed implementation that is separate from the
+**astropy-healpix** is a new BSD-licensed implementation that is separate from the
 original GPL-licensed `HEALPix library <http://healpix.sourceforge.net>`_ and
 associated `healpy <https://github.com/healpy/healpy>`__ Python wrapper. See
 :ref:`about` for further information about the difference between this new

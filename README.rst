@@ -1,4 +1,4 @@
-|Travis Status| |AppVeyor status| |CircleCI| |Coverage Status|
+|RTD| |Travis Status| |AppVeyor status| |CircleCI| |Coverage Status|
 
 About
 -----
@@ -16,3 +16,5 @@ information about installing and using this package.
    :target: https://circleci.com/gh/astropy/astropy-healpix
 .. |Coverage Status| image:: https://coveralls.io/repos/astropy/astropy-healpix/badge.svg
    :target: https://coveralls.io/r/astropy/astropy-healpix
+.. |RTD| image:: https://readthedocs.org/projects/astropy-healpix/badge/?version=latest
+   :target: http://astropy-healpix.readthedocs.io/en/latest/?badge=latest

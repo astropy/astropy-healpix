@@ -8,7 +8,8 @@ strict and the functions will fail if the incorrect types are passed in.
 import numpy as np
 cimport numpy as np
 import cython
-from cython.parallel import prange
+from cython.parallel import parallel, prange
+from libc.stdlib cimport abort, malloc, free
 
 ctypedef np.intp_t intp_t
 ctypedef np.double_t double_t
@@ -315,11 +316,13 @@ def interpolate_bilinear_lonlat(np.ndarray[double_t, ndim=1, mode="c"] lon,
     cdef double dx, dy, xfrac, yfrac
     cdef double_t v11, v12, v21, v22
     cdef np.ndarray[double_t, ndim=1, mode="c"] result = np.zeros(n, dtype=npy_double)
-    cdef int64_t neighbours[8]
     cdef double_t invalid = np.nan
     cdef intp_t npix = values.shape[0]
     cdef double square_root
     cdef int order_int
+
+    cdef int64_t * neighbours
+    cdef size_t n_neighbours = 8
 
     if npix % 12 != 0:
         raise ValueError('Number of pixels must be divisible by 12')
@@ -338,77 +341,85 @@ def interpolate_bilinear_lonlat(np.ndarray[double_t, ndim=1, mode="c"] lon,
     elif order == 'ring':
         order_int = 1
 
-    for i in prange(n, nogil=True):
+    with nogil, parallel():
 
-        xy_index = radec_to_healpixlf(lon[i], lat[i], nside, &dx, &dy)
+        neighbours = <int64_t *> malloc(sizeof(int64_t) * n_neighbours)
+        if neighbours == NULL:
+            abort()
 
-        # We now need to identify the four pixels that surround the position
-        # we've identified. The neighbours are ordered as follows:
-        #
-        #       3   2   1
-        #       4   X   0
-        #       5   6   7
+        for i in prange(n):
 
-        healpixl_get_neighbours(xy_index, neighbours, nside)
+            xy_index = radec_to_healpixlf(lon[i], lat[i], nside, &dx, &dy)
 
-        if dx < 0.5:
+            # We now need to identify the four pixels that surround the position
+            # we've identified. The neighbours are ordered as follows:
+            #
+            #       3   2   1
+            #       4   X   0
+            #       5   6   7
 
-            if dy < 0.5:
-                i11 = neighbours[5]
-                i12 = neighbours[4]
-                i21 = neighbours[6]
-                i22 = xy_index
-                xfrac = 0.5 + dx
-                yfrac = 0.5 + dy
+            healpixl_get_neighbours(xy_index, neighbours, nside)
+
+            if dx < 0.5:
+
+                if dy < 0.5:
+                    i11 = neighbours[5]
+                    i12 = neighbours[4]
+                    i21 = neighbours[6]
+                    i22 = xy_index
+                    xfrac = 0.5 + dx
+                    yfrac = 0.5 + dy
+                else:
+                    i11 = neighbours[4]
+                    i12 = neighbours[3]
+                    i21 = xy_index
+                    i22 = neighbours[2]
+                    xfrac = 0.5 + dx
+                    yfrac = dy - 0.5
+
             else:
-                i11 = neighbours[4]
-                i12 = neighbours[3]
-                i21 = xy_index
-                i22 = neighbours[2]
-                xfrac = 0.5 + dx
-                yfrac = dy - 0.5
 
-        else:
+                if dy < 0.5:
+                    i11 = neighbours[6]
+                    i12 = xy_index
+                    i21 = neighbours[7]
+                    i22 = neighbours[0]
+                    xfrac = dx - 0.5
+                    yfrac = 0.5 + dy
+                else:
+                    i11 = xy_index
+                    i12 = neighbours[2]
+                    i21 = neighbours[0]
+                    i22 = neighbours[1]
+                    xfrac = dx - 0.5
+                    yfrac = dy - 0.5
 
-            if dy < 0.5:
-                i11 = neighbours[6]
-                i12 = xy_index
-                i21 = neighbours[7]
-                i22 = neighbours[0]
-                xfrac = dx - 0.5
-                yfrac = 0.5 + dy
-            else:
-                i11 = xy_index
-                i12 = neighbours[2]
-                i21 = neighbours[0]
-                i22 = neighbours[1]
-                xfrac = dx - 0.5
-                yfrac = dy - 0.5
+            if i11 < 0 or i12 < 0 or i21 < 0 or i22 < 0:
+                result[i] = invalid
+                continue
 
-        if i11 < 0 or i12 < 0 or i21 < 0 or i22 < 0:
-            result[i] = invalid
-            continue
+            if order_int == 0:
+                i11 = healpixl_xy_to_nested(i11, nside)
+                i12 = healpixl_xy_to_nested(i12, nside)
+                i21 = healpixl_xy_to_nested(i21, nside)
+                i22 = healpixl_xy_to_nested(i22, nside)
+            elif order_int == 1:
+                i11 = healpixl_xy_to_ring(i11, nside)
+                i12 = healpixl_xy_to_ring(i12, nside)
+                i21 = healpixl_xy_to_ring(i21, nside)
+                i22 = healpixl_xy_to_ring(i22, nside)
 
-        if order_int == 0:
-            i11 = healpixl_xy_to_nested(i11, nside)
-            i12 = healpixl_xy_to_nested(i12, nside)
-            i21 = healpixl_xy_to_nested(i21, nside)
-            i22 = healpixl_xy_to_nested(i22, nside)
-        elif order_int == 1:
-            i11 = healpixl_xy_to_ring(i11, nside)
-            i12 = healpixl_xy_to_ring(i12, nside)
-            i21 = healpixl_xy_to_ring(i21, nside)
-            i22 = healpixl_xy_to_ring(i22, nside)
+            v11 = values[i11]
+            v12 = values[i12]
+            v21 = values[i21]
+            v22 = values[i22]
 
-        v11 = values[i11]
-        v12 = values[i12]
-        v21 = values[i21]
-        v22 = values[i22]
+            result[i] = (v11 * (1 - xfrac) * (1 - yfrac) +
+                         v12 * (1 - xfrac) * yfrac +
+                         v21 * xfrac * (1 - yfrac) +
+                         v22 * xfrac * yfrac)
 
-        result[i] = (v11 * (1 - xfrac) * (1 - yfrac) +
-                     v12 * (1 - xfrac) * yfrac +
-                     v21 * xfrac * (1 - yfrac) +
-                     v22 * xfrac * yfrac)
+        free(neighbours)
 
     return result
 
@@ -440,56 +451,71 @@ def healpix_neighbors(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
     cdef int64_t xy_index
     cdef int j, k
     cdef np.ndarray[int64_t, ndim=2, mode="c"] neighbours = np.zeros((8, n), dtype=npy_int64)
-    cdef int64_t neighbours_indiv[8]
-
-    # The neighbours above are ordered as follows:
-    #
-    #       3   2   1
-    #       4   X   0
-    #       5   6   7
-    #
-    # but we want:
-    #
-    #       2   3   4
-    #       1   X   5
-    #       0   7   6
-    #
-    # so we reorder these on-the-fly
+    cdef int64_t * neighbours_indiv
+    cdef size_t n_neighbours = 8
+    cdef int order_int
 
     order = _validate_order(order)
 
     if order == 'nested':
-
-        for i in prange(n, nogil=True):
-
-            xy_index = healpixl_nested_to_xy(healpix_index[i], nside)
-            healpixl_get_neighbours(xy_index, neighbours_indiv, nside)
-
-            for j in range(8):
-                k = 4 - j
-                if k < 0:
-                    k = k + 8
-                if neighbours_indiv[k] < 0:
-                    neighbours[j, i] = -1
-                else:
-                    neighbours[j, i] = healpixl_xy_to_nested(neighbours_indiv[k], nside)
-
+        order_int = 0
     elif order == 'ring':
+        order_int = 1
 
-        for i in prange(n, nogil=True):
+    with nogil, parallel():
 
-            xy_index = healpixl_ring_to_xy(healpix_index[i], nside)
+        neighbours_indiv = <int64_t *> malloc(sizeof(int64_t) * n_neighbours)
+        if neighbours_indiv == NULL:
+            abort()
 
-            healpixl_get_neighbours(xy_index, neighbours_indiv, nside)
+        # The neighbours above are ordered as follows:
+        #
+        #       3   2   1
+        #       4   X   0
+        #       5   6   7
+        #
+        # but we want:
+        #
+        #       2   3   4
+        #       1   X   5
+        #       0   7   6
+        #
+        # so we reorder these on-the-fly
 
-            for j in range(8):
-                k = 4 - j
-                if k < 0:
-                    k = k + 8
-                if neighbours_indiv[k] < 0:
-                    neighbours[j, i] = -1
-                else:
-                    neighbours[j, i] = healpixl_xy_to_ring(neighbours_indiv[k], nside)
+        if order_int == 0:
+
+            for i in prange(n):
+
+                xy_index = healpixl_nested_to_xy(healpix_index[i], nside)
+                healpixl_get_neighbours(xy_index, neighbours_indiv, nside)
+
+                for j in range(8):
+                    k = 4 - j
+                    if k < 0:
+                        k = k + 8
+                    if neighbours_indiv[k] < 0:
+                        neighbours[j, i] = -1
+                    else:
+                        neighbours[j, i] = healpixl_xy_to_nested(neighbours_indiv[k], nside)
+
+        elif order_int == 1:
+
+            for i in prange(n):
+
+                xy_index = healpixl_ring_to_xy(healpix_index[i], nside)
+
+                healpixl_get_neighbours(xy_index, neighbours_indiv, nside)
+
+                for j in range(8):
+                    k = 4 - j
+                    if k < 0:
+                        k = k + 8
+                    if neighbours_indiv[k] < 0:
+                        neighbours[j, i] = -1
+                    else:
+                        neighbours[j, i] = healpixl_xy_to_ring(neighbours_indiv[k], nside)
+
+        free(neighbours_indiv)
 
     return neighbours
 

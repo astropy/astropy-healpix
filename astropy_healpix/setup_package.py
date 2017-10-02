@@ -34,6 +34,9 @@ def get_extensions():
         include_dirs=include_dirs,
         libraries=libraries,
         language="c",
-        extra_compile_args=['-O2'])
+        extra_compile_args=['-fopenmp'],
+        extra_link_args=['-fopenmp'])
+
+        # extra_compile_args=['-O2'])
 
     return [extension]

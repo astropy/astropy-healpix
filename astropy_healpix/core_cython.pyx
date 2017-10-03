@@ -321,8 +321,13 @@ def interpolate_bilinear_lonlat(np.ndarray[double_t, ndim=1, mode="c"] lon,
     cdef double square_root
     cdef int order_int
 
+    # Since we want to be able to use OpenMP in this function, we need to make
+    # sure that any temporary buffers are allocated inside the parallel()
+    # context. Note that we also need to do this for dx_buf and dy_buf otherwise
+    # if we just passed &dx and &dy to radec_to_healpixlf, different threads
+    # would be accessing the same location in memory, causing issues.
+    cdef double *dx_buf, *dy_buf
     cdef int64_t * neighbours
-    cdef size_t n_neighbours = 8
 
     if npix % 12 != 0:
         raise ValueError('Number of pixels must be divisible by 12')
@@ -343,13 +348,24 @@ def interpolate_bilinear_lonlat(np.ndarray[double_t, ndim=1, mode="c"] lon,
 
     with nogil, parallel():
 
-        neighbours = <int64_t *> malloc(sizeof(int64_t) * n_neighbours)
+        neighbours = <int64_t *> malloc(sizeof(int64_t) * 8)
         if neighbours == NULL:
+            abort()
+
+        dx_buf = <double *> malloc(sizeof(double))
+        if dx_buf == NULL:
+            abort()
+
+        dy_buf = <double *> malloc(sizeof(double))
+        if dy_buf == NULL:
             abort()
 
         for i in prange(n, schedule='static'):
 
-            xy_index = radec_to_healpixlf(lon[i], lat[i], nside, &dx, &dy)
+            xy_index = radec_to_healpixlf(lon[i], lat[i], nside, dx_buf, dy_buf)
+
+            dx = dx_buf[0]
+            dy = dy_buf[0]
 
             # We now need to identify the four pixels that surround the position
             # we've identified. The neighbours are ordered as follows:
@@ -420,6 +436,8 @@ def interpolate_bilinear_lonlat(np.ndarray[double_t, ndim=1, mode="c"] lon,
                          v22 * xfrac * yfrac)
 
         free(neighbours)
+        free(dx_buf)
+        free(dy_buf)
 
     return result
 
@@ -452,7 +470,6 @@ def healpix_neighbors(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
     cdef int j, k
     cdef np.ndarray[int64_t, ndim=2, mode="c"] neighbours = np.zeros((8, n), dtype=npy_int64)
     cdef int64_t * neighbours_indiv
-    cdef size_t n_neighbours = 8
     cdef int order_int
 
     order = _validate_order(order)
@@ -464,7 +481,7 @@ def healpix_neighbors(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
 
     with nogil, parallel():
 
-        neighbours_indiv = <int64_t *> malloc(sizeof(int64_t) * n_neighbours)
+        neighbours_indiv = <int64_t *> malloc(sizeof(int64_t) * 8)
         if neighbours_indiv == NULL:
             abort()
 

@@ -69,11 +69,11 @@ def healpix_to_lonlat(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
     order = _validate_order(order)
 
     if order == 'nested':
-        for i in prange(n, nogil=True):
+        for i in prange(n, nogil=True, schedule='static'):
             xy_index = healpixl_nested_to_xy(healpix_index[i], nside)
             healpixl_to_radec(xy_index, nside, dx, dy, &lon[i], &lat[i])
     elif order == 'ring':
-        for i in prange(n, nogil=True):
+        for i in prange(n, nogil=True, schedule='static'):
             xy_index = healpixl_ring_to_xy(healpix_index[i], nside)
             healpixl_to_radec(xy_index, nside, dx, dy, &lon[i], &lat[i])
 
@@ -120,11 +120,11 @@ def healpix_with_offset_to_lonlat(np.ndarray[int64_t, ndim=1, mode="c"] healpix_
     order = _validate_order(order)
 
     if order == 'nested':
-        for i in prange(n, nogil=True):
+        for i in prange(n, nogil=True, schedule='static'):
             xy_index = healpixl_nested_to_xy(healpix_index[i], nside)
             healpixl_to_radec(xy_index, nside, dx[i], dy[i], &lon[i], &lat[i])
     elif order == 'ring':
-        for i in prange(n, nogil=True):
+        for i in prange(n, nogil=True, schedule='static'):
             xy_index = healpixl_ring_to_xy(healpix_index[i], nside)
             healpixl_to_radec(xy_index, nside, dx[i], dy[i], &lon[i], &lat[i])
 
@@ -166,11 +166,11 @@ def lonlat_to_healpix(np.ndarray[double_t, ndim=1, mode="c"] lon,
     order = _validate_order(order)
 
     if order == 'nested':
-        for i in prange(n, nogil=True):
+        for i in prange(n, nogil=True, schedule='static'):
             xy_index = radec_to_healpixlf(lon[i], lat[i], nside, &dx, &dy)
             healpix_index[i] = healpixl_xy_to_nested(xy_index, nside)
     elif order == 'ring':
-        for i in prange(n, nogil=True):
+        for i in prange(n, nogil=True, schedule='static'):
             xy_index = radec_to_healpixlf(lon[i], lat[i], nside, &dx, &dy)
             healpix_index[i] = healpixl_xy_to_ring(xy_index, nside)
 
@@ -215,11 +215,11 @@ def lonlat_to_healpix_with_offset(np.ndarray[double_t, ndim=1, mode="c"] lon,
     order = _validate_order(order)
 
     if order == 'nested':
-        for i in prange(n, nogil=True):
+        for i in prange(n, nogil=True, schedule='static'):
             xy_index = radec_to_healpixlf(lon[i], lat[i], nside, &dx[i], &dy[i])
             healpix_index[i] = healpixl_xy_to_nested(xy_index, nside)
     elif order == 'ring':
-        for i in prange(n, nogil=True):
+        for i in prange(n, nogil=True, schedule='static'):
             xy_index = radec_to_healpixlf(lon[i], lat[i], nside, &dx[i], &dy[i])
             healpix_index[i] = healpixl_xy_to_ring(xy_index, nside)
 
@@ -248,7 +248,7 @@ def nested_to_ring(np.ndarray[int64_t, ndim=1, mode="c"] nested_index, int nside
     cdef intp_t i
     cdef np.ndarray[int64_t, ndim=1, mode="c"] ring_index = np.zeros(n, dtype=npy_int64)
 
-    for i in prange(n, nogil=True):
+    for i in prange(n, nogil=True, schedule='static'):
         ring_index[i] = healpixl_xy_to_ring(healpixl_nested_to_xy(nested_index[i], nside), nside)
 
     return ring_index
@@ -276,7 +276,7 @@ def ring_to_nested(np.ndarray[int64_t, ndim=1, mode="c"] ring_index, int nside):
     cdef intp_t i
     cdef np.ndarray[int64_t, ndim=1, mode="c"] nested_index = np.zeros(n, dtype=npy_int64)
 
-    for i in prange(n, nogil=True):
+    for i in prange(n, nogil=True, schedule='static'):
         nested_index[i] = healpixl_xy_to_nested(healpixl_ring_to_xy(ring_index[i], nside), nside)
 
     return nested_index
@@ -347,7 +347,7 @@ def interpolate_bilinear_lonlat(np.ndarray[double_t, ndim=1, mode="c"] lon,
         if neighbours == NULL:
             abort()
 
-        for i in prange(n):
+        for i in prange(n, schedule='static'):
 
             xy_index = radec_to_healpixlf(lon[i], lat[i], nside, &dx, &dy)
 
@@ -484,7 +484,7 @@ def healpix_neighbors(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
 
         if order_int == 0:
 
-            for i in prange(n):
+            for i in prange(n, schedule='static'):
 
                 xy_index = healpixl_nested_to_xy(healpix_index[i], nside)
                 healpixl_get_neighbours(xy_index, neighbours_indiv, nside)
@@ -500,7 +500,7 @@ def healpix_neighbors(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
 
         elif order_int == 1:
 
-            for i in prange(n):
+            for i in prange(n, schedule='static'):
 
                 xy_index = healpixl_ring_to_xy(healpix_index[i], nside)
 
@@ -558,11 +558,11 @@ def healpix_cone_search(double lon, double lat, double radius, int nside, str or
     order = _validate_order(order)
 
     if order == 'nested':
-        for i in prange(n_indices, nogil=True):
+        for i in prange(n_indices, nogil=True, schedule='static'):
             index = indices[i]
             result[i] = healpixl_xy_to_nested(index, nside)
     elif order == 'ring':
-        for i in prange(n_indices, nogil=True):
+        for i in prange(n_indices, nogil=True, schedule='static'):
             index = indices[i]
             result[i] = healpixl_xy_to_ring(index, nside)
 

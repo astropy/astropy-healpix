@@ -1,7 +1,7 @@
 0.2 (unreleased)
 ================
 
-- No changes yet.
+- Use OpenMP to parallelize the Cython wrappers. [#59]
 
 0.1 (2017-10-01)
 ================

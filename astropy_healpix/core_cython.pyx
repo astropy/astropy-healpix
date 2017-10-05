@@ -326,7 +326,8 @@ def interpolate_bilinear_lonlat(np.ndarray[double_t, ndim=1, mode="c"] lon,
     # context. Note that we also need to do this for dx_buf and dy_buf otherwise
     # if we just passed &dx and &dy to radec_to_healpixlf, different threads
     # would be accessing the same location in memory, causing issues.
-    cdef double *dx_buf, *dy_buf
+    cdef double *dx_buf
+    cdef double *dy_buf
     cdef int64_t * neighbours
 
     if npix % 12 != 0:

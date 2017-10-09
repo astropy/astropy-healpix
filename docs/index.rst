@@ -29,7 +29,7 @@ associated `healpy <https://github.com/healpy/healpy>`__ Python wrapper. See
 :ref:`about` for further information about the difference between this new
 implementation and the original libraries.
 
-The code can be found on `GitHub <https://dgithub.com/astropy/astropy-healpix>`__, along
+The code can be found on `GitHub <https://github.com/astropy/astropy-healpix>`__, along
 with the list of `Contributors <https://github.com/astropy/astropy-healpix/graphs/contributors>`__.
 
 User documentation

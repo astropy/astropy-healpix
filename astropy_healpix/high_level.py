@@ -9,7 +9,7 @@ from astropy.coordinates.representation import UnitSphericalRepresentation
 from .core import (nside_to_pixel_area, nside_to_pixel_resolution,
                    nside_to_npix, healpix_to_lonlat, lonlat_to_healpix,
                    interpolate_bilinear_lonlat, ring_to_nested, nested_to_ring,
-                   healpix_cone_search, boundaries_lonlat, healpix_neighbors)
+                   healpix_cone_search, boundaries_lonlat, neighbors)
 
 __all__ = ['HEALPix']
 
@@ -156,7 +156,7 @@ class HEALPix(object):
         """
         Interpolate values at specific longitudes/latitudes using bilinear interpolation
 
-        If a position does not have four neighbours, this currently returns NaN.
+        If a position does not have four neighbors, this currently returns NaN.
 
         Parameters
         ----------
@@ -227,9 +227,9 @@ class HEALPix(object):
         """
         return boundaries_lonlat(healpix_index, step, self.nside, order=self.order)
 
-    def healpix_neighbors(self, healpix_index):
+    def neighbors(self, healpix_index):
         """
-        Find all the HEALPix pixels that are the neighbours of a HEALPix pixel
+        Find all the HEALPix pixels that are the neighbors of a HEALPix pixel
 
         Parameters
         ----------
@@ -238,11 +238,11 @@ class HEALPix(object):
 
         Returns
         -------
-        neighbours : `~numpy.ndarray`
-            2-D array with shape (8, N) giving the neighbours starting SW and
+        neighbors : `~numpy.ndarray`
+            2-D array with shape (8, N) giving the neighbors starting SW and
             rotating clockwise.
         """
-        return healpix_neighbors(healpix_index, self.nside, order=self.order)
+        return neighbors(healpix_index, self.nside, order=self.order)
 
     def healpix_to_skycoord(self, healpix_index, dx=None, dy=None):
         """
@@ -309,7 +309,7 @@ class HEALPix(object):
         """
         Interpolate values at specific celestial coordinates using bilinear interpolation.
 
-        If a position does not have four neighbours, this currently returns NaN.
+        If a position does not have four neighbors, this currently returns NaN.
 
         Note that this method requires that a celestial frame was specified when
         initializing HEALPix. If you don't know or need the celestial frame, you

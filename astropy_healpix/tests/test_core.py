@@ -16,7 +16,7 @@ from astropy.coordinates import Longitude, Latitude
 from ..core import (nside_to_pixel_area, nside_to_pixel_resolution,
                     nside_to_npix, npix_to_nside, healpix_to_lonlat,
                     lonlat_to_healpix, interpolate_bilinear_lonlat,
-                    healpix_neighbors, healpix_cone_search, boundaries_lonlat,
+                    neighbors, healpix_cone_search, boundaries_lonlat,
                     level_to_nside, nested_to_ring, ring_to_nested)
 
 
@@ -195,8 +195,8 @@ def test_interpolate_bilinear_lonlat_shape():
 
 
 @pytest.mark.parametrize('order', ['nested', 'ring'])
-def test_healpix_neighbors(order):
-    neighbours = healpix_neighbors([1, 2, 3], 4, order=order)
+def test_neighbors(order):
+    neigh = neighbors([1, 2, 3], 4, order=order)
 
     if order == 'nested':
         expected = [[0, 71, 2],
@@ -218,20 +218,20 @@ def test_healpix_neighbors(order):
                     [7, 9, 11],
                     [16, 19, 22]]
 
-    assert_equal(neighbours, expected)
+    assert_equal(neigh, expected)
 
 
-def test_healpix_neighbors_invalid():
+def test_neighbors_invalid():
     with pytest.raises(ValueError) as exc:
-        healpix_neighbors([-1, 2, 3], 4)
+        neighbors([-1, 2, 3], 4)
     assert exc.value.args[0] == 'healpix_index must be in the range [0:192]'
 
     with pytest.raises(ValueError) as exc:
-        healpix_neighbors([1, 2, 3], 5)
+        neighbors([1, 2, 3], 5)
     assert exc.value.args[0] == 'nside must be a power of two'
 
     with pytest.raises(ValueError) as exc:
-        healpix_neighbors([1, 2, 3], 4, order='banana')
+        neighbors([1, 2, 3], 4, order='banana')
     assert exc.value.args[0] == "order must be 'nested' or 'ring'"
 
 

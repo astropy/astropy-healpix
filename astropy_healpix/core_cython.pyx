@@ -290,7 +290,7 @@ def interpolate_bilinear_lonlat(np.ndarray[double_t, ndim=1, mode="c"] lon,
     """
     Interpolate values at specific longitudes/latitudes using bilinear interpolation
 
-    If a position does not have four neighbours, this currently returns NaN.
+    If a position does not have four neighbors, this currently returns NaN.
 
     Parameters
     ----------
@@ -446,10 +446,10 @@ def interpolate_bilinear_lonlat(np.ndarray[double_t, ndim=1, mode="c"] lon,
 
 
 @cython.boundscheck(False)
-def healpix_neighbors(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
-                       int nside, str order):
+def neighbors(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
+              int nside, str order):
     """
-    Find all the HEALPix pixels that are the neighbours of a HEALPix pixel
+    Find all the HEALPix pixels that are the neighbors of a HEALPix pixel
 
     Parameters
     ----------
@@ -462,8 +462,8 @@ def healpix_neighbors(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
 
     Returns
     -------
-    neighbours : `~numpy.ndarray`
-        2-D array with shape (8, N) giving the neighbours starting SW and
+    neighbors : `~numpy.ndarray`
+        2-D array with shape (8, N) giving the neighbors starting SW and
         rotating clockwise.
     """
 
@@ -537,7 +537,7 @@ def healpix_neighbors(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
 
         free(neighbours_indiv)
 
-    return neighbours
+    return neighbors
 
 
 @cython.boundscheck(False)

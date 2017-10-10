@@ -20,7 +20,7 @@ __all__ = [
     'lonlat_to_healpix',
     'healpix_to_lonlat',
     'interpolate_bilinear_lonlat',
-    'healpix_neighbors',
+    'neighbors',
 ]
 
 
@@ -344,7 +344,7 @@ def interpolate_bilinear_lonlat(lon, lat, values, order='ring'):
     """
     Interpolate values at specific longitudes/latitudes using bilinear interpolation
 
-    If a position does not have four neighbours, this currently returns NaN.
+    If a position does not have four neighbors, this currently returns NaN.
 
     Parameters
     ----------
@@ -386,9 +386,9 @@ def interpolate_bilinear_lonlat(lon, lat, values, order='ring'):
     return _restore_shape(result, shape=shape)
 
 
-def healpix_neighbors(healpix_index, nside, order='ring'):
+def neighbors(healpix_index, nside, order='ring'):
     """
-    Find all the HEALPix pixels that are the neighbours of a HEALPix pixel
+    Find all the HEALPix pixels that are the neighbors of a HEALPix pixel
 
     Parameters
     ----------
@@ -401,8 +401,8 @@ def healpix_neighbors(healpix_index, nside, order='ring'):
 
     Returns
     -------
-    neighbours : `~numpy.ndarray`
-        2-D array with shape (8, N) giving the neighbours starting SW and
+    neighbors : `~numpy.ndarray`
+        2-D array with shape (8, N) giving the neighbors starting SW and
         rotating clockwise.
     """
 
@@ -413,7 +413,7 @@ def healpix_neighbors(healpix_index, nside, order='ring'):
     _validate_nside(nside)
     order = _validate_order(order)
 
-    return core_cython.healpix_neighbors(healpix_index, nside, order)
+    return core_cython.neighbors(healpix_index, nside, order)
 
 
 def healpix_cone_search(lon, lat, radius, nside, order='ring'):

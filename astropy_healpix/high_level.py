@@ -9,7 +9,7 @@ from astropy.coordinates.representation import UnitSphericalRepresentation
 from .core import (nside_to_pixel_area, nside_to_pixel_resolution,
                    nside_to_npix, healpix_to_lonlat, lonlat_to_healpix,
                    interpolate_bilinear_lonlat, ring_to_nested, nested_to_ring,
-                   healpix_cone_search, boundaries_lonlat)
+                   healpix_cone_search, boundaries_lonlat, healpix_neighbors)
 
 __all__ = ['HEALPix']
 
@@ -226,6 +226,23 @@ class HEALPix(object):
             size ``4 * step``.
         """
         return boundaries_lonlat(healpix_index, step, self.nside, order=self.order)
+
+    def healpix_neighbors(self, healpix_index):
+        """
+        Find all the HEALPix pixels that are the neighbours of a HEALPix pixel
+
+        Parameters
+        ----------
+        healpix_index : `~numpy.ndarray`
+            1-D array of HEALPix pixels
+
+        Returns
+        -------
+        neighbours : `~numpy.ndarray`
+            2-D array with shape (8, N) giving the neighbours starting SW and
+            rotating clockwise.
+        """
+        return healpix_neighbors(healpix_index, self.nside, order=self.order)
 
     def healpix_to_skycoord(self, healpix_index, dx=None, dy=None):
         """

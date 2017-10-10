@@ -235,6 +235,11 @@ def test_neighbors_invalid():
     assert exc.value.args[0] == "order must be 'nested' or 'ring'"
 
 
+def test_neighbors_shape():
+    neigh = neighbors([[1, 2, 3], [2, 3, 4]], 4)
+    assert neigh.shape == (8, 2, 3)
+
+
 @pytest.mark.parametrize('order', ['nested', 'ring'])
 def test_healpix_cone_search(order):
     indices = healpix_cone_search(10 * u.deg, 20 * u.deg, 1 * u.deg,

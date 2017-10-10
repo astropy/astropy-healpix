@@ -234,13 +234,15 @@ class HEALPix(object):
         Parameters
         ----------
         healpix_index : `~numpy.ndarray`
-            1-D array of HEALPix pixels
+            Array of HEALPix pixels
 
         Returns
         -------
-        neighbors : `~numpy.ndarray`
-            2-D array with shape (8, N) giving the neighbors starting SW and
-            rotating clockwise.
+        neigh : `~numpy.ndarray`
+            Array giving the neighbors starting SW and rotating clockwise. This has
+            one extra dimension compared to ``healpix_index`` - the first dimension -
+            which is set to 8. For example if healpix_index has shape (2, 3),
+            ``neigh`` has shape (8, 2, 3).
         """
         return neighbors(healpix_index, self.nside, order=self.order)
 

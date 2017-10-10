@@ -393,7 +393,7 @@ def neighbors(healpix_index, nside, order='ring'):
     Parameters
     ----------
     healpix_index : `~numpy.ndarray`
-        1-D array of HEALPix pixels
+        Array of HEALPix pixels
     nside : int
         Number of pixels along the side of each of the 12 top-level HEALPix tiles
     order : { 'nested' | 'ring' }
@@ -401,19 +401,26 @@ def neighbors(healpix_index, nside, order='ring'):
 
     Returns
     -------
-    neighbors : `~numpy.ndarray`
-        2-D array with shape (8, N) giving the neighbors starting SW and
-        rotating clockwise.
+    neigh : `~numpy.ndarray`
+        Array giving the neighbors starting SW and rotating clockwise. This has
+        one extra dimension compared to ``healpix_index`` - the first dimension -
+        which is set to 8. For example if healpix_index has shape (2, 3),
+        ``neigh`` has shape (8, 2, 3).
     """
 
     healpix_index = np.asarray(healpix_index, dtype=np.int64)
     nside = int(nside)
 
+    shape = np.shape(healpix_index)
+
+    healpix_index = healpix_index.ravel()
+
     _validate_healpix_index('healpix_index', healpix_index, nside)
     _validate_nside(nside)
     order = _validate_order(order)
 
-    return core_cython.neighbors(healpix_index, nside, order)
+    neigh = core_cython.neighbors(healpix_index, nside, order)
+    return _restore_shape(neigh, shape=(8,) + shape)
 
 
 def healpix_cone_search(lon, lat, radius, nside, order='ring'):

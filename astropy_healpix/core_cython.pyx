@@ -325,7 +325,9 @@ def interpolate_bilinear_lonlat(np.ndarray[double_t, ndim=1, mode="c"] lon,
     # sure that any temporary buffers are allocated inside the parallel()
     # context. Note that we also need to do this for dx_buf and dy_buf otherwise
     # if we just passed &dx and &dy to radec_to_healpixlf, different threads
-    # would be accessing the same location in memory, causing issues.
+    # would be accessing the same location in memory, causing issues. We use
+    # manual memory management with malloc as this appears to be the recommended
+    # method at http://cython.readthedocs.io/en/latest/src/userguide/parallelism.html
     cdef double *dx_buf
     cdef double *dy_buf
     cdef int64_t * neighbours

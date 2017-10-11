@@ -88,7 +88,7 @@ def bench_run(fast=False):
                                           fast=fast)
 
                 results_single = dict(fct='pix2ang', size=int(size),
-                                      nside=nside, time_self=time_self)
+                                      nside=nside, time_self=time_self, nest=nest)
 
                 if HEALPY_INSTALLED:
                     time_healpy = bench_pix2ang(size=size, nside=nside,

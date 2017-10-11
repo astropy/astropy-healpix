@@ -20,7 +20,7 @@ __all__ = [
     'lonlat_to_healpix',
     'healpix_to_lonlat',
     'interpolate_bilinear_lonlat',
-    'healpix_neighbors',
+    'neighbours',
 ]
 
 
@@ -386,14 +386,14 @@ def interpolate_bilinear_lonlat(lon, lat, values, order='ring'):
     return _restore_shape(result, shape=shape)
 
 
-def healpix_neighbors(healpix_index, nside, order='ring'):
+def neighbours(healpix_index, nside, order='ring'):
     """
     Find all the HEALPix pixels that are the neighbours of a HEALPix pixel
 
     Parameters
     ----------
     healpix_index : `~numpy.ndarray`
-        1-D array of HEALPix pixels
+        Array of HEALPix pixels
     nside : int
         Number of pixels along the side of each of the 12 top-level HEALPix tiles
     order : { 'nested' | 'ring' }
@@ -401,19 +401,26 @@ def healpix_neighbors(healpix_index, nside, order='ring'):
 
     Returns
     -------
-    neighbours : `~numpy.ndarray`
-        2-D array with shape (8, N) giving the neighbours starting SW and
-        rotating clockwise.
+    neigh : `~numpy.ndarray`
+        Array giving the neighbours starting SW and rotating clockwise. This has
+        one extra dimension compared to ``healpix_index`` - the first dimension -
+        which is set to 8. For example if healpix_index has shape (2, 3),
+        ``neigh`` has shape (8, 2, 3).
     """
 
     healpix_index = np.asarray(healpix_index, dtype=np.int64)
     nside = int(nside)
 
+    shape = np.shape(healpix_index)
+
+    healpix_index = healpix_index.ravel()
+
     _validate_healpix_index('healpix_index', healpix_index, nside)
     _validate_nside(nside)
     order = _validate_order(order)
 
-    return core_cython.healpix_neighbors(healpix_index, nside, order)
+    neigh = core_cython.neighbours(healpix_index, nside, order)
+    return _restore_shape(neigh, shape=(8,) + shape)
 
 
 def healpix_cone_search(lon, lat, radius, nside, order='ring'):

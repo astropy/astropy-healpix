@@ -75,11 +75,11 @@ def test_roundtrip_nested_ring(nside_power, capfd):
 
 
 @pytest.mark.parametrize(('order', 'nside_power'), product(ORDERS, NSIDE_POWERS))
-def test_healpix_neighbors(order, nside_power, capfd):
+def test_neighbours(order, nside_power, capfd):
     # This just makes sure things run, but doesn't check the validity of result
     nside = 2 ** nside_power
     index = get_test_indices(nside)
-    neighbours = core_cython.healpix_neighbors(index, nside, order)
+    neighbours = core_cython.neighbours(index, nside, order)
     assert np.all(neighbours >= -1) and np.all(neighbours < 12 * nside ** 2)
     out, err = capfd.readouterr()
     assert out == "" and err == ""

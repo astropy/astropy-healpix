@@ -446,8 +446,8 @@ def interpolate_bilinear_lonlat(np.ndarray[double_t, ndim=1, mode="c"] lon,
 
 
 @cython.boundscheck(False)
-def healpix_neighbors(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
-                       int nside, str order):
+def neighbours(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
+               int nside, str order):
     """
     Find all the HEALPix pixels that are the neighbours of a HEALPix pixel
 

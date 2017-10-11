@@ -53,21 +53,21 @@ def autoscaler(timer, mintime):
     raise RuntimeError('function is too fast to test')
 
 
-def get_import(package, fct):
+def get_import(package, function):
     if package == 'astropy_healpix':
-        return 'from astropy_healpix.healpy import {}'.format(fct)
+        return 'from astropy_healpix.healpy import {}'.format(function)
     else:
-        return 'from healpy import {}'.format(fct)
+        return 'from healpy import {}'.format(function)
 
 
-def bench_pix2ang(size, nside, nest, package, fast=False):
+def bench_pix2ang(size=None, nside=None, nest=None, package=None, fast=False):
     shape = (int(size), )
 
     setup = '\n'.join([
         get_import(package, 'pix2ang'),
         'import numpy as np',
         'nside={}'.format(int(nside)),
-        'ipix=np.zeros({}, dtype=np.int64)'.format(shape),
+        'ipix=(np.random.random({}) * 12 * nside ** 2).astype(np.int64)'.format(shape),
         'nest={}'.format(nest)])
 
     stmt = 'pix2ang(nside, ipix, nest)'
@@ -75,35 +75,99 @@ def bench_pix2ang(size, nside, nest, package, fast=False):
     return autotimeit(stmt=stmt, setup=setup, repeat=1, mintime=0 if fast else 0.1)
 
 
+def bench_ang2pix(size=None, nside=None, nest=None, package=None, fast=False):
+    shape = (int(size), )
+
+    setup = '\n'.join([
+        get_import(package, 'ang2pix'),
+        'import numpy as np',
+        'nside={}'.format(int(nside)),
+        'lon=360 * np.random.random({})'.format(shape),
+        'lat=180 * np.random.random({}) - 90'.format(shape),
+        'nest={}'.format(nest)])
+
+    stmt = 'ang2pix(nside, lon, lat, nest, lonlat=True)'
+
+    return autotimeit(stmt=stmt, setup=setup, repeat=1, mintime=0 if fast else 0.1)
+
+
+def bench_nest2ring(size=None, nside=None, package=None, fast=False):
+    shape = (int(size), )
+
+    setup = '\n'.join([
+        get_import(package, 'nest2ring'),
+        'import numpy as np',
+        'nside={}'.format(int(nside)),
+        'ipix=(np.random.random({}) * 12 * nside ** 2).astype(np.int64)'.format(shape)])
+
+    stmt = 'nest2ring(nside, ipix)'
+
+    return autotimeit(stmt=stmt, setup=setup, repeat=1, mintime=0 if fast else 0.1)
+
+
+def bench_ring2nest(size=None, nside=None, package=None, fast=False):
+    shape = (int(size), )
+
+    setup = '\n'.join([
+        get_import(package, 'ring2nest'),
+        'import numpy as np',
+        'nside={}'.format(int(nside)),
+        'ipix=(np.random.random({}) * 12 * nside ** 2).astype(np.int64)'.format(shape)])
+
+    stmt = 'ring2nest(nside, ipix)'
+
+    return autotimeit(stmt=stmt, setup=setup, repeat=1, mintime=0 if fast else 0.1)
+
+
+def run_single(name, benchmark, fast=False, **kwargs):
+
+    time_self = benchmark(package='astropy_healpix', fast=fast, **kwargs)
+    results_single = dict(function=name, time_self=time_self, **kwargs)
+
+    if HEALPY_INSTALLED:
+        time_healpy = bench_ang2pix(package='healpy', fast=fast, **kwargs)
+        results_single['time_healpy'] = time_healpy
+
+    return results_single
+
+
 def bench_run(fast=False):
     """Run all benchmarks. Return results as a dict."""
     results = []
 
     for nest in [True, False]:
-        for size in [10, 1e3, 1e6]:
+        for size in [10, 1e3, 1e6, 1e7]:
             for nside in [1, 128]:
+                results.append(run_single('pix2ang', bench_pix2ang, fast=fast,
+                                          size=int(size), nside=nside, nest=nest))
 
-                time_self = bench_pix2ang(size=size, nside=nside,
-                                          nest=nest, package='astropy_healpix',
-                                          fast=fast)
+    for nest in [True, False]:
+        for size in [10, 1e3, 1e6, 1e7]:
+            for nside in [1, 128]:
+                results.append(run_single('ang2pix', bench_ang2pix, fast=fast,
+                                          size=int(size), nside=nside, nest=nest))
 
-                results_single = dict(fct='pix2ang', size=int(size),
-                                      nside=nside, time_self=time_self, nest=nest)
+    for size in [10, 1e3, 1e6, 1e7]:
+        for nside in [1, 128]:
+            results.append(run_single('nest2ring', bench_nest2ring, fast=fast,
+                                      size=int(size), nside=nside))
 
-                if HEALPY_INSTALLED:
-                    time_healpy = bench_pix2ang(size=size, nside=nside,
-                                                nest=nest, package='healpy',
-                                                fast=fast)
-                    results_single['time_healpy'] = time_healpy
-
-                results.append(results_single)
+    for size in [10, 1e3, 1e6, 1e7]:
+        for nside in [1, 128]:
+            results.append(run_single('ring2nest', bench_ring2nest, fast=fast,
+                                      size=int(size), nside=nside))
 
     return results
 
 
 def bench_report(results):
     """Print a report for given benchmark results to the console."""
-    table = Table(rows=results)
+
+    table = Table(names=['function', 'nest', 'nside', 'size',
+                         'time_healpy', 'time_self', 'ratio'],
+                  dtype=['S15', bool, int, int, float, float, float], masked=True)
+    for row in results:
+        table.add_row(row)
 
     table['time_self'].format = '10.7f'
 

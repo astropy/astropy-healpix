@@ -92,8 +92,8 @@ class TestHEALPix:
         assert lon.shape == (3, 16)
         assert lat.shape == (3, 16)
 
-    def test_neighbors(self):
-        neigh = self.pix.neighbors([10, 20, 30])
+    def test_neighbours(self):
+        neigh = self.pix.neighbours([10, 20, 30])
         assert neigh.shape == (8, 3)
 
 

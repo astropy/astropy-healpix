@@ -181,7 +181,7 @@ Const int64_t healpixl_nested_to_xy(int64_t nested_index, int Nside);
    ring have longitude index starting at zero for the first pixel with
    RA >= 0.  Different rings contain different numbers of healpixels.
 */
-void healpix_decompose_ring(int ring_index, int Nside,
+void healpixl_decompose_ring(int64_t ring_index, int Nside,
 							int* p_ring_number, int* p_longitude_index);
 
 /**
@@ -189,7 +189,7 @@ void healpix_decompose_ring(int ring_index, int Nside,
 
    Does NOT check that the values are legal!  Garbage in, garbage out.
 */
-Const int healpix_compose_ring(int ring, int longind, int Nside);
+Const int64_t healpixl_compose_ring(int ring, int longind, int Nside);
 
 /**
    Decomposes an XY index into the "base healpix" and "x" and "y" coordinates

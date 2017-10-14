@@ -24,9 +24,10 @@ def get_extensions():
     libraries = []
 
     sources = [os.path.join(C_DIR, filename) for filename in C_FILES]
+    sources.append(os.path.join(HEALPIX_ROOT, 'interpolation.c'))
     sources.append(os.path.join(HEALPIX_ROOT, 'core_cython.pyx'))
 
-    include_dirs = ['numpy', C_DIR]
+    include_dirs = ['numpy', C_DIR, HEALPIX_ROOT]
 
     extension = Extension(
         name="astropy_healpix.core_cython",

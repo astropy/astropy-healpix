@@ -110,7 +110,8 @@ Const int64_t healpixl_nested_to_xy(int64_t hp, int Nside) {
 	return healpixl_compose_xy(bighp, x, y, Nside);
 }
 
-Const int64_t healpixl_compose_ring(int64_t ring, int longind, int Nside) {
+
+Const int64_t healpixl_compose_ring(int ring, int longind, int Nside) {
 	if (ring <= Nside)
 		// north polar
 		return ring * (ring-1) * 2 + longind;

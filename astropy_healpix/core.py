@@ -19,6 +19,7 @@ __all__ = [
     'npix_to_nside',
     'lonlat_to_healpix',
     'healpix_to_lonlat',
+    'bilinear_interpolation_weights',
     'interpolate_bilinear_lonlat',
     'neighbours',
 ]
@@ -340,29 +341,7 @@ def ring_to_nested(ring_index, nside):
     return _restore_shape(nested_index, shape=shape)
 
 
-def interpolate_bilinear_lonlat(lon, lat, values, order='ring'):
-    """
-    Interpolate values at specific longitudes/latitudes using bilinear interpolation
-
-    If a position does not have four neighbours, this currently returns NaN.
-
-    Parameters
-    ----------
-    lon, lat : :class:`~astropy.units.Quantity`
-        The longitude and latitude values as :class:`~astropy.units.Quantity` instances
-        with angle units.
-    values : `~numpy.ndarray`
-        1-D array with the values in each HEALPix pixel. This must have a
-        length of the form 12 * nside ** 2 (and nside is determined
-        automatically from this).
-    order : { 'nested' | 'ring' }
-        Order of HEALPix pixels
-
-    Returns
-    -------
-    result : float `~numpy.ndarray`
-        The interpolated values
-    """
+def bilinear_interpolation_weights(lon, lat, nside, order='ring'):
 
     lon = lon.to(u.rad).value
     lat = lat.to(u.rad).value
@@ -373,17 +352,43 @@ def interpolate_bilinear_lonlat(lon, lat, values, order='ring'):
 
     lon = lon.astype(float).ravel()
     lat = lat.astype(float).ravel()
-
-    values = np.asarray(values, dtype=float)
+    nside = int(nside)
 
     order = _validate_order(order)
+    _validate_nside(nside)
 
-    # TODO: in future we could potentially support higher-dimensional arrays
-    if values.ndim != 1:
-        raise ValueError("values must be a 1-dimensional array")
+    indices, weights = core_cython.bilinear_interpolation_weights(lon, lat, nside, order)
+    indices = _restore_shape(indices, shape=(4,) + shape)
+    weights = _restore_shape(weights, shape=(4,) + shape)
 
-    result = core_cython.interpolate_bilinear_lonlat(lon, lat, values, order)
-    return _restore_shape(result, shape=shape)
+    return indices, weights
+
+
+def interpolate_bilinear_lonlat(lon, lat, values, order='ring'):
+    """
+    Interpolate values at specific longitudes/latitudes using bilinear interpolation
+
+    Parameters
+    ----------
+    lon, lat : :class:`~astropy.units.Quantity`
+        The longitude and latitude values as :class:`~astropy.units.Quantity` instances
+        with angle units.
+    values : `~numpy.ndarray`
+        Array with the values in each HEALPix pixel. The first dimension should
+        have length 12 * nside ** 2 (and nside is determined automatically from
+        this).
+    order : { 'nested' | 'ring' }
+        Order of HEALPix pixels
+
+    Returns
+    -------
+    result : float `~numpy.ndarray`
+        The interpolated values
+    """
+    nside = npix_to_nside(values.shape[0])
+    indices, weights = bilinear_interpolation_weights(lon, lat, nside, order='ring')
+    result = values[indices] * weights
+    return result.sum(axis=0)
 
 
 def neighbours(healpix_index, nside, order='ring'):

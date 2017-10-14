@@ -342,6 +342,29 @@ def ring_to_nested(ring_index, nside):
 
 
 def bilinear_interpolation_weights(lon, lat, nside, order='ring'):
+    """
+    Get the four neighbours for each (lon, lat) position and the weight
+    associated with each one for bilinear interpolation.
+
+    Parameters
+    ----------
+    lon, lat : :class:`~astropy.units.Quantity`
+        The longitude and latitude values as :class:`~astropy.units.Quantity`
+        instances with angle units.
+    nside : int
+        Number of pixels along the side of each of the 12 top-level HEALPix tiles
+    order : { 'nested' | 'ring' }
+        Order of HEALPix pixels
+
+    Returns
+    -------
+    indices : `~numpy.ndarray`
+        2-D array with shape (4, N) giving the four indices to use for the
+        interpolation
+    weights : `~numpy.ndarray`
+        2-D array with shape (4, N) giving the four weights to use for the
+        interpolation
+    """
 
     lon = lon.to(u.rad).value
     lat = lat.to(u.rad).value

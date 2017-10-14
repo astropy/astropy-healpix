@@ -13,7 +13,8 @@ from astropy.coordinates.representation import CartesianRepresentation, UnitSphe
 from .core import (nside_to_pixel_resolution, nside_to_pixel_area,
                    nside_to_npix, npix_to_nside, nested_to_ring, ring_to_nested,
                    level_to_nside, lonlat_to_healpix, healpix_to_lonlat,
-                   boundaries_lonlat)
+                   boundaries_lonlat, bilinear_interpolation_weights,
+                   interpolate_bilinear_lonlat)
 
 RAD2DEG = 180 / np.pi
 
@@ -130,3 +131,34 @@ def vec2ang(vectors, lonlat=False):
     rep_car = CartesianRepresentation(x, y, z)
     rep_sph = rep_car.represent_as(UnitSphericalRepresentation)
     return _healpy_lonlat(rep_sph.lon.ravel(), rep_sph.lat.ravel(), lonlat=lonlat)
+
+
+def get_interp_weights(nside, theta, phi=None, nest=False, lonlat=False):
+    """
+    Drop-in replacement for healpy `~healpy.get_interp_weights`, although
+    note that the order of the weights and pixels may differ.
+    """
+    if phi is None:
+        theta, phi = pix2ang(theta, nest=nest)
+    if lonlat:
+        lon = np.asarray(theta) / RAD2DEG
+        lat = np.asarray(phi) / RAD2DEG
+    else:
+        lat = np.pi / 2. - np.asarray(theta)
+        lon = np.asarray(phi)
+    lon, lat = u.Quantity(lon, u.rad, copy=False), u.Quantity(lat, u.rad, copy=False)
+    return bilinear_interpolation_weights(lon, lat, nside, order='nested' if nest else 'ring')
+
+
+def get_interp_val(m, theta, phi, nest=False, lonlat=False):
+    """
+    Drop-in replacement for healpy `~healpy.get_interp_val`.
+    """
+    if lonlat:
+        lon = np.asarray(theta) / RAD2DEG
+        lat = np.asarray(phi) / RAD2DEG
+    else:
+        lat = np.pi / 2. - np.asarray(theta)
+        lon = np.asarray(phi)
+    lon, lat = u.Quantity(lon, u.rad, copy=False), u.Quantity(lat, u.rad, copy=False)
+    return interpolate_bilinear_lonlat(lon, lat, m, order='nested' if nest else 'ring')

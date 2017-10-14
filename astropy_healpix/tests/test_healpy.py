@@ -170,3 +170,44 @@ def test_vec2ang(vectors, lonlat, ndim):
     phi2 = np.nan_to_num(phi2)
     assert_allclose(theta1, theta1, atol=1e-10)
     assert_allclose(phi1, phi2, atol=1e-10)
+
+
+@given(nside_pow=integers(0, NSIDE_POW_MAX), nest=booleans(), lonlat=booleans(),
+       lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(lambda lon: abs(lon) > 1e-10),
+       lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(
+           lambda lat: abs(lat) < 89.99 and abs(lat) > 1e-5))
+@settings(max_examples=500, derandomize=True)
+def test_interp_weights(nside_pow, lon, lat, nest, lonlat):
+    nside = 2 ** nside_pow
+    if lonlat:
+        theta, phi = lon, lat
+    else:
+        theta, phi = np.pi / 2. - np.radians(lat), np.radians(lon)
+    indices1, weights1 = hp_compat.get_interp_weights(nside, theta, phi, nest=nest, lonlat=lonlat)
+    indices2, weights2 = hp.get_interp_weights(nside, theta, phi, nest=nest, lonlat=lonlat)
+    order1 = np.argsort(indices1)
+    order2 = np.argsort(indices2)
+    assert_equal(indices1[order1], indices2[order2])
+    assert_allclose(weights1[order1], weights2[order2], atol=1e-10)
+
+
+# Make an array that can be useful up to the highest nside tested below
+NSIDE_POW_MAX = 8
+VALUES = np.random.random(12 * NSIDE_POW_MAX ** 2)
+
+
+@given(nside_pow=integers(0, NSIDE_POW_MAX), nest=booleans(), lonlat=booleans(),
+       lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(lambda lon: abs(lon) > 1e-10),
+       lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(
+           lambda lat: abs(lat) < 89.99 and abs(lat) > 1e-5))
+@settings(max_examples=500, derandomize=True)
+def test_interp_val(nside_pow, lon, lat, nest, lonlat):
+    nside = 2 ** nside_pow
+    if lonlat:
+        theta, phi = lon, lat
+    else:
+        theta, phi = np.pi / 2. - np.radians(lat), np.radians(lon)
+    m = VALUES[:12 * nside ** 2]
+    value1 = hp_compat.get_interp_val(m, theta, phi, nest=nest, lonlat=lonlat)
+    value2 = hp.get_interp_val(m, theta, phi, nest=nest, lonlat=lonlat)
+    assert_allclose(value1, value2, atol=1e-3, rtol=1e-3)

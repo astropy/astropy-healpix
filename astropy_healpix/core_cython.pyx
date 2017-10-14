@@ -289,8 +289,8 @@ def bilinear_interpolation_weights(np.ndarray[double_t, ndim=1, mode="c"] lon,
                                    np.ndarray[double_t, ndim=1, mode="c"] lat,
                                    int nside, str order):
     """
-    Get the four neighbours for each position and the weight associated with
-    each one.
+    Get the four neighbours for each (lon, lat) position and the weight
+    associated with each one for bilinear interpolation.
 
     Parameters
     ----------

@@ -8,8 +8,9 @@ from astropy.coordinates.representation import UnitSphericalRepresentation
 
 from .core import (nside_to_pixel_area, nside_to_pixel_resolution,
                    nside_to_npix, healpix_to_lonlat, lonlat_to_healpix,
-                   interpolate_bilinear_lonlat, ring_to_nested, nested_to_ring,
-                   healpix_cone_search, boundaries_lonlat, neighbours)
+                   bilinear_interpolation_weights, interpolate_bilinear_lonlat,
+                   ring_to_nested, nested_to_ring, healpix_cone_search,
+                   boundaries_lonlat, neighbours)
 
 __all__ = ['HEALPix']
 
@@ -151,6 +152,28 @@ class HEALPix(object):
             Healpix index using the 'nested' ordering
         """
         return ring_to_nested(ring_index, self.nside)
+
+    def bilinear_interpolation_weights(self, lon, lat):
+        """
+        Get the four neighbours for each (lon, lat) position and the weight
+        associated with each one for bilinear interpolation.
+
+        Parameters
+        ----------
+        lon, lat : :class:`~astropy.units.Quantity`
+            The longitude and latitude values as
+            :class:`~astropy.units.Quantity` instances with angle units.
+
+        Returns
+        -------
+        indices : `~numpy.ndarray`
+            2-D array with shape (4, N) giving the four indices to use for the
+            interpolation
+        weights : `~numpy.ndarray`
+            2-D array with shape (4, N) giving the four weights to use for the
+            interpolation
+        """
+        return bilinear_interpolation_weights(lon, lat, self.nside, order=self.order)
 
     def interpolate_bilinear_lonlat(self, lon, lat, values):
         """

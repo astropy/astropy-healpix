@@ -409,7 +409,7 @@ def interpolate_bilinear_lonlat(lon, lat, values, order='ring'):
         The interpolated values
     """
     nside = npix_to_nside(values.shape[0])
-    indices, weights = bilinear_interpolation_weights(lon, lat, nside, order='ring')
+    indices, weights = bilinear_interpolation_weights(lon, lat, nside, order=order)
     result = values[indices] * weights
     return result.sum(axis=0)
 

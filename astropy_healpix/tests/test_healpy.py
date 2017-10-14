@@ -172,8 +172,8 @@ def test_vec2ang(vectors, lonlat, ndim):
     assert_allclose(phi1, phi2, atol=1e-10)
 
 
-@given(nside_pow=integers(0, NSIDE_POW_MAX), nest=booleans(), lonlat=booleans(),
-       lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(lambda lon: abs(lon) > 1e-10),
+@given(nside_pow=integers(0, 29), nest=booleans(), lonlat=booleans(),
+       lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(lambda lon: abs(lon) > 1e-5),
        lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(
            lambda lat: abs(lat) < 89.99 and abs(lat) > 1e-5))
 @settings(max_examples=500, derandomize=True)
@@ -197,7 +197,7 @@ VALUES = np.random.random(12 * NSIDE_POW_MAX ** 2)
 
 
 @given(nside_pow=integers(0, NSIDE_POW_MAX), nest=booleans(), lonlat=booleans(),
-       lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(lambda lon: abs(lon) > 1e-10),
+       lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(lambda lon: abs(lon) > 1e-5),
        lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(
            lambda lat: abs(lat) < 89.99 and abs(lat) > 1e-5))
 @settings(max_examples=500, derandomize=True)

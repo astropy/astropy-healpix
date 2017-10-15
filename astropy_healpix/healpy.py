@@ -30,7 +30,7 @@ __all__ = ['nside2resol',
            'boundaries']
 
 
-def _healpy_lonlat(lon, lat, lonlat=False):
+def _lonlat_to_healpy(lon, lat, lonlat=False):
     # We use in-place operations below to avoid making temporary arrays - this
     # is safe because the lon/lat arrays returned from healpix_to_lonlat are
     # new and not used elsewhere.
@@ -43,6 +43,19 @@ def _healpy_lonlat(lon, lat, lonlat=False):
         else:
             lat = np.subtract(0.5 * np.pi, lat, out=lat)
             return lat, lon
+
+
+def _healpy_to_lonlat(theta, phi, lonlat=False):
+    # Unlike in _lonlat_to_healpy, we don't use in-place operations since we
+    # don't want to modify theta and phi since the user may be using them
+    # elsewhere.
+    if lonlat:
+        lon = np.asarray(theta) / RAD2DEG
+        lat = np.asarray(phi) / RAD2DEG
+    else:
+        lat = np.pi / 2. - np.asarray(theta)
+        lon = np.asarray(phi)
+    return u.Quantity(lon, u.rad, copy=False), u.Quantity(lat, u.rad, copy=False)
 
 
 def nside2resol(nside, arcmin=False):
@@ -81,20 +94,12 @@ def order2nside(order):
 def pix2ang(nside, ipix, nest=False, lonlat=False):
     """Drop-in replacement for healpy `~healpy.pixelfunc.pix2ang`."""
     lon, lat = healpix_to_lonlat(ipix, nside, order='nested' if nest else 'ring')
-    return _healpy_lonlat(lon, lat, lonlat=lonlat)
+    return _lonlat_to_healpy(lon, lat, lonlat=lonlat)
 
 
 def ang2pix(nside, theta, phi, nest=False, lonlat=False):
     """Drop-in replacement for healpy `~healpy.pixelfunc.ang2pix`."""
-    # Unlike in pix2ang, we don't use in-place operations since we don't
-    # want to modify theta and phi since the user may be using them elsewhere.
-    if lonlat:
-        lon = np.asarray(theta) / RAD2DEG
-        lat = np.asarray(phi) / RAD2DEG
-    else:
-        lat = np.pi / 2. - np.asarray(theta)
-        lon = np.asarray(phi)
-    lon, lat = u.Quantity(lon, u.rad, copy=False), u.Quantity(lat, u.rad, copy=False)
+    lon, lat = _healpy_to_lonlat(theta, phi, lonlat=lonlat)
     return lonlat_to_healpix(lon, lat, nside, order='nested' if nest else 'ring')
 
 
@@ -130,7 +135,7 @@ def vec2ang(vectors, lonlat=False):
     x, y, z = vectors.transpose()
     rep_car = CartesianRepresentation(x, y, z)
     rep_sph = rep_car.represent_as(UnitSphericalRepresentation)
-    return _healpy_lonlat(rep_sph.lon.ravel(), rep_sph.lat.ravel(), lonlat=lonlat)
+    return _lonlat_to_healpy(rep_sph.lon.ravel(), rep_sph.lat.ravel(), lonlat=lonlat)
 
 
 def get_interp_weights(nside, theta, phi=None, nest=False, lonlat=False):
@@ -140,13 +145,7 @@ def get_interp_weights(nside, theta, phi=None, nest=False, lonlat=False):
     """
     if phi is None:
         theta, phi = pix2ang(theta, nest=nest)
-    if lonlat:
-        lon = np.asarray(theta) / RAD2DEG
-        lat = np.asarray(phi) / RAD2DEG
-    else:
-        lat = np.pi / 2. - np.asarray(theta)
-        lon = np.asarray(phi)
-    lon, lat = u.Quantity(lon, u.rad, copy=False), u.Quantity(lat, u.rad, copy=False)
+    lon, lat = _healpy_to_lonlat(theta, phi, lonlat=lonlat)
     return bilinear_interpolation_weights(lon, lat, nside, order='nested' if nest else 'ring')
 
 
@@ -154,11 +153,5 @@ def get_interp_val(m, theta, phi, nest=False, lonlat=False):
     """
     Drop-in replacement for healpy `~healpy.get_interp_val`.
     """
-    if lonlat:
-        lon = np.asarray(theta) / RAD2DEG
-        lat = np.asarray(phi) / RAD2DEG
-    else:
-        lat = np.pi / 2. - np.asarray(theta)
-        lon = np.asarray(phi)
-    lon, lat = u.Quantity(lon, u.rad, copy=False), u.Quantity(lat, u.rad, copy=False)
+    lon, lat = _healpy_to_lonlat(theta, phi, lonlat=lonlat)
     return interpolate_bilinear_lonlat(lon, lat, m, order='nested' if nest else 'ring')

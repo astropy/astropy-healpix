@@ -174,6 +174,7 @@ def test_vec2ang(vectors, lonlat, ndim):
 
 # The following fails, need to investigate:
 # @example(nside_pow=29, lon=1.0000000028043134e-05, lat=1.000000000805912e-05, nest=False, lonlat=False)
+# @example(nside_pow=26, lon=359.9999986588955, lat=41.81031489577861, nest=False, lonlat=False)
 
 @given(nside_pow=integers(0, 28), nest=booleans(), lonlat=booleans(),
        lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(lambda lon: abs(lon) > 1e-5),

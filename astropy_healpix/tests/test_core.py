@@ -165,6 +165,7 @@ def test_nested_ring_shape(function):
 
 @pytest.mark.parametrize('order', ['nested', 'ring'])
 def test_bilinear_interpolation_weights(order):
+
     indices, weights = bilinear_interpolation_weights(100 * u.deg, 10 * u.deg,
                                                       nside=4, order=order)
     if order == 'nested':
@@ -218,6 +219,7 @@ def test_interpolate_bilinear_invalid():
 
 
 def test_interpolate_bilinear_lonlat_shape():
+
     values = np.ones(192) * 3
 
     result = interpolate_bilinear_lonlat(3 * u.deg, 4 * u.deg, values)
@@ -226,6 +228,14 @@ def test_interpolate_bilinear_lonlat_shape():
     result = interpolate_bilinear_lonlat([[1, 2, 3], [2, 3, 4]] * u.deg,
                                          [[1, 2, 3], [2, 3, 4]] * u.deg, values)
     assert result.shape == (2, 3)
+
+    values = np.ones((192, 50)) * 3
+
+    lon = np.ones((3, 6, 5)) * u.deg
+    lat = np.ones((3, 6, 5)) * u.deg
+
+    result = interpolate_bilinear_lonlat(lon, lat, values)
+    assert result.shape == (3, 6, 5, 50)
 
 
 @pytest.mark.parametrize('order', ['nested', 'ring'])

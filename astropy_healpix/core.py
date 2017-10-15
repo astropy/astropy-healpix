@@ -410,7 +410,12 @@ def interpolate_bilinear_lonlat(lon, lat, values, order='ring'):
     """
     nside = npix_to_nside(values.shape[0])
     indices, weights = bilinear_interpolation_weights(lon, lat, nside, order=order)
-    result = values[indices] * weights
+    values = values[indices]
+    # At this point values has shape (N, M) where both N and M might be several
+    # dimensions, and weights has shape (N,), so we need to transpose in order
+    # to benefit from broadcasting, then transpose back so that the dimension
+    # with length 4 is at the start again, ready for summing.
+    result = (values.T * weights.T).T
     return result.sum(axis=0)
 
 

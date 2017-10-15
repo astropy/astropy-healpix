@@ -135,24 +135,29 @@ def bench_run(fast=False):
     """Run all benchmarks. Return results as a dict."""
     results = []
 
+    if fast:
+        SIZES = [10, 1e3, 1e5]
+    else:
+        SIZES = [10, 1e3, 1e6, 1e7]
+
     for nest in [True, False]:
-        for size in [10, 1e3, 1e6, 1e7]:
+        for size in SIZES:
             for nside in [1, 128]:
                 results.append(run_single('pix2ang', bench_pix2ang, fast=fast,
                                           size=int(size), nside=nside, nest=nest))
 
     for nest in [True, False]:
-        for size in [10, 1e3, 1e6, 1e7]:
+        for size in SIZES:
             for nside in [1, 128]:
                 results.append(run_single('ang2pix', bench_ang2pix, fast=fast,
                                           size=int(size), nside=nside, nest=nest))
 
-    for size in [10, 1e3, 1e6, 1e7]:
+    for size in SIZES:
         for nside in [1, 128]:
             results.append(run_single('nest2ring', bench_nest2ring, fast=fast,
                                       size=int(size), nside=nside))
 
-    for size in [10, 1e3, 1e6, 1e7]:
+    for size in SIZES:
         for nside in [1, 128]:
             results.append(run_single('ring2nest', bench_ring2nest, fast=fast,
                                       size=int(size), nside=nside))

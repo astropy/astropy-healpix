@@ -174,13 +174,14 @@ def test_vec2ang(vectors, lonlat, ndim):
 
 # The following fails, need to investigate:
 # @example(nside_pow=29, lon=1.0000000028043134e-05, lat=1.000000000805912e-05, nest=False, lonlat=False)
-# @example(nside_pow=26, lon=359.9999986588955, lat=41.81031489577861, nest=False, lonlat=False)
+#
 
 @given(nside_pow=integers(0, 28), nest=booleans(), lonlat=booleans(),
        lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(lambda lon: abs(lon) > 1e-5),
        lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(
            lambda lat: abs(lat) < 89.99 and abs(lat) > 1e-5))
 @settings(max_examples=500, derandomize=True)
+@example(nside_pow=27, lon=1.0000000028043134e-05, lat=-41.81031451395941, nest=False, lonlat=False)
 @example(nside_pow=6, lon=1.6345238095238293, lat=69.42254649458224, nest=False, lonlat=False)
 @example(nside_pow=15, lon=1.0000000028043134e-05, lat=1.000000000805912e-05, nest=False, lonlat=False)
 @example(nside_pow=0, lon=315.0000117809725, lat=1.000000000805912e-05, nest=False, lonlat=False)
@@ -188,6 +189,10 @@ def test_vec2ang(vectors, lonlat, ndim):
 @example(nside_pow=0, lon=35.559942143736414, lat=-41.8103252622604, nest=False, lonlat=False)
 @example(nside_pow=28, lon=359.9999922886491, lat=-41.81031470486902, nest=False, lonlat=False)
 @example(nside_pow=0, lon=1.0000000028043134e-05, lat=-41.81031489577861, nest=False, lonlat=False)
+@example(nside_pow=27, lon=1.0000000028043134e-05, lat=-41.81031451395941, nest=False, lonlat=False)
+@example(nside_pow=26, lon=359.9999986588955, lat=41.81031489577861, nest=False, lonlat=False)
+@example(nside_pow=27, lon=359.999997317791, lat=-41.81031451395943, nest=False, lonlat=False)
+@example(nside_pow=27, lon=1.0000000028043134e-05, lat=89.80224636153702, nest=False, lonlat=False)
 def test_interp_weights(nside_pow, lon, lat, nest, lonlat):
     nside = 2 ** nside_pow
     if lonlat:
@@ -196,10 +201,21 @@ def test_interp_weights(nside_pow, lon, lat, nest, lonlat):
         theta, phi = np.pi / 2. - np.radians(lat), np.radians(lon)
     indices1, weights1 = hp_compat.get_interp_weights(nside, theta, phi, nest=nest, lonlat=lonlat)
     indices2, weights2 = hp.get_interp_weights(nside, theta, phi, nest=nest, lonlat=lonlat)
+
+    # Ignore neighbours with weights < 1e-6 - we have to exclude these otherwise
+    # in some corner cases there will be different low-probability neighbours.
+
+    keep = weights1 > 1e-6
+    indices1, weights1 = indices1[keep], weights1[keep]
+
+    keep = weights2 > 1e-6
+    indices2, weights2 = indices2[keep], weights2[keep]
+
     order1 = np.argsort(indices1)
     order2 = np.argsort(indices2)
+
     assert_equal(indices1[order1], indices2[order2])
-    assert_allclose(weights1[order1], weights2[order2], atol=1e-6)
+    assert_allclose(weights1[order1], weights2[order2], atol=1e-5)
 
 
 # Make an array that can be useful up to the highest nside tested below

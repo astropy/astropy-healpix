@@ -104,3 +104,26 @@ def test_healpix_cone_search(order, nside_power, capfd):
     assert np.all(sep.to(u.degree).value < radius * 1.05)
     out, err = capfd.readouterr()
     assert out == "" and err == ""
+
+
+# Regression tests for fixed bugs
+
+def test_regression_healpix_to_lonlat_sqrt():
+
+    # Regression test for a bug that caused the ring index decomposition to fail
+    # and return a negative longitude.
+
+    index = np.array([9007199120523263], dtype=np.int64)
+    lon, lat = core_cython.healpix_to_lonlat(index, 2**26, order='ring')
+    assert_allclose(lon, 6.283185295476241, rtol=1e-14)
+    assert_allclose(lat, 0.729727669554970, rtol=1e-14)
+
+    index = np.array([720575940916150240], dtype=np.int64)
+    lon, lat = core_cython.healpix_to_lonlat(index, 2**28, order='ring')
+    assert_allclose(lon, 6.283185122851909, rtol=1e-14)
+    assert_allclose(lat, -0.729727656226966, rtol=1e-14)
+
+    index = np.array([180143985363255292], dtype=np.int64)
+    lon, lat = core_cython.healpix_to_lonlat(index, 2**27, order='ring')
+    assert_allclose(lon, 6.283185266217880, rtol=1e-14)
+    assert_allclose(lat, -0.729727656226966, rtol=1e-14)

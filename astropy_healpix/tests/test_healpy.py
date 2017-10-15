@@ -99,6 +99,7 @@ def test_pix2ang_shape():
 @given(nside_pow=integers(0, 29), nest=booleans(), lonlat=booleans(),
        frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1))
 @settings(max_examples=2000, derandomize=True)
+@example(nside_pow=29, frac=0.1666666694606345, nest=False, lonlat=False)
 def test_pix2ang(nside_pow, frac, nest, lonlat):
     nside = 2 ** nside_pow
     ipix = int(frac * 12 * nside ** 2)
@@ -128,6 +129,7 @@ def test_nest2ring(nside_pow, frac):
 @given(nside_pow=integers(0, 29),
        frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1))
 @settings(max_examples=2000, derandomize=True)
+@example(nside_pow=29, frac=0.16666666697710755)
 def test_ring2nest(nside_pow, frac):
     nside = 2 ** nside_pow
     ring = int(frac * 12 * nside ** 2)

@@ -190,6 +190,7 @@ void healpixl_decompose_ring(int64_t ring_index, int Nside,
    Does NOT check that the values are legal!  Garbage in, garbage out.
 */
 Const int64_t healpixl_compose_ring(int ring, int longind, int Nside);
+// Const int64_t healpixl_compose_ringl(int64_t ring, int64_t longind, int64_t Nside);
 
 /**
    Decomposes an XY index into the "base healpix" and "x" and "y" coordinates

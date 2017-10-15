@@ -27,7 +27,9 @@ __all__ = ['nside2resol',
            'order2nside',
            'nest2ring',
            'ring2nest',
-           'boundaries']
+           'boundaries',
+           'get_interp_weights',
+           'get_interp_val']
 
 
 def _lonlat_to_healpy(lon, lat, lonlat=False):

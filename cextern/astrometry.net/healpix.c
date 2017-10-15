@@ -147,11 +147,16 @@ void healpixl_decompose_ring(int64_t hp, int Nside, int* p_ring, int* p_longind)
 			longind = hp - offset;
 		} else {
 			 offset += 8 * ns2;
-			 // SQRT INTRODUCES PRECISION ISSUE WITH X
 			 x = (2 * Nside64 + 1 - sqrt((2 * Nside64 + 1) * (2 * Nside64 + 1) - 2 * (hp - offset)))*0.5;
 			 ring = (int)x;
-			 if (offset + 2 * (int64_t)ring * (2 * Nside64 + 1 - (int64_t)ring) > hp) ring -= 1;
 			 offset += 2 * (int64_t)ring * (2 * Nside64 + 1 - (int64_t)ring);
+			 // The sqrt above can introduce precision issues that can cause ring to
+			 // be off by 1, so we check whether the offset is now larger than the HEALPix
+			 // value, and if so we need to adjust ring and offset accordingly
+			 if (offset > hp) {
+				 ring -= 1;
+				 offset -= 4 + 4 * Nside64 - 4 * (int64_t)ring;
+			 }
 			 longind = (int)(hp - offset);
 			 ring += 3 * Nside;
 		}

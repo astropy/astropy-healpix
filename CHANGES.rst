@@ -1,4 +1,4 @@
-0.2 (unreleased)
+0.2 (2017-10-15)
 ================
 
 - Expand benchmarks to include ang2pix, nest2ring and ring2nest. [#62]

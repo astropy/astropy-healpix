@@ -10,6 +10,7 @@ cimport numpy as np
 import cython
 from cython.parallel import parallel, prange
 from libc.stdlib cimport abort, malloc, free
+from libc.math cimport sin, cos, sqrt
 
 ctypedef np.intp_t intp_t
 ctypedef np.double_t double_t
@@ -282,43 +283,38 @@ def ring_to_nested(np.ndarray[int64_t, ndim=1, mode="c"] ring_index, int nside):
     return nested_index
 
 
-@cython.boundscheck(False)
-def interpolate_bilinear_lonlat(np.ndarray[double_t, ndim=1, mode="c"] lon,
-                                np.ndarray[double_t, ndim=1, mode="c"] lat,
-                                np.ndarray[double_t, ndim=1, mode="c"] values,
-                                str order):
-    """
-    Interpolate values at specific longitudes/latitudes using bilinear interpolation
 
-    If a position does not have four neighbours, this currently returns NaN.
+@cython.boundscheck(False)
+def bilinear_interpolation_weights(np.ndarray[double_t, ndim=1, mode="c"] lon,
+                                   np.ndarray[double_t, ndim=1, mode="c"] lat,
+                                   int nside, str order):
+    """
+    Get the four neighbours for each (lon, lat) position and the weight
+    associated with each one for bilinear interpolation.
 
     Parameters
     ----------
     lon, lat : `~numpy.ndarray`
         1-D arrays of longitude and latitude in radians
-    values : `~numpy.ndarray`
-        1-D array with the values in each HEALPix pixel. This must have a
-        length of the form 12 * nside ** 2 (and nside is determined
-        automatically from this).
+    nside : int
+        Number of pixels along the side of each of the 12 top-level HEALPix tiles
     order : { 'nested' | 'ring' }
         Order of HEALPix pixels
 
     Returns
     -------
-    result : `~numpy.ndarray`
-        1-D array of interpolated values
+    indices : `~numpy.ndarray`
+        2-D array with shape (4, N) giving the four indices to use for the
+        interpolation
+    weights : `~numpy.ndarray`
+        2-D array with shape (4, N) giving the four weights to use for the
+        interpolation
     """
 
-    cdef int nside
     cdef intp_t n = lon.shape[0]
-    cdef intp_t i
-    cdef int64_t xy_index, i11, i12, i21, i22
-    cdef double dx, dy, xfrac, yfrac
-    cdef double_t v11, v12, v21, v22
-    cdef np.ndarray[double_t, ndim=1, mode="c"] result = np.zeros(n, dtype=npy_double)
-    cdef double_t invalid = np.nan
-    cdef intp_t npix = values.shape[0]
-    cdef double square_root
+    cdef intp_t i, j
+    cdef np.ndarray[int64_t, ndim=2, mode="c"] indices = np.zeros((4, n), dtype=npy_int64)
+    cdef np.ndarray[double_t, ndim=2, mode="c"] weights = np.zeros((4, n), dtype=npy_double)
     cdef int order_int
 
     # Since we want to be able to use OpenMP in this function, we need to make
@@ -328,19 +324,8 @@ def interpolate_bilinear_lonlat(np.ndarray[double_t, ndim=1, mode="c"] lon,
     # would be accessing the same location in memory, causing issues. We use
     # manual memory management with malloc as this appears to be the recommended
     # method at http://cython.readthedocs.io/en/latest/src/userguide/parallelism.html
-    cdef double *dx_buf
-    cdef double *dy_buf
-    cdef int64_t * neighbours
-
-    if npix % 12 != 0:
-        raise ValueError('Number of pixels must be divisible by 12')
-
-    square_root = (npix / 12.) ** 0.5
-
-    if square_root ** 2 != npix / 12:
-        raise ValueError('Number of pixels is not of the form 12 * nside ** 2')
-
-    nside = int(square_root)
+    cdef double *weights_indiv
+    cdef int64_t *indices_indiv
 
     order = _validate_order(order)
 
@@ -351,98 +336,24 @@ def interpolate_bilinear_lonlat(np.ndarray[double_t, ndim=1, mode="c"] lon,
 
     with nogil, parallel():
 
-        neighbours = <int64_t *> malloc(sizeof(int64_t) * 8)
-        if neighbours == NULL:
+        indices_indiv = <int64_t *> malloc(sizeof(int64_t) * 4)
+        if indices_indiv == NULL:
             abort()
 
-        dx_buf = <double *> malloc(sizeof(double))
-        if dx_buf == NULL:
+        weights_indiv = <double *> malloc(sizeof(double) * 4)
+        if weights_indiv == NULL:
             abort()
 
-        dy_buf = <double *> malloc(sizeof(double))
-        if dy_buf == NULL:
-            abort()
+        for i in range(n):
+              interpolate_weights(lon[i], lat[i], indices_indiv, weights_indiv, nside)
+              for j in range(4):
+                  if order_int == 0:
+                      indices[j, i] = healpixl_xy_to_nested(healpixl_ring_to_xy(indices_indiv[j], nside), nside)
+                  else:
+                      indices[j, i] = indices_indiv[j]
+                  weights[j, i] = weights_indiv[j]
 
-        for i in prange(n, schedule='static'):
-
-            xy_index = radec_to_healpixlf(lon[i], lat[i], nside, dx_buf, dy_buf)
-
-            dx = dx_buf[0]
-            dy = dy_buf[0]
-
-            # We now need to identify the four pixels that surround the position
-            # we've identified. The neighbours are ordered as follows:
-            #
-            #       3   2   1
-            #       4   X   0
-            #       5   6   7
-
-            healpixl_get_neighbours(xy_index, neighbours, nside)
-
-            if dx < 0.5:
-
-                if dy < 0.5:
-                    i11 = neighbours[5]
-                    i12 = neighbours[4]
-                    i21 = neighbours[6]
-                    i22 = xy_index
-                    xfrac = 0.5 + dx
-                    yfrac = 0.5 + dy
-                else:
-                    i11 = neighbours[4]
-                    i12 = neighbours[3]
-                    i21 = xy_index
-                    i22 = neighbours[2]
-                    xfrac = 0.5 + dx
-                    yfrac = dy - 0.5
-
-            else:
-
-                if dy < 0.5:
-                    i11 = neighbours[6]
-                    i12 = xy_index
-                    i21 = neighbours[7]
-                    i22 = neighbours[0]
-                    xfrac = dx - 0.5
-                    yfrac = 0.5 + dy
-                else:
-                    i11 = xy_index
-                    i12 = neighbours[2]
-                    i21 = neighbours[0]
-                    i22 = neighbours[1]
-                    xfrac = dx - 0.5
-                    yfrac = dy - 0.5
-
-            if i11 < 0 or i12 < 0 or i21 < 0 or i22 < 0:
-                result[i] = invalid
-                continue
-
-            if order_int == 0:
-                i11 = healpixl_xy_to_nested(i11, nside)
-                i12 = healpixl_xy_to_nested(i12, nside)
-                i21 = healpixl_xy_to_nested(i21, nside)
-                i22 = healpixl_xy_to_nested(i22, nside)
-            elif order_int == 1:
-                i11 = healpixl_xy_to_ring(i11, nside)
-                i12 = healpixl_xy_to_ring(i12, nside)
-                i21 = healpixl_xy_to_ring(i21, nside)
-                i22 = healpixl_xy_to_ring(i22, nside)
-
-            v11 = values[i11]
-            v12 = values[i12]
-            v21 = values[i21]
-            v22 = values[i22]
-
-            result[i] = (v11 * (1 - xfrac) * (1 - yfrac) +
-                         v12 * (1 - xfrac) * yfrac +
-                         v21 * xfrac * (1 - yfrac) +
-                         v22 * xfrac * yfrac)
-
-        free(neighbours)
-        free(dx_buf)
-        free(dy_buf)
-
-    return result
+    return indices, weights
 
 
 @cython.boundscheck(False)

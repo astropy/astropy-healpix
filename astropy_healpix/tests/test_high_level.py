@@ -63,6 +63,12 @@ class TestHEALPix:
         nested_index_2 = self.pix.ring_to_nested(ring_index)
         assert_equal(nested_index_1, nested_index_2)
 
+    def test_bilinear_interpolation_weights(self):
+        indices, weights = self.pix.bilinear_interpolation_weights([1, 3, 4] * u.deg,
+                                                                   [3, 2, 6] * u.deg)
+        assert indices.shape == (4, 3)
+        assert weights.shape == (4, 3)
+
     def test_interpolate_bilinear_lonlat(self):
         values = np.ones(12 * 256 ** 2) * 3
         result = self.pix.interpolate_bilinear_lonlat([1, 3, 4] * u.deg,

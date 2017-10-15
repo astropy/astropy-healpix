@@ -119,6 +119,22 @@ def bench_ring2nest(size=None, nside=None, package=None, fast=False):
     return autotimeit(stmt=stmt, setup=setup, repeat=1, mintime=0 if fast else 0.1)
 
 
+def bench_get_interp_weights(size=None, nside=None, nest=None, package=None, fast=False):
+    shape = (int(size), )
+
+    setup = '\n'.join([
+        get_import(package, 'get_interp_weights'),
+        'import numpy as np',
+        'nside={}'.format(int(nside)),
+        'lon=360 * np.random.random({})'.format(shape),
+        'lat=180 * np.random.random({}) - 90'.format(shape),
+        'nest={}'.format(nest)])
+
+    stmt = 'get_interp_weights(nside, lon, lat, nest=nest, lonlat=True)'
+
+    return autotimeit(stmt=stmt, setup=setup, repeat=1, mintime=0 if fast else 0.1)
+
+
 def run_single(name, benchmark, fast=False, **kwargs):
 
     time_self = benchmark(package='astropy_healpix', fast=fast, **kwargs)
@@ -135,27 +151,39 @@ def bench_run(fast=False):
     """Run all benchmarks. Return results as a dict."""
     results = []
 
+    if fast:
+        SIZES = [10, 1e3, 1e5]
+    else:
+        SIZES = [10, 1e3, 1e6]
+
     for nest in [True, False]:
-        for size in [10, 1e3, 1e6, 1e7]:
+        for size in SIZES:
             for nside in [1, 128]:
                 results.append(run_single('pix2ang', bench_pix2ang, fast=fast,
                                           size=int(size), nside=nside, nest=nest))
 
     for nest in [True, False]:
-        for size in [10, 1e3, 1e6, 1e7]:
+        for size in SIZES:
             for nside in [1, 128]:
                 results.append(run_single('ang2pix', bench_ang2pix, fast=fast,
                                           size=int(size), nside=nside, nest=nest))
 
-    for size in [10, 1e3, 1e6, 1e7]:
+    for size in SIZES:
         for nside in [1, 128]:
             results.append(run_single('nest2ring', bench_nest2ring, fast=fast,
                                       size=int(size), nside=nside))
 
-    for size in [10, 1e3, 1e6, 1e7]:
+    for size in SIZES:
         for nside in [1, 128]:
             results.append(run_single('ring2nest', bench_ring2nest, fast=fast,
                                       size=int(size), nside=nside))
+
+    for nest in [True, False]:
+        for size in SIZES:
+            for nside in [1, 128]:
+                results.append(run_single('get_interp_weights', bench_get_interp_weights,
+                                          fast=fast, size=int(size),
+                                          nside=nside, nest=nest))
 
     return results
 
@@ -165,7 +193,7 @@ def bench_report(results):
 
     table = Table(names=['function', 'nest', 'nside', 'size',
                          'time_healpy', 'time_self', 'ratio'],
-                  dtype=['S15', bool, int, int, float, float, float], masked=True)
+                  dtype=['S20', bool, int, int, float, float, float], masked=True)
     for row in results:
         table.add_row(row)
 

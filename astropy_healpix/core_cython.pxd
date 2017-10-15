@@ -39,3 +39,6 @@ cdef extern from "healpix.h":
     int healpixl_get_neighbours(int64_t hp, int64_t* neighbours, int Nside) nogil
 
     int healpix_rangesearch_radec_simple(double ra, double dec, double radius, int Nside, int approx, int64_t** indices) nogil
+
+    void interpolate_weights(double lon, double lat, int64_t *ring_indices,
+    												 double *weights, int Nside) nogil

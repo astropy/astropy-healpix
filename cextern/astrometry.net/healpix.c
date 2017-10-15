@@ -110,19 +110,21 @@ Const int64_t healpixl_nested_to_xy(int64_t hp, int Nside) {
 	return healpixl_compose_xy(bighp, x, y, Nside);
 }
 
-Const int64_t healpixl_compose_ring(int64_t ring, int longind, int Nside) {
+
+Const int64_t healpixl_compose_ring(int ring, int longind, int Nside) {
 	if (ring <= Nside)
 		// north polar
-		return ring * (ring-1) * 2 + longind;
+		return (int64_t)ring * ((int64_t)ring-1) * 2 + (int64_t)longind;
 	if (ring < 3*Nside)
 		// equatorial
-		return Nside*(Nside-1)*2 + Nside*4*(ring-Nside) + longind;
+		return (int64_t)Nside*((int64_t)Nside-1)*2 + (int64_t)Nside*4*((int64_t)ring-(int64_t)Nside) + (int64_t)longind;
 	{
 		int64_t ri;
-		ri = 4*Nside - ring;
-		return 12*Nside*Nside-1 - ( ri*(ri-1)*2 + (ri*4 - 1 - longind) );
+		ri = 4*(int64_t)Nside - (int64_t)ring;
+		return 12*(int64_t)Nside*(int64_t)Nside-1 - ( ri*(ri-1)*2 + (ri*4 - 1 - (int64_t)longind) );
 	}
 }
+
 
 void healpixl_decompose_ring(int64_t hp, int Nside, int* p_ring, int* p_longind) {
 	int64_t longind;
@@ -136,6 +138,13 @@ void healpixl_decompose_ring(int64_t hp, int Nside, int* p_ring, int* p_longind)
 	if (hp < 2 * ns2) {
 		ring = (int)(0.5 + sqrt(0.25 + 0.5 * hp));
 		offset = 2 * (int64_t)ring * ((int64_t)ring - 1);
+		// The sqrt above can introduce precision issues that can cause ring to
+		// be off by 1, so we check whether the offset is now larger than the HEALPix
+		// value, and if so we need to adjust ring and offset accordingly
+		if (offset > hp) {
+			ring -= 1;
+			offset = 2 * (int64_t)ring * ((int64_t)ring - 1);
+		}
 		longind = hp - offset;
 	} else {
 		offset = 2 * Nside64 * (Nside64 - 1);
@@ -147,7 +156,14 @@ void healpixl_decompose_ring(int64_t hp, int Nside, int* p_ring, int* p_longind)
 			 offset += 8 * ns2;
 			 x = (2 * Nside64 + 1 - sqrt((2 * Nside64 + 1) * (2 * Nside64 + 1) - 2 * (hp - offset)))*0.5;
 			 ring = (int)x;
-			 offset += 2 * ring * (2 * Nside64 + 1 - ring);
+			 offset += 2 * (int64_t)ring * (2 * Nside64 + 1 - (int64_t)ring);
+			 // The sqrt above can introduce precision issues that can cause ring to
+			 // be off by 1, so we check whether the offset is now larger than the HEALPix
+			 // value, and if so we need to adjust ring and offset accordingly
+			 if (offset > hp) {
+				 ring -= 1;
+				 offset -= 4 * Nside64 - 4 * (int64_t)ring;
+			 }
 			 longind = (int)(hp - offset);
 			 ring += 3 * Nside;
 		}

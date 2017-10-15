@@ -11,11 +11,11 @@
 /**
  Returns healpixes that are / may be within range of the given point, resp.
  */
-il* healpix_rangesearch_xyz(const double* xyz, double radius, int Nside, il* hps);
-il* healpix_rangesearch_xyz_approx(const double* xyz, double radius, int Nside, il* hps);
-il* healpix_rangesearch_radec_approx(double ra, double dec, double radius, int Nside, il* hps);
-il* healpix_rangesearch_radec(double ra, double dec, double radius, int Nside, il* hps);
-int healpix_rangesearch_radec_simple(double ra, double dec, double radius, int Nside, int **indices);
+il* healpix_rangesearch_xyz(const double* xyz, double radius, int64_t Nside, il* hps);
+il* healpix_rangesearch_xyz_approx(const double* xyz, double radius, int64_t Nside, il* hps);
+il* healpix_rangesearch_radec_approx(double ra, double dec, double radius, int64_t Nside, il* hps);
+il* healpix_rangesearch_radec(double ra, double dec, double radius, int64_t Nside, il* hps);
+int64_t healpix_rangesearch_radec_simple(double ra, double dec, double radius, int64_t Nside, int64_t **indices);
 
 /**
  Starting from a "seed" or list of "seeds" healpixes, grows a region
@@ -34,11 +34,11 @@ int healpix_rangesearch_radec_simple(double ra, double dec, double radius, int N
  as having already been accepted: when the search reaches them, their
  neighbours will not be added to the frontier to explore.
  */
-il* healpix_region_search(int seed, il* seeds, int Nside,
+il* healpix_region_search(int64_t seed, il* seeds, int64_t Nside,
 						  il* accepted, il* rejected,
-						  int (*accept)(int hp, void* token),
+						  int64_t (*accept)(int64_t hp, void* token),
 						  void* token,
-						  int depth);
+						  int64_t depth);
 
 
 #endif

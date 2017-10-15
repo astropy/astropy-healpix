@@ -17,7 +17,8 @@ from ..core import (nside_to_pixel_area, nside_to_pixel_resolution,
                     nside_to_npix, npix_to_nside, healpix_to_lonlat,
                     lonlat_to_healpix, interpolate_bilinear_lonlat,
                     neighbours, healpix_cone_search, boundaries_lonlat,
-                    level_to_nside, nested_to_ring, ring_to_nested)
+                    level_to_nside, nested_to_ring, ring_to_nested,
+                    bilinear_interpolation_weights)
 
 
 def test_level_to_nside():
@@ -160,6 +161,39 @@ def test_nested_ring_shape(function):
 
     index = function([[1, 2, 3], [2, 3, 4]], 8)
     assert index.shape == (2, 3)
+
+
+@pytest.mark.parametrize('order', ['nested', 'ring'])
+def test_bilinear_interpolation_weights(order):
+    indices, weights = bilinear_interpolation_weights(100 * u.deg, 10 * u.deg,
+                                                      nside=4, order=order)
+    if order == 'nested':
+        indices = nested_to_ring(indices, nside=4)
+    assert_equal(indices, [76, 77, 60, 59])
+    assert_allclose(weights, [0.532723, 0.426179, 0.038815, 0.002283], atol=1e-6)
+
+
+def test_bilinear_interpolation_weights_invalid():
+    with pytest.raises(ValueError) as exc:
+        bilinear_interpolation_weights(1 * u.deg, 2 * u.deg, nside=5)
+    assert exc.value.args[0] == 'nside must be a power of two'
+
+    with pytest.raises(ValueError) as exc:
+        bilinear_interpolation_weights(3 * u.deg, 4 * u.deg,
+                                       nside=4, order='banana')
+    assert exc.value.args[0] == "order must be 'nested' or 'ring'"
+
+
+def test_bilinear_interpolation_weights_shape():
+
+    indices, weights = bilinear_interpolation_weights(3 * u.deg, 4 * u.deg, nside=8)
+    assert indices.shape == (4,)
+    assert weights.shape == (4,)
+
+    indices, weights = bilinear_interpolation_weights([[1, 2, 3], [2, 3, 4]] * u.deg,
+                                                      [[1, 2, 3], [2, 3, 4]] * u.deg, nside=8)
+    assert indices.shape == (4, 2, 3)
+    assert weights.shape == (4, 2, 3)
 
 
 @pytest.mark.parametrize('order', ['nested', 'ring'])

@@ -8,22 +8,16 @@
 void interpolate_weights(double lon, double lat, int64_t *ring_indices,
                          double *weights, int Nside) {
 
-  int64_t xy_index, ring_index;
+  // Given a longitude and a latitude, Nside, and pre-allocated arrays of 4
+  // elements ring_indices and weights, find the ring index of the four nearest
+  // neighbours and the weights to use for each neighbour to interpolate.
 
-  int64_t ring1, ring2;
+  int64_t xy_index, npix;
+  int64_t ring1, ring2, ring3, ring4;
   double lon1, lat1, lon2, lat2;
-
-  int64_t ring3, ring4;
   double lon3, lat3, lon4, lat4;
-
-  double lon_tmp, lat_tmp;
-
+  double xfrac1, xfrac2, yfrac, lon_frac;
   int ring_number, longitude_index, n_in_ring;
-
-  double xfrac1, xfrac2, yfrac;
-  double x0, y0, dlon, frac;
-  double lon_frac;
-  int64_t npix;
 
   // Find the xy index of the pixel in which the coordinates fall
   xy_index = radec_to_healpixl(lon, lat, Nside);
@@ -160,6 +154,8 @@ void interpolate_weights(double lon, double lat, int64_t *ring_indices,
     if (lon4 - lon > M_PI)
       lon4 -= 2 * M_PI;
 
+    // Determine the interpolation weights
+
     xfrac1 = (lon - lon1) / (lon2 - lon1);
     xfrac2 = (lon - lon3) / (lon4 - lon3);
     yfrac = (lat - lat1) / (lat3 - lat1);
@@ -170,6 +166,12 @@ void interpolate_weights(double lon, double lat, int64_t *ring_indices,
     weights[3] = xfrac2 * yfrac;
 
   } else {
+
+    // In the case where we are inside the four top/bottom-most
+    // values, we effectively place a value at the pole that
+    // is the average of the four values, and the interpolation
+    // is the weighted average of this polar value and the
+    // value interpolated along the ring.
 
     xfrac1 = (lon - lon1) / (lon2 - lon1);
     yfrac = (lat - lat1) / (0.5 * M_PI - lat1);

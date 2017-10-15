@@ -13,7 +13,7 @@ from numpy.testing import assert_allclose, assert_equal
 from astropy import units as u
 from astropy.coordinates import Longitude, Latitude
 
-from ..core import (nside_to_pixel_area, nside_to_pixel_resolution,
+from ..core import (nside_to_pixel_area, nside_to_pixel_resolution, pixel_resolution_to_nside,
                     nside_to_npix, npix_to_nside, healpix_to_lonlat,
                     lonlat_to_healpix, interpolate_bilinear_lonlat,
                     neighbours, healpix_cone_search, boundaries_lonlat,
@@ -38,6 +38,31 @@ def test_nside_to_pixel_resolution():
     resolution = nside_to_pixel_resolution(256)
     assert_allclose(resolution.value, 13.741945647269624)
     assert resolution.unit == u.arcmin
+
+
+def test_pixel_resolution_to_nside():
+
+    # Check the different rounding options
+    nside = pixel_resolution_to_nside('13 arcmin', round='nearest')
+    assert nside == 256
+
+    nside = pixel_resolution_to_nside('13 arcmin', round='up')
+    assert nside == 512
+
+    nside = pixel_resolution_to_nside('13 arcmin', round='down')
+    assert nside == 256
+
+    # Check that it works with arrays
+    nside = pixel_resolution_to_nside([1e3, 10, 1e-3] * u.deg, round='nearest')
+    assert_equal(nside, [1, 8, 65536])
+
+    with pytest.raises(ValueError) as exc:
+        pixel_resolution_to_nside('13 arcmin', round='peaches')
+    assert exc.value.args[0] == "Invalid value for round: 'peaches'"
+
+    with pytest.raises(TypeError) as exc:
+        pixel_resolution_to_nside(13)
+    assert 'no unit was given' in exc.value.args[0]
 
 
 def test_nside_to_npix():

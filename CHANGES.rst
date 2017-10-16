@@ -1,7 +1,7 @@
 0.3 (unreleased)
 ================
 
-- No changes yet.
+- Add ``pixel_resolution_to_nside`` function. [#31]
 
 0.2 (2017-10-15)
 ================

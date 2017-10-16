@@ -43,13 +43,13 @@ def test_nside_to_pixel_resolution():
 def test_pixel_resolution_to_nside():
 
     # Check the different rounding options
-    nside = pixel_resolution_to_nside('13 arcmin', round='nearest')
+    nside = pixel_resolution_to_nside(13 * u.arcmin, round='nearest')
     assert nside == 256
 
-    nside = pixel_resolution_to_nside('13 arcmin', round='up')
+    nside = pixel_resolution_to_nside(13 * u.arcmin, round='up')
     assert nside == 512
 
-    nside = pixel_resolution_to_nside('13 arcmin', round='down')
+    nside = pixel_resolution_to_nside(13 * u.arcmin, round='down')
     assert nside == 256
 
     # Check that it works with arrays
@@ -57,12 +57,12 @@ def test_pixel_resolution_to_nside():
     assert_equal(nside, [1, 8, 65536])
 
     with pytest.raises(ValueError) as exc:
-        pixel_resolution_to_nside('13 arcmin', round='peaches')
+        pixel_resolution_to_nside(13 * u.arcmin, round='peaches')
     assert exc.value.args[0] == "Invalid value for round: 'peaches'"
 
-    with pytest.raises(TypeError) as exc:
+    with pytest.raises(AttributeError) as exc:
         pixel_resolution_to_nside(13)
-    assert 'no unit was given' in exc.value.args[0]
+    assert exc.value.args[0] == "'int' object has no attribute 'to'"
 
 
 def test_nside_to_npix():

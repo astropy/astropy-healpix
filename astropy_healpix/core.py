@@ -7,7 +7,7 @@ import math
 import numpy as np
 
 from astropy import units as u
-from astropy.coordinates import Longitude, Latitude, Angle
+from astropy.coordinates import Longitude, Latitude
 
 from . import core_cython
 from .core_cython import _validate_order
@@ -154,13 +154,14 @@ def pixel_resolution_to_nside(resolution, round='nearest'):
 
     Examples
     --------
+    >>> from astropy import units as u
     >>> from astropy_healpix import pixel_resolution_to_nside
-    >>> pixel_resolution_to_nside('13 arcmin')
+    >>> pixel_resolution_to_nside(13 * u.arcmin)
     256
-    >>> pixel_resolution_to_nside('13 arcmin', round='up')
+    >>> pixel_resolution_to_nside(13 * u.arcmin, round='up')
     512
     """
-    resolution = Angle(resolution).radian
+    resolution = resolution.to(u.rad).value
     pixel_area = resolution * resolution
     npix = 4 * math.pi / pixel_area
     nside = np.sqrt(npix / 12)
@@ -172,15 +173,20 @@ def pixel_resolution_to_nside(resolution, round='nearest'):
     level = np.log2(nside)
 
     if round == 'up':
-        level = np.array(level, dtype=int) + 1
+        level = np.ceil(level)
     elif round == 'nearest':
-        level = np.array(level + 0.5, dtype=int)
+        level = np.round(level)
     elif round == 'down':
-        level = np.array(level, dtype=int)
+        level = np.floor(level)
     else:
         raise ValueError('Invalid value for round: {!r}'.format(round))
 
-    return level_to_nside(np.clip(level, 0, None))
+    # For very low requested resolution (i.e. large angle values), we
+    # return ``level=0``, i.e. ``nside=1``, i.e. the lowest resolution
+    # that exists with HEALPix
+    level = np.clip(level.astype(int), 0, None)
+
+    return level_to_nside(level)
 
 
 def nside_to_npix(nside):

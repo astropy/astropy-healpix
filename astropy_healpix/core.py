@@ -15,6 +15,7 @@ from .core_cython import _validate_order
 __all__ = [
     'nside_to_pixel_area',
     'nside_to_pixel_resolution',
+    'pixel_resolution_to_nside',
     'nside_to_npix',
     'npix_to_nside',
     'lonlat_to_healpix',
@@ -51,7 +52,7 @@ def _validate_offset(label, offset):
 
 
 def _validate_level(level):
-    if level < 0:
+    if np.any(level < 0):
         raise ValueError('level must be positive')
 
 
@@ -116,10 +117,76 @@ def nside_to_pixel_resolution(nside):
     -------
     resolution : :class:`~astropy.units.Quantity`
         The resolution of the HEALPix pixels
+
+    See also
+    --------
+    pixel_resolution_to_nside
     """
     nside = np.asanyarray(nside, dtype=np.int64)
     _validate_nside(nside)
     return (nside_to_pixel_area(nside) ** 0.5).to(u.arcmin)
+
+
+def pixel_resolution_to_nside(resolution, round='nearest'):
+    """Find closest HEALPix nside for a given angular resolution.
+
+    This function is the inverse of `nside_to_pixel_resolution`,
+    for the default rounding scheme of ``round='nearest'``.
+
+    If you choose ``round='up'``, you'll get HEALPix pixels that
+    have at least the requested resolution (usually a bit better
+    due to rounding).
+
+    Pixel resolution is defined as square root of pixel area.
+
+    Parameters
+    ----------
+    resolution : `~astropy.units.Quantity`
+        Angular resolution
+    round : {'up', 'nearest', 'down'}
+        Which way to round
+
+    Returns
+    -------
+    nside : int
+        The number of pixels on the side of one of the 12 'top-level' HEALPix tiles.
+        Always a power of 2.
+
+    Examples
+    --------
+    >>> from astropy import units as u
+    >>> from astropy_healpix import pixel_resolution_to_nside
+    >>> pixel_resolution_to_nside(13 * u.arcmin)
+    256
+    >>> pixel_resolution_to_nside(13 * u.arcmin, round='up')
+    512
+    """
+    resolution = resolution.to(u.rad).value
+    pixel_area = resolution * resolution
+    npix = 4 * math.pi / pixel_area
+    nside = np.sqrt(npix / 12)
+
+    # Now we have to round to the closest ``nside``
+    # Since ``nside`` must be a power of two,
+    # we first compute the corresponding ``level = log2(nside)`
+    # round the level and then go back to nside
+    level = np.log2(nside)
+
+    if round == 'up':
+        level = np.ceil(level)
+    elif round == 'nearest':
+        level = np.round(level)
+    elif round == 'down':
+        level = np.floor(level)
+    else:
+        raise ValueError('Invalid value for round: {!r}'.format(round))
+
+    # For very low requested resolution (i.e. large angle values), we
+    # return ``level=0``, i.e. ``nside=1``, i.e. the lowest resolution
+    # that exists with HEALPix
+    level = np.clip(level.astype(int), 0, None)
+
+    return level_to_nside(level)
 
 
 def nside_to_npix(nside):

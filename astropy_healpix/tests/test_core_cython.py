@@ -37,6 +37,7 @@ def get_test_indices(nside):
 def test_roundtrip_healpix_no_offsets(order, nside_power, capfd):
     nside = 2 ** nside_power
     index = get_test_indices(nside)
+    nside = np.tile(nside, len(index))
     lon, lat = core_cython.healpix_to_lonlat(index, nside, order)
     index_new = core_cython.lonlat_to_healpix(lon, lat, nside, order)
     assert_equal(index, index_new)
@@ -50,6 +51,7 @@ def test_roundtrip_healpix_with_offsets(order, nside_power, capfd):
     index = get_test_indices(nside)
     dx = np.random.random(index.shape)
     dy = np.random.random(index.shape)
+    nside = np.tile(nside, len(index))
     lon, lat = core_cython.healpix_with_offset_to_lonlat(index, dx, dy, nside, order)
     index_new, dx_new, dy_new = core_cython.lonlat_to_healpix_with_offset(lon, lat, nside, order)
     assert_equal(index, index_new)
@@ -63,10 +65,11 @@ def test_roundtrip_healpix_with_offsets(order, nside_power, capfd):
 def test_roundtrip_nested_ring(nside_power, capfd):
     nside = 2 ** nside_power
     nested_index = get_test_indices(nside)
+    nside = np.tile(nside, len(nested_index))
     ring_index = core_cython.nested_to_ring(nested_index, nside)
     nested_index_new = core_cython.ring_to_nested(ring_index, nside)
     assert_equal(nested_index, nested_index_new)
-    if nside == 1:
+    if np.all(nside == 1):
         assert np.all(nested_index == ring_index)
     else:
         assert not np.all(nested_index == ring_index)
@@ -79,6 +82,7 @@ def test_neighbours(order, nside_power, capfd):
     # This just makes sure things run, but doesn't check the validity of result
     nside = 2 ** nside_power
     index = get_test_indices(nside)
+    nside = np.tile(nside, len(index))
     neighbours = core_cython.neighbours(index, nside, order)
     assert np.all(neighbours >= -1) and np.all(neighbours < 12 * nside ** 2)
     out, err = capfd.readouterr()
@@ -97,6 +101,7 @@ def test_healpix_cone_search(order, nside_power, capfd):
     dx = np.repeat(dx, n_inside, axis=0).ravel()
     dy = np.repeat(dy, n_inside, axis=0).ravel()
     index_inside = np.repeat(index_inside, 4).ravel()
+    nside = np.tile(nside, len(index_inside))
     lon, lat = core_cython.healpix_with_offset_to_lonlat(index_inside, dx, dy, nside, order)
     lon, lat = lon.reshape((n_inside, 4)), lat.reshape((n_inside, 4))
     sep = angular_separation(lon0 * u.deg, lat0 * u.deg, lon * u.rad, lat * u.rad)
@@ -114,16 +119,19 @@ def test_regression_healpix_to_lonlat_sqrt():
     # and return a negative longitude.
 
     index = np.array([9007199120523263], dtype=np.int64)
-    lon, lat = core_cython.healpix_to_lonlat(index, 2**26, order='ring')
+    nside = np.asarray([2**26], dtype=np.int64)
+    lon, lat = core_cython.healpix_to_lonlat(index, nside, order='ring')
     assert_allclose(lon, 6.283185295476241, rtol=1e-14)
     assert_allclose(lat, 0.729727669554970, rtol=1e-14)
 
     index = np.array([720575940916150240], dtype=np.int64)
-    lon, lat = core_cython.healpix_to_lonlat(index, 2**28, order='ring')
+    nside = np.asarray([2**28], dtype=np.int64)
+    lon, lat = core_cython.healpix_to_lonlat(index, nside, order='ring')
     assert_allclose(lon, 6.283185122851909, rtol=1e-14)
     assert_allclose(lat, -0.729727656226966, rtol=1e-14)
 
     index = np.array([180143985363255292], dtype=np.int64)
-    lon, lat = core_cython.healpix_to_lonlat(index, 2**27, order='ring')
+    nside = np.asarray([2**27], dtype=np.int64)
+    lon, lat = core_cython.healpix_to_lonlat(index, nside, order='ring')
     assert_allclose(lon, 6.283185266217880, rtol=1e-14)
     assert_allclose(lat, -0.729727656226966, rtol=1e-14)

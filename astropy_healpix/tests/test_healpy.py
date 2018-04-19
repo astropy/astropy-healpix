@@ -139,6 +139,26 @@ def test_pix2vec(nside_pow, frac, nest):
     assert_allclose(xyz1, xyz2, atol=1e-8)
 
 
+def test_vec2pix_shape():
+    ipix = hp_compat.vec2pix(8, 1., 2., 3.)
+    assert isinstance(ipix, integer_types)
+
+    ipix = hp_compat.vec2pix(8, [[1., 2.], [3., 4.]], [[5., 6.], [7., 8.]], [[9., 10.], [11., 12.]])
+    assert ipix.shape == (2, 2)
+
+
+def test_pix2vec_shape():
+    x, y, z = hp_compat.pix2vec(8, 1)
+    assert isinstance(x, float)
+    assert isinstance(y, float)
+    assert isinstance(z, float)
+
+    x, y, z = hp_compat.pix2vec(8, [[1, 2, 3], [4, 5, 6]])
+    assert x.shape == (2, 3)
+    assert y.shape == (2, 3)
+    assert z.shape == (2, 3)
+
+
 @given(nside_pow=integers(0, 29),
        frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1))
 @settings(max_examples=2000, derandomize=True)

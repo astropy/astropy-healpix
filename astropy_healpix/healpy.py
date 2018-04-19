@@ -117,7 +117,16 @@ def pix2vec(nside, ipix, nest=False):
 
 def vec2pix(nside, x, y, z, nest=False):
     """Drop-in replacement for healpy `~healpy.pixelfunc.vec2pix`."""
-    lon, lat = _healpy_to_lonlat(*vec2ang(np.transpose([x, y, z])))
+    theta, phi = vec2ang(np.transpose([x, y, z]))
+    # hp.vec2ang() returns raveled arrays, which are 1D.
+    if np.isscalar(x):
+        theta = np.asscalar(theta)
+        phi = np.asscalar(phi)
+    else:
+        shape = np.shape(x)
+        theta = theta.reshape(shape)
+        phi = phi.reshape(shape)
+    lon, lat = _healpy_to_lonlat(theta, phi)
     return lonlat_to_healpix(lon, lat, nside, order='nested' if nest else 'ring')
 
 

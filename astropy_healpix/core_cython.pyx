@@ -102,7 +102,7 @@ def healpix_with_offset_to_lonlat(np.ndarray[int64_t, ndim=1, mode="c"] healpix_
     dx, dy : `~numpy.ndarray`
         1-D arrays of offsets inside the HEALPix pixel, which must be in the
         range [0:1] (0.5 is the center of the HEALPix pixels)
-    nside : int
+    nside : `~numpy.ndarray`
         Number of pixels along the side of each of the 12 top-level HEALPix tiles
     order : { 'nested' | 'ring' }
         Order of HEALPix pixels
@@ -149,7 +149,7 @@ def lonlat_to_healpix(np.ndarray[double_t, ndim=1, mode="c"] lon,
     ----------
     lon, lat : `~numpy.ndarray`
         1-D arrays of longitude and latitude in radians
-    nside : int
+    nside : `~numpy.ndarray`
         Number of pixels along the side of each of the 12 top-level HEALPix tiles
     order : { 'nested' | 'ring' }
         Order of HEALPix pixels
@@ -196,7 +196,7 @@ def lonlat_to_healpix_with_offset(np.ndarray[double_t, ndim=1, mode="c"] lon,
     ----------
     lon, lat : `~numpy.ndarray`
         1-D arrays of longitude and latitude in radians
-    nside : int
+    nside : `~numpy.ndarray`
         Number of pixels along the side of each of the 12 top-level HEALPix tiles
     order : { 'nested' | 'ring' }
         Order of HEALPix pixels
@@ -241,7 +241,7 @@ def nested_to_ring(np.ndarray[int64_t, ndim=1, mode="c"] nested_index,
     ----------
     nested_index : `~numpy.ndarray`
         Healpix index using the 'nested' ordering
-    nside : int
+    nside : `~numpy.ndarray`
         Number of pixels along the side of each of the 12 top-level HEALPix tiles
 
     Returns
@@ -270,7 +270,7 @@ def ring_to_nested(np.ndarray[int64_t, ndim=1, mode="c"] ring_index,
     ----------
     ring_index : `~numpy.ndarray`
         Healpix index using the 'ring' ordering
-    nside : int
+    nside : `~numpy.ndarray`
         Number of pixels along the side of each of the 12 top-level HEALPix tiles
 
     Returns
@@ -303,7 +303,7 @@ def bilinear_interpolation_weights(np.ndarray[double_t, ndim=1, mode="c"] lon,
     ----------
     lon, lat : `~numpy.ndarray`
         1-D arrays of longitude and latitude in radians
-    nside : int
+    nside : `~numpy.ndarray`
         Number of pixels along the side of each of the 12 top-level HEALPix tiles
     order : { 'nested' | 'ring' }
         Order of HEALPix pixels
@@ -373,7 +373,7 @@ def neighbours(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
     ----------
     healpix_index : `~numpy.ndarray`
         1-D array of HEALPix indices
-    nside : int
+    nside : `~numpy.ndarray`
         Number of pixels along the side of each of the 12 top-level HEALPix tiles
     order : { 'nested' | 'ring' }
         Order of HEALPix pixels

@@ -37,7 +37,9 @@ def get_test_indices(nside):
 def test_roundtrip_healpix_no_offsets(order, nside_power, capfd):
     nside = 2 ** nside_power
     index = get_test_indices(nside)
-    lon, lat = core_cython.healpix_to_lonlat(index, nside, order)
+    func = (core_cython.healpix_to_lonlat_ring if order == 'ring' else
+            core_cython.healpix_to_lonlat_nested)
+    lon, lat = func(index, nside, 0.5, 0.5)
     index_new = core_cython.lonlat_to_healpix(lon, lat, nside, order)
     assert_equal(index, index_new)
     out, err = capfd.readouterr()
@@ -50,7 +52,9 @@ def test_roundtrip_healpix_with_offsets(order, nside_power, capfd):
     index = get_test_indices(nside)
     dx = np.random.random(index.shape)
     dy = np.random.random(index.shape)
-    lon, lat = core_cython.healpix_with_offset_to_lonlat(index, dx, dy, nside, order)
+    func = (core_cython.healpix_to_lonlat_ring if order == 'ring' else
+            core_cython.healpix_to_lonlat_nested)
+    lon, lat = func(index, nside, dx, dy)
     index_new, dx_new, dy_new = core_cython.lonlat_to_healpix_with_offset(lon, lat, nside, order)
     assert_equal(index, index_new)
     assert_allclose(dx, dx_new, atol=1e-8)
@@ -97,7 +101,9 @@ def test_healpix_cone_search(order, nside_power, capfd):
     dx = np.repeat(dx, n_inside, axis=0).ravel()
     dy = np.repeat(dy, n_inside, axis=0).ravel()
     index_inside = np.repeat(index_inside, 4).ravel()
-    lon, lat = core_cython.healpix_with_offset_to_lonlat(index_inside, dx, dy, nside, order)
+    func = (core_cython.healpix_to_lonlat_ring if order == 'ring' else
+            core_cython.healpix_to_lonlat_nested)
+    lon, lat = func(index_inside, nside, dx, dy)
     lon, lat = lon.reshape((n_inside, 4)), lat.reshape((n_inside, 4))
     sep = angular_separation(lon0 * u.deg, lat0 * u.deg, lon * u.rad, lat * u.rad)
     sep = sep.min(axis=1)
@@ -114,16 +120,16 @@ def test_regression_healpix_to_lonlat_sqrt():
     # and return a negative longitude.
 
     index = np.array([9007199120523263], dtype=np.int64)
-    lon, lat = core_cython.healpix_to_lonlat(index, 2**26, order='ring')
+    lon, lat = core_cython.healpix_to_lonlat_ring(index, 2**26, 0.5, 0.5)
     assert_allclose(lon, 6.283185295476241, rtol=1e-14)
     assert_allclose(lat, 0.729727669554970, rtol=1e-14)
 
     index = np.array([720575940916150240], dtype=np.int64)
-    lon, lat = core_cython.healpix_to_lonlat(index, 2**28, order='ring')
+    lon, lat = core_cython.healpix_to_lonlat_ring(index, 2**28, 0.5, 0.5)
     assert_allclose(lon, 6.283185122851909, rtol=1e-14)
     assert_allclose(lat, -0.729727656226966, rtol=1e-14)
 
     index = np.array([180143985363255292], dtype=np.int64)
-    lon, lat = core_cython.healpix_to_lonlat(index, 2**27, order='ring')
+    lon, lat = core_cython.healpix_to_lonlat_ring(index, 2**27, 0.5, 0.5)
     assert_allclose(lon, 6.283185266217880, rtol=1e-14)
     assert_allclose(lat, -0.729727656226966, rtol=1e-14)

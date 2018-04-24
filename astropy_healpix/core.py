@@ -42,11 +42,13 @@ def _restore_shape(*args, **kwargs):
 
 def _validate_healpix_index(label, healpix_index, nside):
     npix = nside_to_npix(nside)
+    healpix_index = np.asarray(healpix_index)
     if np.any((healpix_index < 0) | (healpix_index > npix - 1)):
         raise ValueError('{0} must be in the range [0:{1}]'.format(label, npix))
 
 
 def _validate_offset(label, offset):
+    offset = np.asarray(offset)
     if np.any((offset < 0) | (offset > 1)):
         raise ValueError('d{0} must be in the range [0:1]'.format(label))
 
@@ -236,7 +238,7 @@ def npix_to_nside(npix):
     return np.round(square_root).astype(int)
 
 
-def healpix_to_lonlat(healpix_index, nside, dx=None, dy=None, order='ring'):
+def healpix_to_lonlat(healpix_index, nside, dx=0.5, dy=0.5, order='ring'):
     """
     Convert HEALPix indices (optionally with offsets) to longitudes/latitudes.
 
@@ -247,7 +249,7 @@ def healpix_to_lonlat(healpix_index, nside, dx=None, dy=None, order='ring'):
     ----------
     healpix_index : int or `~numpy.ndarray`
         HEALPix indices (as a scalar or array)
-    nside : int
+    nside : int or `~numpy.ndarray`
         Number of pixels along the side of each of the 12 top-level HEALPix tiles
     dx, dy : float or `~numpy.ndarray`, optional
         Offsets inside the HEALPix pixel, which must be in the range [0:1],
@@ -263,42 +265,21 @@ def healpix_to_lonlat(healpix_index, nside, dx=None, dy=None, order='ring'):
         The latitude values
     """
 
-    if (dx is None and dy is not None) or (dx is not None and dy is None):
-        raise ValueError('Either both or neither dx and dy must be specified')
-
-    healpix_index = np.asarray(healpix_index, dtype=np.int64)
-
-    if dx is None and dy is not None:
-        dx = 0.5
-    elif dx is not None and dy is None:
-        dy = 0.5
-
-    if dx is not None:
-        dx = np.asarray(dx, dtype=np.float)
-        dy = np.asarray(dy, dtype=np.float)
-        _validate_offset('x', dx)
-        _validate_offset('y', dy)
-        healpix_index, dx, dy = np.broadcast_arrays(healpix_index, dx, dy)
-        dx = dx.ravel()
-        dy = dy.ravel()
-
-    shape = healpix_index.shape
-    healpix_index = healpix_index.ravel()
-    nside = int(nside)
-
     _validate_healpix_index('healpix_index', healpix_index, nside)
     _validate_nside(nside)
+    _validate_offset('x', dx)
+    _validate_offset('y', dy)
     order = _validate_order(order)
 
-    if dx is None:
-        lon, lat = core_cython.healpix_to_lonlat(healpix_index, nside, order)
-    else:
-        lon, lat = core_cython.healpix_with_offset_to_lonlat(healpix_index, dx, dy, nside, order)
+    func = (core_cython.healpix_to_lonlat_ring if order == 'ring' else
+            core_cython.healpix_to_lonlat_nested)
+
+    lon, lat = func(healpix_index, nside, dx, dy)
 
     lon = Longitude(lon, unit=u.rad, copy=False)
     lat = Latitude(lat, unit=u.rad, copy=False)
 
-    return _restore_shape(lon, lat, shape=shape)
+    return lon, lat
 
 
 def lonlat_to_healpix(lon, lat, nside, return_offsets=False, order='ring'):

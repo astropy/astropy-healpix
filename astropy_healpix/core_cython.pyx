@@ -19,6 +19,9 @@ npy_double = np.double
 npy_intp = np.intp
 npy_int64 = np.int64
 
+np.import_array()
+np.import_ufunc()
+
 
 def _validate_order(str order):
     # We also support upper-case, to support directly the values
@@ -33,103 +36,59 @@ def _validate_order(str order):
 
 
 @cython.boundscheck(False)
-def healpix_to_lonlat(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
-                      int nside, str order):
-    """
-    Convert HEALPix indices to longitudes/latitudes.
-
-    This returns the longitudes/latitudes of the center of the HEALPix pixels.
-    If you also want to provide relative offsets inside the pixels, see
-    :func:`healpix_with_offset_to_lonlat`.
-
-    Parameters
-    ----------
-    healpix_index : `~numpy.ndarray`
-        1-D array of HEALPix indices
-    nside : int
-        Number of pixels along the side of each of the 12 top-level HEALPix tiles
-    order : { 'nested' | 'ring' }
-        Order of HEALPix pixels
-
-    Returns
-    -------
-    lon, lat : `~numpy.ndarray`
-        1-D arrays of longitude and latitude in radians
-    """
-
-    cdef intp_t n = healpix_index.shape[0]
+cdef void healpix_to_lonlat_ring_loop(char** args, intp_t* dimensions,
+                                      intp_t* steps, void* data) nogil:
+    cdef intp_t n = dimensions[0]
     cdef intp_t i
-    cdef int64_t xy_index
-    cdef double dx, dy;
-    cdef np.ndarray[double_t, ndim=1, mode="c"] lon = np.zeros(n, dtype=npy_double)
-    cdef np.ndarray[double_t, ndim=1, mode="c"] lat = np.zeros(n, dtype=npy_double)
+    cdef int64_t xy_index, healpix_index, nside
+    cdef double dx, dy
+    cdef double* lon
+    cdef double* lat
 
-    dx = 0.5
-    dy = 0.5
+    for i in prange(n, schedule='static'):
+        healpix_index = (<int64_t*> &args[0][i * steps[0]])[0]
+        nside = (<int64_t*> &args[1][i * steps[1]])[0]
+        dx = (<double*> &args[2][i * steps[2]])[0]
+        dy = (<double*> &args[3][i * steps[3]])[0]
+        lon = <double*> &args[4][i * steps[5]]
+        lat = <double*> &args[5][i * steps[5]]
+        xy_index = healpixl_ring_to_xy(healpix_index, nside)
+        healpixl_to_radec(xy_index, nside, dx, dy, lon, lat)
 
-    order = _validate_order(order)
 
-    if order == 'nested':
-        for i in prange(n, nogil=True, schedule='static'):
-            xy_index = healpixl_nested_to_xy(healpix_index[i], nside)
-            healpixl_to_radec(xy_index, nside, dx, dy, &lon[i], &lat[i])
-    elif order == 'ring':
-        for i in prange(n, nogil=True, schedule='static'):
-            xy_index = healpixl_ring_to_xy(healpix_index[i], nside)
-            healpixl_to_radec(xy_index, nside, dx, dy, &lon[i], &lat[i])
-
-    return lon, lat
+healpix_to_lonlat_ring = np.PyUFunc_FromFuncAndData(
+    [healpix_to_lonlat_ring_loop], [NULL],
+    [np.NPY_INT64, np.NPY_INT64,
+     np.NPY_DOUBLE, np.NPY_DOUBLE, np.NPY_DOUBLE, np.NPY_DOUBLE],
+    1, 4, 2, 0, "healpix_to_lonlat_ring", "", 0)
 
 
 @cython.boundscheck(False)
-def healpix_with_offset_to_lonlat(np.ndarray[int64_t, ndim=1, mode="c"] healpix_index,
-                                  np.ndarray[double_t, ndim=1, mode="c"] dx,
-                                  np.ndarray[double_t, ndim=1, mode="c"] dy,
-                                  int nside, str order):
-    """
-    Convert HEALPix indices to longitudes/latitudes
-
-    This function takes relative offsets in x and y inside the HEALPix pixels.
-    If you are only interested in the centers of the pixels, see
-    `healpix_to_lonlat`.
-
-    Parameters
-    ----------
-    healpix_index : `~numpy.ndarray`
-        1-D array of HEALPix indices
-    dx, dy : `~numpy.ndarray`
-        1-D arrays of offsets inside the HEALPix pixel, which must be in the
-        range [0:1] (0.5 is the center of the HEALPix pixels)
-    nside : int
-        Number of pixels along the side of each of the 12 top-level HEALPix tiles
-    order : { 'nested' | 'ring' }
-        Order of HEALPix pixels
-
-
-    Returns
-    -------
-    lon, lat : `~numpy.ndarray`
-        1-D arrays of longitude and latitude in radians
-    """
-
-    cdef intp_t n = healpix_index.shape[0]
+cdef void healpix_to_lonlat_nested_loop(
+        char** args, intp_t* dimensions, intp_t* steps, void* data) nogil:
+    cdef intp_t n = dimensions[0]
     cdef intp_t i
-    cdef int64_t xy_index
-    cdef np.ndarray[double_t, ndim=1, mode="c"] lon = np.zeros(n, dtype=npy_double)
-    cdef np.ndarray[double_t, ndim=1, mode="c"] lat = np.zeros(n, dtype=npy_double)
+    cdef int64_t xy_index, healpix_index, nside
+    cdef double dx, dy
+    cdef double* lon
+    cdef double* lat
 
-    order = _validate_order(order)
+    for i in prange(n, schedule='static'):
+        healpix_index = (<int64_t*> &args[0][i * steps[0]])[0]
+        nside = (<int64_t*> &args[1][i * steps[1]])[0]
+        dx = (<double*> &args[2][i * steps[2]])[0]
+        dy = (<double*> &args[3][i * steps[3]])[0]
+        lon = <double*> &args[4][i * steps[5]]
+        lat = <double*> &args[5][i * steps[5]]
+        xy_index = healpixl_nested_to_xy(healpix_index, nside)
+        healpixl_to_radec(xy_index, nside, dx, dy, lon, lat)
 
-    if order == 'nested':
-        for i in prange(n, nogil=True, schedule='static'):
-            xy_index = healpixl_nested_to_xy(healpix_index[i], nside)
-            healpixl_to_radec(xy_index, nside, dx[i], dy[i], &lon[i], &lat[i])
-    elif order == 'ring':
-        for i in prange(n, nogil=True, schedule='static'):
-            xy_index = healpixl_ring_to_xy(healpix_index[i], nside)
-            healpixl_to_radec(xy_index, nside, dx[i], dy[i], &lon[i], &lat[i])
 
-    return lon, lat
+healpix_to_lonlat_nested = np.PyUFunc_FromFuncAndData(
+    [healpix_to_lonlat_nested_loop], [NULL],
+    [np.NPY_INT64, np.NPY_INT64, np.NPY_DOUBLE, np.NPY_DOUBLE,
+     np.NPY_DOUBLE, np.NPY_DOUBLE],
+    1, 4, 2, 0, "healpix_to_lonlat_nested", "", 0)
 
 
 @cython.boundscheck(False)

@@ -73,7 +73,7 @@ class HEALPix(object):
         """
         return nside_to_npix(self.nside)
 
-    def healpix_to_lonlat(self, healpix_index, dx=None, dy=None):
+    def healpix_to_lonlat(self, healpix_index, dx=0.5, dy=0.5):
         """
         Convert HEALPix indices (optionally with offsets) to longitudes/latitudes
 
@@ -269,7 +269,7 @@ class HEALPix(object):
         """
         return neighbours(healpix_index, self.nside, order=self.order)
 
-    def healpix_to_skycoord(self, healpix_index, dx=None, dy=None):
+    def healpix_to_skycoord(self, healpix_index, dx=0.5, dy=0.5):
         """
         Convert HEALPix indices (optionally with offsets) to celestial coordinates.
 

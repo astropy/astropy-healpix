@@ -24,10 +24,14 @@ __all__ = ['nside2resol',
            'npix2nside',
            'pix2ang',
            'ang2pix',
+           'pix2vec',
+           'vec2pix',
            'order2nside',
            'nest2ring',
            'ring2nest',
            'boundaries',
+           'vec2ang',
+           'ang2vec',
            'get_interp_weights',
            'get_interp_val']
 
@@ -105,6 +109,27 @@ def ang2pix(nside, theta, phi, nest=False, lonlat=False):
     return lonlat_to_healpix(lon, lat, nside, order='nested' if nest else 'ring')
 
 
+def pix2vec(nside, ipix, nest=False):
+    """Drop-in replacement for healpy `~healpy.pixelfunc.pix2vec`."""
+    lon, lat = healpix_to_lonlat(ipix, nside, order='nested' if nest else 'ring')
+    return ang2vec(*_lonlat_to_healpy(lon, lat))
+
+
+def vec2pix(nside, x, y, z, nest=False):
+    """Drop-in replacement for healpy `~healpy.pixelfunc.vec2pix`."""
+    theta, phi = vec2ang(np.transpose([x, y, z]))
+    # hp.vec2ang() returns raveled arrays, which are 1D.
+    if np.isscalar(x):
+        theta = np.asscalar(theta)
+        phi = np.asscalar(phi)
+    else:
+        shape = np.shape(x)
+        theta = theta.reshape(shape)
+        phi = phi.reshape(shape)
+    lon, lat = _healpy_to_lonlat(theta, phi)
+    return lonlat_to_healpix(lon, lat, nside, order='nested' if nest else 'ring')
+
+
 def nest2ring(nside, ipix):
     """Drop-in replacement for healpy `~healpy.pixelfunc.nest2ring`."""
     ipix = np.atleast_1d(ipix).astype(np.int64, copy=False)
@@ -138,6 +163,14 @@ def vec2ang(vectors, lonlat=False):
     rep_car = CartesianRepresentation(x, y, z)
     rep_sph = rep_car.represent_as(UnitSphericalRepresentation)
     return _lonlat_to_healpy(rep_sph.lon.ravel(), rep_sph.lat.ravel(), lonlat=lonlat)
+
+
+def ang2vec(theta, phi, lonlat=False):
+    """Drop-in replacement for healpy `~healpy.ang2vec`."""
+    lon, lat = _healpy_to_lonlat(theta, phi, lonlat=lonlat)
+    rep_sph = UnitSphericalRepresentation(lon, lat)
+    rep_car = rep_sph.represent_as(CartesianRepresentation)
+    return rep_car.xyz.value
 
 
 def get_interp_weights(nside, theta, phi=None, nest=False, lonlat=False):

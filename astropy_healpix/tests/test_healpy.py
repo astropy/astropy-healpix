@@ -115,6 +115,50 @@ def test_pix2ang(nside_pow, frac, nest, lonlat):
             assert_allclose(phi1, phi2, atol=1e-10)
 
 
+@given(nside_pow=integers(0, 29), nest=booleans(),
+       x=floats(-1, 1, allow_nan=False, allow_infinity=False).filter(lambda x: abs(x) > 1e-10),
+       y=floats(-1, 1, allow_nan=False, allow_infinity=False).filter(lambda y: abs(y) > 1e-10),
+       z=floats(-1, 1, allow_nan=False, allow_infinity=False).filter(lambda z: abs(z) > 1e-10))
+@settings(max_examples=2000, derandomize=True)
+def test_vec2pix(nside_pow, x, y, z, nest):
+    nside = 2 ** nside_pow
+    ipix1 = hp_compat.vec2pix(nside, x, y, z, nest=nest)
+    ipix2 = hp.vec2pix(nside, x, y, z, nest=nest)
+    assert ipix1 == ipix2
+
+
+@given(nside_pow=integers(0, 29), nest=booleans(),
+       frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1))
+@settings(max_examples=2000, derandomize=True)
+@example(nside_pow=29, frac=0.1666666694606345, nest=False)
+def test_pix2vec(nside_pow, frac, nest):
+    nside = 2 ** nside_pow
+    ipix = int(frac * 12 * nside ** 2)
+    xyz1 = hp_compat.pix2vec(nside, ipix, nest=nest)
+    xyz2 = hp.pix2vec(nside, ipix, nest=nest)
+    assert_allclose(xyz1, xyz2, atol=1e-8)
+
+
+def test_vec2pix_shape():
+    ipix = hp_compat.vec2pix(8, 1., 2., 3.)
+    assert isinstance(ipix, integer_types)
+
+    ipix = hp_compat.vec2pix(8, [[1., 2.], [3., 4.]], [[5., 6.], [7., 8.]], [[9., 10.], [11., 12.]])
+    assert ipix.shape == (2, 2)
+
+
+def test_pix2vec_shape():
+    x, y, z = hp_compat.pix2vec(8, 1)
+    assert isinstance(x, float)
+    assert isinstance(y, float)
+    assert isinstance(z, float)
+
+    x, y, z = hp_compat.pix2vec(8, [[1, 2, 3], [4, 5, 6]])
+    assert x.shape == (2, 3)
+    assert y.shape == (2, 3)
+    assert z.shape == (2, 3)
+
+
 @given(nside_pow=integers(0, 29),
        frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1))
 @settings(max_examples=2000, derandomize=True)
@@ -172,6 +216,21 @@ def test_vec2ang(vectors, lonlat, ndim):
     phi2 = np.nan_to_num(phi2)
     assert_allclose(theta1, theta1, atol=1e-10)
     assert_allclose(phi1, phi2, atol=1e-10)
+
+
+@given(lonlat=booleans(),
+       lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(lambda lon: abs(lon) > 1e-10),
+       lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(
+           lambda lat: abs(lat) < 89.99 and abs(lat) > 1e-10))
+@settings(max_examples=2000, derandomize=True)
+def test_ang2vec(lon, lat, lonlat):
+    if lonlat:
+        theta, phi = lon, lat
+    else:
+        theta, phi = np.pi / 2. - np.radians(lat), np.radians(lon)
+    xyz1 = hp_compat.ang2vec(theta, phi, lonlat=lonlat)
+    xyz2 = hp.ang2vec(theta, phi, lonlat=lonlat)
+    assert_allclose(xyz1, xyz2, atol=1e-10)
 
 
 # The following fails, need to investigate:

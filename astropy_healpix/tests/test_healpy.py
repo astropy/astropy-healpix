@@ -100,6 +100,7 @@ def test_pix2ang_shape():
        frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1))
 @settings(max_examples=2000, derandomize=True)
 @example(nside_pow=29, frac=0.1666666694606345, nest=False, lonlat=False)
+@example(nside_pow=27, frac=2./3., nest=True, lonlat=False)
 def test_pix2ang(nside_pow, frac, nest, lonlat):
     nside = 2 ** nside_pow
     ipix = int(frac * 12 * nside ** 2)

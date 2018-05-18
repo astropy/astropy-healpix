@@ -48,3 +48,14 @@ try:
     TESTED_VERSIONS[packagename] = version
 except NameError:   # Needed to support Astropy <= 1.0.0
     pass
+
+def pytest_configure():
+    """Set the Numpy print style to a fixed version to make doctest outputs
+    reproducible."""
+    import numpy as np
+    try:
+        np.set_printoptions(legacy='1.13')
+    except TypeError:
+        # On older versions of Numpy, the unrecognized 'legacy' option will
+        # raise a TypeError.
+        pass

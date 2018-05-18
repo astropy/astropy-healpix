@@ -35,8 +35,8 @@ Conversely, given longitudes and latitudes as :class:`~astropy.units.Quantity`
 objects, it is possible to recover HEALPix pixel indices::
 
     >>> from astropy import units as u
-    >>> hp.lonlat_to_healpix([1, 3, 4] * u.deg, [5, 6, 9] * u.deg)
-    array([1217, 1217, 1222])
+    >>> print(hp.lonlat_to_healpix([1, 3, 4] * u.deg, [5, 6, 9] * u.deg))
+    [1217 1217 1222]
 
 In these examples, what is being converted is the position of the center of each
 pixel. In fact, the  :meth:`~astropy_healpix.HEALPix.lonlat_to_healpix` method can also
@@ -44,8 +44,8 @@ take or give the fractional position inside each HEALPix pixel, e.g.::
 
     >>> index, dx, dy = hp.lonlat_to_healpix([1, 3, 4] * u.deg, [5, 6, 9] * u.deg,
     ...                                      return_offsets=True)
-    >>> index
-    array([1217, 1217, 1222])
+    >>> print(index)
+    [1217 1217 1222]
     >>> dx  # doctest: +FLOAT_CMP
     array([ 0.22364669,  0.78767489,  0.58832469])
     >>> dy  # doctest: +FLOAT_CMP
@@ -103,10 +103,10 @@ The :class:`~astropy_healpix.HEALPix` class has methods that can be used to
 convert HEALPix pixel indices between the ring and nested convention. These are
 :meth:`~astropy_healpix.HEALPix.nested_to_ring`::
 
-    >>> hp.nested_to_ring([30])
-    array([873])
+    >>> print(hp.nested_to_ring([30]))
+    [873]
 
 and :meth:`~astropy_healpix.HEALPix.ring_to_nested`::
 
-    >>> hp.ring_to_nested([1, 2, 3])
-    array([ 511,  767, 1023])
+    >>> print(hp.ring_to_nested([1, 2, 3]))
+    [ 511  767 1023]

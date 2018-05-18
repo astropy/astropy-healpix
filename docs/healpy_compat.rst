@@ -1,6 +1,3 @@
-.. doctest-skip-all
-
-
 Healpy-compatible interface
 ===========================
 
@@ -19,7 +16,7 @@ convention)::
 
   >>> from astropy_healpix.healpy import pix2ang
   >>> pix2ang(16, [100, 120])
-  (array([0.35914432, 0.41113786]), array([3.70259134, 1.6689711 ]))
+  (array([ 0.35914432,  0.41113786]), array([ 3.70259134,  1.6689711 ]))
 
 which agrees exactly with the healpy function::
 
@@ -27,7 +24,7 @@ which agrees exactly with the healpy function::
 
   >>> from healpy import pix2ang
   >>> pix2ang(16, [100, 120])
-  (array([0.35914432, 0.41113786]), array([3.70259134, 1.6689711 ]))
+  (array([ 0.35914432,  0.41113786]), array([ 3.70259134,  1.6689711 ]))
 
 Migrate
 -------

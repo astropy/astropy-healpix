@@ -9,13 +9,13 @@
 #include "starutil.h"
 #include <stdio.h>
 
-ll* healpix_region_search(int seed, ll* seeds, int Nside,
+ll* healpix_region_search(int64_t seed, ll* seeds, int64_t Nside,
 						  ll* accepted, ll* rejected,
-						  int (*accept)(int hp, void* token),
-						  void* token, int depth) {
+						  int64_t (*accept)(int64_t hp, void* token),
+						  void* token, int64_t depth) {
 	ll* frontier;
 	anbool allocd_rej = FALSE;
-	int d;
+	int64_t d;
 
 	if (!accepted)
 		accepted = ll_new(256);
@@ -33,13 +33,13 @@ ll* healpix_region_search(int seed, ll* seeds, int Nside,
 	}
 
 	for (d=0; !depth || d<depth; d++) {
-		int j, N;
+		int64_t j, N;
 		N = ll_size(frontier);
 		if (N == 0)
 			break;
 		for (j=0; j<N; j++) {
 			int64_t hp;
-			int i, nn;
+			int64_t i, nn;
 			int64_t neigh[8];
 			hp = ll_get(frontier, j);
 			healpixl_get_neighbours(hp, neigh, Nside);
@@ -69,7 +69,7 @@ ll* healpix_region_search(int seed, ll* seeds, int Nside,
 }
 
 
-static ll* hp_rangesearch(const double* xyz, double radius, int Nside, ll* hps, anbool approx) {
+static ll* hp_rangesearch(const double* xyz, double radius, int64_t Nside, ll* hps, anbool approx) {
 	int64_t hp;
 	double hprad = arcmin2dist(healpix_side_length_arcmin(Nside)) * sqrt(2);
 	ll* frontier = ll_new(256);
@@ -117,21 +117,21 @@ static ll* hp_rangesearch(const double* xyz, double radius, int Nside, ll* hps, 
 	return hps;
 }
 
-ll* healpix_rangesearch_xyz_approx(const double* xyz, double radius, int Nside, ll* hps) {
+ll* healpix_rangesearch_xyz_approx(const double* xyz, double radius, int64_t Nside, ll* hps) {
 	return hp_rangesearch(xyz, radius, Nside, hps, TRUE);
 }
 
-ll* healpix_rangesearch_xyz(const double* xyz, double radius, int Nside, ll* hps) {
+ll* healpix_rangesearch_xyz(const double* xyz, double radius, int64_t Nside, ll* hps) {
 	return hp_rangesearch(xyz, radius, Nside, hps, FALSE);
 }
 
-ll* healpix_rangesearch_radec_approx(double ra, double dec, double radius, int Nside, ll* hps) {
+ll* healpix_rangesearch_radec_approx(double ra, double dec, double radius, int64_t Nside, ll* hps) {
 	double xyz[3];
 	radecdeg2xyzarr(ra, dec, xyz);
 	return hp_rangesearch(xyz, radius, Nside, hps, TRUE);
 }
 
-ll* healpix_rangesearch_radec(double ra, double dec, double radius, int Nside, ll* hps) {
+ll* healpix_rangesearch_radec(double ra, double dec, double radius, int64_t Nside, ll* hps) {
 	double xyz[3];
 	radecdeg2xyzarr(ra, dec, xyz);
 	return hp_rangesearch(xyz, radius, Nside, hps, FALSE);
@@ -140,7 +140,7 @@ ll* healpix_rangesearch_radec(double ra, double dec, double radius, int Nside, l
 // The following is a version of the healpix_rangesearch_radec function
 // that works with standard C types to make interfacing with Python easier.
 int64_t healpix_rangesearch_radec_simple(double ra, double dec, double radius,
-																		 int Nside, int approx, int64_t **indices) {
+																		 int64_t Nside, int64_t approx, int64_t **indices) {
 	double xyz[3];
 	ll* hps = ll_new(256);
 	radecdeg2xyzarr(ra, dec, xyz);

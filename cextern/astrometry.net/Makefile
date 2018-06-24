@@ -11,4 +11,4 @@ $(OBJS): %.o: %.c $(HEADERS)
 %.o: %.c
 	$(CC) -o $@ -c $<
 
-test_healpix: test_healpix-main.c test_healpix.c $(OBJS) cutest.o
+test_healpix: test_healpix-main.c test_healpix.c $(OBJS) CuTest.o

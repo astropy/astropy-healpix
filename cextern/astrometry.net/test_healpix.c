@@ -8,7 +8,7 @@
 #include <assert.h>
 
 #include "os-features.h"
-#include "cutest.h"
+#include "CuTest.h"
 #include "starutil.h"
 #include "healpix.h"
 #include "bl.h"

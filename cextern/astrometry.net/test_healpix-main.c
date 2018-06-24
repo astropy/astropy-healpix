@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "cutest.h"
+#include "CuTest.h"
 
 
 extern void test_side_length(CuTest*);

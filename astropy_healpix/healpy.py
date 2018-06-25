@@ -178,8 +178,9 @@ def get_interp_weights(nside, theta, phi=None, nest=False, lonlat=False):
     Drop-in replacement for healpy `~healpy.get_interp_weights`, although
     note that the order of the weights and pixels may differ.
     """
+    # if phi is not given, theta is interpreted as pixel number
     if phi is None:
-        theta, phi = pix2ang(theta, nest=nest)
+        theta, phi = pix2ang(nside, ipix=theta, nest=nest)
     lon, lat = _healpy_to_lonlat(theta, phi, lonlat=lonlat)
     return bilinear_interpolation_weights(lon, lat, nside, order='nested' if nest else 'ring')
 

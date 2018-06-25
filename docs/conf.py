@@ -53,6 +53,11 @@ setup_cfg = dict(conf.items('metadata'))
 
 # -- General configuration ----------------------------------------------------
 
+intersphinx_mapping.pop('scipy', None)
+intersphinx_mapping.pop('h5py', None)
+intersphinx_mapping['healpy'] = ('https://healpy.readthedocs.io/en/latest/', None)
+
+
 # By default, highlight as Python 3.
 highlight_language = 'python3'
 

@@ -17,6 +17,7 @@ from .core import (nside_to_pixel_resolution, nside_to_pixel_area,
                    interpolate_bilinear_lonlat)
 
 RAD2DEG = 180 / np.pi
+PI_2 = np.pi / 2
 
 __all__ = ['nside2resol',
            'nside2pixarea',
@@ -45,9 +46,9 @@ def _lonlat_to_healpy(lon, lat, lonlat=False):
     else:
         lat, lon = lat.to(u.rad).value, lon.to(u.rad).value
         if np.isscalar(lon):
-            return 0.5 * np.pi - lat, lon
+            return PI_2 - lat, lon
         else:
-            lat = np.subtract(0.5 * np.pi, lat, out=lat)
+            lat = np.subtract(PI_2, lat, out=lat)
             return lat, lon
 
 
@@ -59,7 +60,7 @@ def _healpy_to_lonlat(theta, phi, lonlat=False):
         lon = np.asarray(theta) / RAD2DEG
         lat = np.asarray(phi) / RAD2DEG
     else:
-        lat = np.pi / 2. - np.asarray(theta)
+        lat = PI_2 - np.asarray(theta)
         lon = np.asarray(phi)
     return u.Quantity(lon, u.rad, copy=False), u.Quantity(lat, u.rad, copy=False)
 
@@ -158,7 +159,7 @@ def boundaries(nside, pix, step=1, nest=False):
 
 
 def vec2ang(vectors, lonlat=False):
-    """Drop-in replacement for healpy `~healpy.vec2ang`."""
+    """Drop-in replacement for healpy `~healpy.pixelfunc.vec2ang`."""
     x, y, z = vectors.transpose()
     rep_car = CartesianRepresentation(x, y, z)
     rep_sph = rep_car.represent_as(UnitSphericalRepresentation)
@@ -166,7 +167,7 @@ def vec2ang(vectors, lonlat=False):
 
 
 def ang2vec(theta, phi, lonlat=False):
-    """Drop-in replacement for healpy `~healpy.ang2vec`."""
+    """Drop-in replacement for healpy `~healpy.pixelfunc.ang2vec`."""
     lon, lat = _healpy_to_lonlat(theta, phi, lonlat=lonlat)
     rep_sph = UnitSphericalRepresentation(lon, lat)
     rep_car = rep_sph.represent_as(CartesianRepresentation)
@@ -175,19 +176,21 @@ def ang2vec(theta, phi, lonlat=False):
 
 def get_interp_weights(nside, theta, phi=None, nest=False, lonlat=False):
     """
-    Drop-in replacement for healpy `~healpy.get_interp_weights`, although
-    note that the order of the weights and pixels may differ.
+    Drop-in replacement for healpy `~healpy.pixelfunc.get_interp_weights`.
+
+    Although note that the order of the weights and pixels may differ.
     """
     # if phi is not given, theta is interpreted as pixel number
     if phi is None:
         theta, phi = pix2ang(nside, ipix=theta, nest=nest)
+
     lon, lat = _healpy_to_lonlat(theta, phi, lonlat=lonlat)
     return bilinear_interpolation_weights(lon, lat, nside, order='nested' if nest else 'ring')
 
 
 def get_interp_val(m, theta, phi, nest=False, lonlat=False):
     """
-    Drop-in replacement for healpy `~healpy.get_interp_val`.
+    Drop-in replacement for healpy `~healpy.pixelfunc.get_interp_val`.
     """
     lon, lat = _healpy_to_lonlat(theta, phi, lonlat=lonlat)
     return interpolate_bilinear_lonlat(lon, lat, m, order='nested' if nest else 'ring')

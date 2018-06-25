@@ -243,12 +243,7 @@ int64_t radecdegtohealpixlf(double ra, double dec, int Nside, double* dx, double
 /**
    Converts (x,y,z) coordinates on the unit sphere into a healpix index.
  */
-Const int xyztohealpix(double x, double y, double z, int Nside);
-
 Const int64_t xyztohealpixl(double x, double y, double z, int Nside);
-
-int xyztohealpixf(double x, double y, double z, int Nside,
-                  double* p_dx, double* p_dy);
 
 int64_t xyztohealpixlf(double x, double y, double z, int Nside,
 					   double* p_dx, double* p_dy);
@@ -270,7 +265,7 @@ int xyzarrtohealpixf(const double* xyz,int Nside, double* p_dx, double* p_dy);
    the northernmost corner, (1,0) is the easternmost, and (0,1) the
    westernmost.
 */
-void healpix_to_xyz(int64_t hp, int Nside, double dx, double dy,
+void healpixl_to_xyz(int64_t hp, int Nside, double dx, double dy,
                     double* p_x, double *p_y, double *p_z);
 
 /**

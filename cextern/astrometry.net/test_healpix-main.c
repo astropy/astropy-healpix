@@ -22,7 +22,6 @@ void RunAllTests(void)
     CuString *output = CuStringNew();
     CuSuite* suite = CuSuiteNew();
 
-
     SUITE_ADD_TEST(suite, test_side_length);
     SUITE_ADD_TEST(suite, test_make_map);
     SUITE_ADD_TEST(suite, test_healpix_distance_to_radec);
@@ -36,16 +35,9 @@ void RunAllTests(void)
 
     printf("%s\n", output->buffer);
 
-    CuSuiteFree(suite);
-    CuStringFree(output);
 }
 
 int main(int argc, char** args)
 {
-    if (argc > 1 && !strcmp(args[1], "-d")) {
-        printf("Setting die on fail.\n");
-        CuDieOnFail();
-    }
     RunAllTests();
-    return 0;
 }

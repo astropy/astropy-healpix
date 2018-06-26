@@ -1,6 +1,6 @@
 /*
-# This file is part of the Astrometry.net suite.
-# Licensed under a 3-clause BSD style license - see LICENSE
+ # This file is part of the Astrometry.net suite.
+ # Licensed under a 3-clause BSD style license - see LICENSE
  */
 
 #include <math.h>
@@ -21,27 +21,27 @@
 
 // Internal type
 struct hp_s {
-	int bighp;
-	int x;
-	int y;
+    int bighp;
+    int x;
+    int y;
 };
 typedef struct hp_s hp_t;
 
 static int64_t hptointl(hp_t hp, int Nside) {
-	return healpixl_compose_xy(hp.bighp, hp.x, hp.y, Nside);
+    return healpixl_compose_xy(hp.bighp, hp.x, hp.y, Nside);
 }
 
 static void intltohp(int64_t pix, hp_t* hp, int Nside) {
-	healpixl_decompose_xy(pix, &hp->bighp, &hp->x, &hp->y, Nside);
+    healpixl_decompose_xy(pix, &hp->bighp, &hp->x, &hp->y, Nside);
 }
 
 static void hp_decompose(hp_t* hp, int* php, int* px, int* py) {
-	if (php)
-		*php = hp->bighp;
-	if (px)
-		*px = hp->x;
-	if (py)
-		*py = hp->y;
+    if (php)
+        *php = hp->bighp;
+    if (px)
+        *px = hp->x;
+    if (py)
+        *py = hp->y;
 }
 
 // I've had troubles with rounding functions being declared properly
@@ -49,7 +49,7 @@ static void hp_decompose(hp_t* hp, int* php, int* px, int* py) {
 // something is wrong.
 #ifdef _MSC_VER
 double round(double x) {
-  return floor(x + 0.5);
+    return floor(x + 0.5);
 }
 #else
 double round(double x);
@@ -57,412 +57,412 @@ double round(double x);
 
 
 Const static Inline double mysquare(double d) {
-	return d*d;
+    return d*d;
 }
 
 Const int64_t healpixl_xy_to_nested(int64_t hp, int Nside) {
-	int bighp,x,y;
-	int64_t index;
-	int i;
-	int64_t ns2 = (int64_t)Nside * (int64_t)Nside;
+    int bighp,x,y;
+    int64_t index;
+    int i;
+    int64_t ns2 = (int64_t)Nside * (int64_t)Nside;
 
-	healpixl_decompose_xy(hp, &bighp, &x, &y, Nside);
-	if (!is_power_of_two(Nside)) {
-		fprintf(stderr, "healpix_xy_to_nested: Nside must be a power of two.\n");
-		return -1;
-	}
+    healpixl_decompose_xy(hp, &bighp, &x, &y, Nside);
+    if (!is_power_of_two(Nside)) {
+        fprintf(stderr, "healpix_xy_to_nested: Nside must be a power of two.\n");
+        return -1;
+    }
 
-	// We construct the index called p_n' in the healpix paper, whose bits
-	// are taken from the bits of x and y:
-	//    x = ... b4 b2 b0
-	//    y = ... b5 b3 b1
-	// We go through the bits of x,y, building up "index":
-	index = 0;
-	for (i=0; i<(8*sizeof(int64_t)/2); i++) {
-		index |= (int64_t)(((y & 1) << 1) | (x & 1)) << (i*2);
-		y >>= 1;
-		x >>= 1;
-		if (!x && !y) break;
-	}
+    // We construct the index called p_n' in the healpix paper, whose bits
+    // are taken from the bits of x and y:
+    //    x = ... b4 b2 b0
+    //    y = ... b5 b3 b1
+    // We go through the bits of x,y, building up "index":
+    index = 0;
+    for (i=0; i<(8*sizeof(int64_t)/2); i++) {
+        index |= (int64_t)(((y & 1) << 1) | (x & 1)) << (i*2);
+        y >>= 1;
+        x >>= 1;
+        if (!x && !y) break;
+    }
 
-	return index + (int64_t)bighp * ns2;
+    return index + (int64_t)bighp * ns2;
 }
 
 Const int64_t healpixl_nested_to_xy(int64_t hp, int Nside) {
-	int bighp, x, y;
-	int64_t index;
-	int64_t ns2 = (int64_t)Nside * (int64_t)Nside;
-	int i;
-	if (!is_power_of_two(Nside)) {
-		fprintf(stderr, "healpix_xy_to_nested: Nside must be a power of two.\n");
-		return -1;
-	}
-	bighp = (int)(hp / ns2);
-	index = hp % ns2;
-	x = y = 0;
-	for (i=0; i<(8*sizeof(int64_t)/2); i++) {
-		x |= (index & 0x1) << i;
-		index >>= 1;
-		y |= (index & 0x1) << i;
-		index >>= 1;
-		if (!index) break;
-	}
-	return healpixl_compose_xy(bighp, x, y, Nside);
+    int bighp, x, y;
+    int64_t index;
+    int64_t ns2 = (int64_t)Nside * (int64_t)Nside;
+    int i;
+    if (!is_power_of_two(Nside)) {
+        fprintf(stderr, "healpix_xy_to_nested: Nside must be a power of two.\n");
+        return -1;
+    }
+    bighp = (int)(hp / ns2);
+    index = hp % ns2;
+    x = y = 0;
+    for (i=0; i<(8*sizeof(int64_t)/2); i++) {
+        x |= (index & 0x1) << i;
+        index >>= 1;
+        y |= (index & 0x1) << i;
+        index >>= 1;
+        if (!index) break;
+    }
+    return healpixl_compose_xy(bighp, x, y, Nside);
 }
 
 
 Const int64_t healpixl_compose_ring(int ring, int longind, int Nside) {
-	if (ring <= Nside)
-		// north polar
-		return (int64_t)ring * ((int64_t)ring-1) * 2 + (int64_t)longind;
-	if (ring < 3*Nside)
-		// equatorial
-		return (int64_t)Nside*((int64_t)Nside-1)*2 + (int64_t)Nside*4*((int64_t)ring-(int64_t)Nside) + (int64_t)longind;
-	{
-		int64_t ri;
-		ri = 4*(int64_t)Nside - (int64_t)ring;
-		return 12*(int64_t)Nside*(int64_t)Nside-1 - ( ri*(ri-1)*2 + (ri*4 - 1 - (int64_t)longind) );
-	}
+    if (ring <= Nside)
+        // north polar
+        return (int64_t)ring * ((int64_t)ring-1) * 2 + (int64_t)longind;
+    if (ring < 3*Nside)
+        // equatorial
+        return (int64_t)Nside*((int64_t)Nside-1)*2 + (int64_t)Nside*4*((int64_t)ring-(int64_t)Nside) + (int64_t)longind;
+    {
+        int64_t ri;
+        ri = 4*(int64_t)Nside - (int64_t)ring;
+        return 12*(int64_t)Nside*(int64_t)Nside-1 - ( ri*(ri-1)*2 + (ri*4 - 1 - (int64_t)longind) );
+    }
 }
 
 
 void healpixl_decompose_ring(int64_t hp, int Nside, int* p_ring, int* p_longind) {
-	int64_t longind;
-	int64_t offset = 0;
-	int64_t Nside64;
-	int64_t ns2;
-	int ring;
-	double x;
-	Nside64 = (int64_t)Nside;
-	ns2 = Nside64 * Nside64;
-	if (hp < 2 * ns2) {
-		ring = (int)(0.5 + sqrt(0.25 + 0.5 * hp));
-		offset = 2 * (int64_t)ring * ((int64_t)ring - 1);
-		// The sqrt above can introduce precision issues that can cause ring to
-		// be off by 1, so we check whether the offset is now larger than the HEALPix
-		// value, and if so we need to adjust ring and offset accordingly
-		if (offset > hp) {
-			ring -= 1;
-			offset = 2 * (int64_t)ring * ((int64_t)ring - 1);
-		}
-		longind = hp - offset;
-	} else {
-		offset = 2 * Nside64 * (Nside64 - 1);
-		if (hp < 10 * ns2) {
-			ring = (int)((hp - offset) / ((int64_t)Nside * 4) + (int64_t)Nside);
-			offset += 4 * (ring - Nside64) * Nside64;
-			longind = hp - offset;
-		} else {
-			 offset += 8 * ns2;
-			 x = (2 * Nside64 + 1 - sqrt((2 * Nside64 + 1) * (2 * Nside64 + 1) - 2 * (hp - offset)))*0.5;
-			 ring = (int)x;
-			 offset += 2 * (int64_t)ring * (2 * Nside64 + 1 - (int64_t)ring);
-			 // The sqrt above can introduce precision issues that can cause ring to
-			 // be off by 1, so we check whether the offset is now larger than the HEALPix
-			 // value, and if so we need to adjust ring and offset accordingly
-			 if (offset > hp) {
-				 ring -= 1;
-				 offset -= 4 * Nside64 - 4 * (int64_t)ring;
-			 }
-			 longind = (int)(hp - offset);
-			 ring += 3 * Nside;
-		}
-	}
-	if (p_ring)
-		*p_ring = ring;
-	if (p_longind)
-		*p_longind = (int)longind;
+    int64_t longind;
+    int64_t offset = 0;
+    int64_t Nside64;
+    int64_t ns2;
+    int ring;
+    double x;
+    Nside64 = (int64_t)Nside;
+    ns2 = Nside64 * Nside64;
+    if (hp < 2 * ns2) {
+        ring = (int)(0.5 + sqrt(0.25 + 0.5 * hp));
+        offset = 2 * (int64_t)ring * ((int64_t)ring - 1);
+        // The sqrt above can introduce precision issues that can cause ring to
+        // be off by 1, so we check whether the offset is now larger than the HEALPix
+        // value, and if so we need to adjust ring and offset accordingly
+        if (offset > hp) {
+            ring -= 1;
+            offset = 2 * (int64_t)ring * ((int64_t)ring - 1);
+        }
+        longind = hp - offset;
+    } else {
+        offset = 2 * Nside64 * (Nside64 - 1);
+        if (hp < 10 * ns2) {
+            ring = (int)((hp - offset) / ((int64_t)Nside * 4) + (int64_t)Nside);
+            offset += 4 * (ring - Nside64) * Nside64;
+            longind = hp - offset;
+        } else {
+            offset += 8 * ns2;
+            x = (2 * Nside64 + 1 - sqrt((2 * Nside64 + 1) * (2 * Nside64 + 1) - 2 * (hp - offset)))*0.5;
+            ring = (int)x;
+            offset += 2 * (int64_t)ring * (2 * Nside64 + 1 - (int64_t)ring);
+            // The sqrt above can introduce precision issues that can cause ring to
+            // be off by 1, so we check whether the offset is now larger than the HEALPix
+            // value, and if so we need to adjust ring and offset accordingly
+            if (offset > hp) {
+                ring -= 1;
+                offset -= 4 * Nside64 - 4 * (int64_t)ring;
+            }
+            longind = (int)(hp - offset);
+            ring += 3 * Nside;
+        }
+    }
+    if (p_ring)
+        *p_ring = ring;
+    if (p_longind)
+        *p_longind = (int)longind;
 }
 
 Const int64_t healpixl_ring_to_xy(int64_t ring, int Nside) {
-	int bighp, x, y;
-	int ringind, longind;
-	healpixl_decompose_ring(ring, Nside, &ringind, &longind);
-	if (ringind <= Nside) {
-		int64_t ind;
-		int v;
-		int F1;
-		int frow;
-		bighp = longind / ringind;
-		ind = (int64_t)longind - (int64_t)bighp * (int64_t)ringind;
-		y = (Nside - 1) - (int)ind;
-		frow = bighp / 4;
-		F1 = frow + 2;
-		v = F1*Nside - ringind - 1;
-		x = v - y;
-		return healpixl_compose_xy(bighp, x, y, Nside);
-	} else if (ringind < 3L*Nside) {
-		int panel;
-		int ind;
-		int bottomleft;
-		int topleft;
-		int frow, F1, F2, s, v, h;
-		int bighp = -1;
-		int x, y;
-		int R = 0;
+    int bighp, x, y;
+    int ringind, longind;
+    healpixl_decompose_ring(ring, Nside, &ringind, &longind);
+    if (ringind <= Nside) {
+        int64_t ind;
+        int v;
+        int F1;
+        int frow;
+        bighp = longind / ringind;
+        ind = (int64_t)longind - (int64_t)bighp * (int64_t)ringind;
+        y = (Nside - 1) - (int)ind;
+        frow = bighp / 4;
+        F1 = frow + 2;
+        v = F1*Nside - ringind - 1;
+        x = v - y;
+        return healpixl_compose_xy(bighp, x, y, Nside);
+    } else if (ringind < 3L*Nside) {
+        int panel;
+        int ind;
+        int bottomleft;
+        int topleft;
+        int frow, F1, F2, s, v, h;
+        int bighp = -1;
+        int x, y;
+        int R = 0;
 
-		panel = longind / Nside;
-		ind = longind % Nside;
-		bottomleft = ind < (ringind - Nside + 1) / 2;
-		topleft = ind < (3L*Nside - ringind + 1)/2;
+        panel = longind / Nside;
+        ind = longind % Nside;
+        bottomleft = ind < (ringind - Nside + 1) / 2;
+        topleft = ind < (3L*Nside - ringind + 1)/2;
 
-		if (!bottomleft && topleft) {
-			// top row.
-			bighp = panel;
-		} else if (bottomleft && !topleft) {
-			// bottom row.
-			bighp = 8 + panel;
-		} else if (bottomleft && topleft) {
-			// left side.
-			bighp = 4 + panel;
-		} else if (!bottomleft && !topleft) {
-			// right side.
-			bighp = 4 + (panel + 1) % 4;
-			if (bighp == 4) {
-				longind -= (4L*Nside - 1);
-				// Gah!  Wacky hack - it seems that since
-				// "longind" is negative in this case, the
-				// rounding behaves differently, so we end up
-				// computing the wrong "h" and have to correct
-				// for it.
-				R = 1;
-			}
-		}
+        if (!bottomleft && topleft) {
+            // top row.
+            bighp = panel;
+        } else if (bottomleft && !topleft) {
+            // bottom row.
+            bighp = 8 + panel;
+        } else if (bottomleft && topleft) {
+            // left side.
+            bighp = 4 + panel;
+        } else if (!bottomleft && !topleft) {
+            // right side.
+            bighp = 4 + (panel + 1) % 4;
+            if (bighp == 4) {
+                longind -= (4L*Nside - 1);
+                // Gah!  Wacky hack - it seems that since
+                // "longind" is negative in this case, the
+                // rounding behaves differently, so we end up
+                // computing the wrong "h" and have to correct
+                // for it.
+                R = 1;
+            }
+        }
 
-		frow = bighp / 4;
-		F1 = frow + 2;
-		F2 = 2*(bighp % 4) - (frow % 2) + 1;
-		s = (ringind - Nside) % 2;
-		v = F1*Nside - ringind - 1;
-		h = 2*longind - s - F2*Nside;
-		if (R)
-			h--;
-		x = (v + h) / 2;
-		y = (v - h) / 2;
-		//fprintf(stderr, "bighp=%i, frow=%i, F1=%i, F2=%i, s=%i, v=%i, h=%i, x=%i, y=%i.\n", bighp, frow, F1, F2, s, v, h, x, y);
+        frow = bighp / 4;
+        F1 = frow + 2;
+        F2 = 2*(bighp % 4) - (frow % 2) + 1;
+        s = (ringind - Nside) % 2;
+        v = F1*Nside - ringind - 1;
+        h = 2*longind - s - F2*Nside;
+        if (R)
+            h--;
+        x = (v + h) / 2;
+        y = (v - h) / 2;
+        //fprintf(stderr, "bighp=%i, frow=%i, F1=%i, F2=%i, s=%i, v=%i, h=%i, x=%i, y=%i.\n", bighp, frow, F1, F2, s, v, h, x, y);
 
-		if ((v != (x+y)) || (h != (x-y))) {
-			h++;
-			x = (v + h) / 2;
-			y = (v - h) / 2;
-			//fprintf(stderr, "tweak h=%i, x=%i, y=%i\n", h, x, y);
+        if ((v != (x+y)) || (h != (x-y))) {
+            h++;
+            x = (v + h) / 2;
+            y = (v - h) / 2;
+            //fprintf(stderr, "tweak h=%i, x=%i, y=%i\n", h, x, y);
 
-			if ((v != (x+y)) || (h != (x-y))) {
-				//fprintf(stderr, "still not right.\n");
-			}
-		}
-		return healpixl_compose_xy(bighp, x, y, Nside);
-	} else {
-		int ind;
-		int v;
-		int F1;
-		int frow;
-		int ri;
-		ri = 4*Nside - ringind;
-		bighp = 8 + longind / ri;
-		ind = longind - (bighp%4) * ri;
-		y = (ri-1) - ind;
-		frow = bighp / 4;
-		F1 = frow + 2;
-		v = F1*Nside - ringind - 1;
-		x = v - y;
-		return healpixl_compose_xy(bighp, x, y, Nside);
-	}
+            if ((v != (x+y)) || (h != (x-y))) {
+                //fprintf(stderr, "still not right.\n");
+            }
+        }
+        return healpixl_compose_xy(bighp, x, y, Nside);
+    } else {
+        int ind;
+        int v;
+        int F1;
+        int frow;
+        int ri;
+        ri = 4*Nside - ringind;
+        bighp = 8 + longind / ri;
+        ind = longind - (bighp%4) * ri;
+        y = (ri-1) - ind;
+        frow = bighp / 4;
+        F1 = frow + 2;
+        v = F1*Nside - ringind - 1;
+        x = v - y;
+        return healpixl_compose_xy(bighp, x, y, Nside);
+    }
 }
 
 Const int64_t healpixl_xy_to_ring(int64_t hp, int Nside) {
-	int bighp,x,y;
-	int frow;
-	int F1;
-	int v;
-	int ring;
-	int64_t index;
+    int bighp,x,y;
+    int frow;
+    int F1;
+    int v;
+    int ring;
+    int64_t index;
 
-	healpixl_decompose_xy(hp, &bighp, &x, &y, Nside);
-	frow = bighp / 4;
-	F1 = frow + 2;
-	v = x + y;
-	// "ring" starts from 1 at the north pole and goes to 4Nside-1 at
-	// the south pole; the pixels in each ring have the same latitude.
-	ring = F1*Nside - v - 1;
-	/*
-	 ring:
-	 [1, Nside] : n pole
-	 (Nside, 2Nside] : n equatorial
-	 (2Nside+1, 3Nside) : s equat
-	 [3Nside, 4Nside-1] : s pole
-	 */
-	// this probably can't happen...
-	if ((ring < 1) || (ring >= 4L*Nside)) {
-		fprintf(stderr, "Invalid ring index: %i %i\n", ring, 4*Nside);
-		return -1;
-	}
-	if (ring <= Nside) {
-		// north polar.
-		// left-to-right coordinate within this healpix
-		index = (Nside - 1 - y);
-		// offset from the other big healpixes
-		index += ((bighp % 4) * ring);
-		// offset from the other rings
-		index += (int64_t)ring*(ring-1)*2;
-	} else if (ring >= 3L*Nside) {
-		// south polar.
-		// Here I first flip everything so that we label the pixels
-		// at zero starting in the southeast corner, increasing to the
-		// west and north, then subtract that from the total number of
-		// healpixels.
-		int ri = 4L*Nside - ring;
-		// index within this healpix
-		index = (ri-1) - x;
-		// big healpixes
-		index += ((3-(bighp % 4)) * ri);
-		// other rings
-		index += (int64_t)ri*(ri-1)*2;
-		// flip!
-		index = 12*(int64_t)Nside*Nside - 1 - index;
+    healpixl_decompose_xy(hp, &bighp, &x, &y, Nside);
+    frow = bighp / 4;
+    F1 = frow + 2;
+    v = x + y;
+    // "ring" starts from 1 at the north pole and goes to 4Nside-1 at
+    // the south pole; the pixels in each ring have the same latitude.
+    ring = F1*Nside - v - 1;
+    /*
+     ring:
+     [1, Nside] : n pole
+     (Nside, 2Nside] : n equatorial
+     (2Nside+1, 3Nside) : s equat
+     [3Nside, 4Nside-1] : s pole
+     */
+    // this probably can't happen...
+    if ((ring < 1) || (ring >= 4L*Nside)) {
+        fprintf(stderr, "Invalid ring index: %i %i\n", ring, 4*Nside);
+        return -1;
+    }
+    if (ring <= Nside) {
+        // north polar.
+        // left-to-right coordinate within this healpix
+        index = (Nside - 1 - y);
+        // offset from the other big healpixes
+        index += ((bighp % 4) * ring);
+        // offset from the other rings
+        index += (int64_t)ring*(ring-1)*2;
+    } else if (ring >= 3L*Nside) {
+        // south polar.
+        // Here I first flip everything so that we label the pixels
+        // at zero starting in the southeast corner, increasing to the
+        // west and north, then subtract that from the total number of
+        // healpixels.
+        int ri = 4L*Nside - ring;
+        // index within this healpix
+        index = (ri-1) - x;
+        // big healpixes
+        index += ((3-(bighp % 4)) * ri);
+        // other rings
+        index += (int64_t)ri*(ri-1)*2;
+        // flip!
+        index = 12*(int64_t)Nside*Nside - 1 - index;
 
-	} else {
-		// equatorial.
-		int64_t s, F2, h;
-		s = (ring - Nside) % 2;
-		F2 = 2*((int)bighp % 4) - (frow % 2) + 1;
-		h = x - y;
+    } else {
+        // equatorial.
+        int64_t s, F2, h;
+        s = (ring - Nside) % 2;
+        F2 = 2*((int)bighp % 4) - (frow % 2) + 1;
+        h = x - y;
 
-		index = (F2 * Nside + h + s) / 2;
-		// offset from the north polar region:
-		index += (int64_t)Nside * (Nside - 1) * 2;
-		// offset within the equatorial region:
-		index += (int64_t)Nside * 4 * (ring - Nside);
-		// handle healpix #4 wrap-around
-		if ((bighp == 4) && (y > x)) index += (4 * Nside - 1);
-		//fprintf(stderr, "frow=%i, F1=%i, v=%i, ringind=%i, s=%i, F2=%i, h=%i, longind=%i.\n", frow, F1, v, ring, s, F2, h, (F2*(int)Nside+h+s)/2);
-	}
-	return index;
+        index = (F2 * Nside + h + s) / 2;
+        // offset from the north polar region:
+        index += (int64_t)Nside * (Nside - 1) * 2;
+        // offset within the equatorial region:
+        index += (int64_t)Nside * 4 * (ring - Nside);
+        // handle healpix #4 wrap-around
+        if ((bighp == 4) && (y > x)) index += (4 * Nside - 1);
+        //fprintf(stderr, "frow=%i, F1=%i, v=%i, ringind=%i, s=%i, F2=%i, h=%i, longind=%i.\n", frow, F1, v, ring, s, F2, h, (F2*(int)Nside+h+s)/2);
+    }
+    return index;
 }
 
 Const double healpix_side_length_arcmin(int Nside) {
-	return sqrt((4.0 * M_PI * mysquare(180.0 * 60.0 / M_PI)) /
-				(12.0 * Nside * Nside));
+    return sqrt((4.0 * M_PI * mysquare(180.0 * 60.0 / M_PI)) /
+                (12.0 * Nside * Nside));
 }
 
 double healpix_nside_for_side_length_arcmin(double arcmin) {
-	return sqrt(4.0*M_PI / (mysquare(arcmin2rad(arcmin)) * 12.0));
+    return sqrt(4.0*M_PI / (mysquare(arcmin2rad(arcmin)) * 12.0));
 }
 
 static Inline void swap(int* i1, int* i2) {
-	int tmp;
-	tmp = *i1;
-	*i1 = *i2;
-	*i2 = tmp;
+    int tmp;
+    tmp = *i1;
+    *i1 = *i2;
+    *i2 = tmp;
 }
 
 static Inline void swap_double(double* i1, double* i2) {
-	double tmp;
-	tmp = *i1;
-	*i1 = *i2;
-	*i2 = tmp;
+    double tmp;
+    tmp = *i1;
+    *i1 = *i2;
+    *i2 = tmp;
 }
 
 static Inline anbool ispolar(int healpix)
 {
-	// the north polar healpixes are 0,1,2,3
-	// the south polar healpixes are 8,9,10,11
-	return (healpix <= 3) || (healpix >= 8);
+    // the north polar healpixes are 0,1,2,3
+    // the south polar healpixes are 8,9,10,11
+    return (healpix <= 3) || (healpix >= 8);
 }
 
 static Inline anbool isequatorial(int healpix)
 {
-	// the north polar healpixes are 0,1,2,3
-	// the south polar healpixes are 8,9,10,11
-	return (healpix >= 4) && (healpix <= 7);
+    // the north polar healpixes are 0,1,2,3
+    // the south polar healpixes are 8,9,10,11
+    return (healpix >= 4) && (healpix <= 7);
 }
 
 static Inline anbool isnorthpolar(int healpix)
 {
-	return (healpix <= 3);
+    return (healpix <= 3);
 }
 
 static Inline anbool issouthpolar(int healpix)
 {
-	return (healpix >= 8);
+    return (healpix >= 8);
 }
 
 static int compose_xy(int x, int y, int Nside) {
-	assert(Nside > 0);
-	assert(x >= 0);
-	assert(x < Nside);
-	assert(y >= 0);
-	assert(y < Nside);
-	return (x * Nside) + y;
+    assert(Nside > 0);
+    assert(x >= 0);
+    assert(x < Nside);
+    assert(y >= 0);
+    assert(y < Nside);
+    return (x * Nside) + y;
 }
 
 int64_t healpixl_compose_xy(int bighp, int x, int y, int Nside) {
-	int64_t ns = Nside;
-	assert(Nside > 0);
-	assert(bighp >= 0);
-	assert(bighp < 12);
-	assert(x >= 0);
-	assert(x < Nside);
-	assert(y >= 0);
-	assert(y < Nside);
-	return ((((int64_t)bighp * ns) + x) * ns) + y;
+    int64_t ns = Nside;
+    assert(Nside > 0);
+    assert(bighp >= 0);
+    assert(bighp < 12);
+    assert(x >= 0);
+    assert(x < Nside);
+    assert(y >= 0);
+    assert(y < Nside);
+    return ((((int64_t)bighp * ns) + x) * ns) + y;
 }
 
 void healpixl_convert_nside(int64_t hp, int nside, int outnside, int64_t* outhp) {
-	int basehp, x, y;
-	int ox, oy;
-	healpixl_decompose_xy(hp, &basehp, &x, &y, nside);
-	healpixl_convert_xy_nside(x, y, nside, outnside, &ox, &oy);
-	*outhp = healpixl_compose_xy(basehp, ox, oy, outnside);
+    int basehp, x, y;
+    int ox, oy;
+    healpixl_decompose_xy(hp, &basehp, &x, &y, nside);
+    healpixl_convert_xy_nside(x, y, nside, outnside, &ox, &oy);
+    *outhp = healpixl_compose_xy(basehp, ox, oy, outnside);
 }
 
 void healpixl_convert_xy_nside(int x, int y, int nside, int outnside,
-							  int* outx, int* outy) {
-	double fx, fy;
-	int ox, oy;
-	assert(x >= 0);
-	assert(x < nside);
-	assert(y >= 0);
-	assert(y < nside);
+                               int* outx, int* outy) {
+    double fx, fy;
+    int ox, oy;
+    assert(x >= 0);
+    assert(x < nside);
+    assert(y >= 0);
+    assert(y < nside);
 
-	// MAGIC 0.5: assume center of pixel...
-	fx = (x + 0.5) / (double)nside;
-	fy = (y + 0.5) / (double)nside;
+    // MAGIC 0.5: assume center of pixel...
+    fx = (x + 0.5) / (double)nside;
+    fy = (y + 0.5) / (double)nside;
 
-	ox = floor(fx * outnside);
-	oy = floor(fy * outnside);
+    ox = floor(fx * outnside);
+    oy = floor(fy * outnside);
 
-	if (outx)
-		*outx = ox;
-	if (outy)
-		*outy = oy;
+    if (outx)
+        *outx = ox;
+    if (outy)
+        *outy = oy;
 }
 
 void healpixl_decompose_xy(int64_t finehp,
-						   int* pbighp, int* px, int* py,
-						   int Nside) {
-	int64_t hp;
-	int64_t ns2 = (int64_t)Nside * (int64_t)Nside;
-	assert(Nside > 0);
-	assert(finehp < (12L * ns2));
-	assert(finehp >= 0);
-	if (pbighp) {
-		int bighp = (int)(finehp / ns2);
-		assert(bighp >= 0);
-		assert(bighp < 12);
-		*pbighp = bighp;
-	}
-	hp = finehp % ns2;
-	if (px) {
-		*px = (int)(hp / Nside);
-		assert(*px >= 0);
-		assert(*px < Nside);
-	}
-	if (py) {
-		*py = hp % Nside;
-		assert(*py >= 0);
-		assert(*py < Nside);
-	}
+                           int* pbighp, int* px, int* py,
+                           int Nside) {
+    int64_t hp;
+    int64_t ns2 = (int64_t)Nside * (int64_t)Nside;
+    assert(Nside > 0);
+    assert(finehp < (12L * ns2));
+    assert(finehp >= 0);
+    if (pbighp) {
+        int bighp = (int)(finehp / ns2);
+        assert(bighp >= 0);
+        assert(bighp < 12);
+        *pbighp = bighp;
+    }
+    hp = finehp % ns2;
+    if (px) {
+        *px = (int)(hp / Nside);
+        assert(*px >= 0);
+        assert(*px < Nside);
+    }
+    if (py) {
+        *py = hp % Nside;
+        assert(*py >= 0);
+        assert(*py < Nside);
+    }
 }
 
 /**
@@ -471,412 +471,412 @@ void healpixl_decompose_xy(int64_t finehp,
  */
 static int healpix_get_neighbour(int hp, int dx, int dy)
 {
-	if (isnorthpolar(hp)) {
-		if ((dx ==  1) && (dy ==  0)) return (hp + 1) % 4;
-		if ((dx ==  0) && (dy ==  1)) return (hp + 3) % 4;
-		if ((dx ==  1) && (dy ==  1)) return (hp + 2) % 4;
-		if ((dx == -1) && (dy ==  0)) return (hp + 4);
-		if ((dx ==  0) && (dy == -1)) return 4 + ((hp + 1) % 4);
-		if ((dx == -1) && (dy == -1)) return hp + 8;
-		return -1;
-	} else if (issouthpolar(hp)) {
-		if ((dx ==  1) && (dy ==  0)) return 4 + ((hp + 1) % 4);
-		if ((dx ==  0) && (dy ==  1)) return hp - 4;
-		if ((dx == -1) && (dy ==  0)) return 8 + ((hp + 3) % 4);
-		if ((dx ==  0) && (dy == -1)) return 8 + ((hp + 1) % 4);
-		if ((dx == -1) && (dy == -1)) return 8 + ((hp + 2) % 4);
-		if ((dx ==  1) && (dy ==  1)) return hp - 8;
-		return -1;
-	} else {
-		if ((dx ==  1) && (dy ==  0)) return hp - 4;
-		if ((dx ==  0) && (dy ==  1)) return (hp + 3) % 4;
-		if ((dx == -1) && (dy ==  0)) return 8 + ((hp + 3) % 4);
-		if ((dx ==  0) && (dy == -1)) return hp + 4;
-		if ((dx ==  1) && (dy == -1)) return 4 + ((hp + 1) % 4);
-		if ((dx == -1) && (dy ==  1)) return 4 + ((hp - 1) % 4);
-		return -1;
-	}
-	return -1;
+    if (isnorthpolar(hp)) {
+        if ((dx ==  1) && (dy ==  0)) return (hp + 1) % 4;
+        if ((dx ==  0) && (dy ==  1)) return (hp + 3) % 4;
+        if ((dx ==  1) && (dy ==  1)) return (hp + 2) % 4;
+        if ((dx == -1) && (dy ==  0)) return (hp + 4);
+        if ((dx ==  0) && (dy == -1)) return 4 + ((hp + 1) % 4);
+        if ((dx == -1) && (dy == -1)) return hp + 8;
+        return -1;
+    } else if (issouthpolar(hp)) {
+        if ((dx ==  1) && (dy ==  0)) return 4 + ((hp + 1) % 4);
+        if ((dx ==  0) && (dy ==  1)) return hp - 4;
+        if ((dx == -1) && (dy ==  0)) return 8 + ((hp + 3) % 4);
+        if ((dx ==  0) && (dy == -1)) return 8 + ((hp + 1) % 4);
+        if ((dx == -1) && (dy == -1)) return 8 + ((hp + 2) % 4);
+        if ((dx ==  1) && (dy ==  1)) return hp - 8;
+        return -1;
+    } else {
+        if ((dx ==  1) && (dy ==  0)) return hp - 4;
+        if ((dx ==  0) && (dy ==  1)) return (hp + 3) % 4;
+        if ((dx == -1) && (dy ==  0)) return 8 + ((hp + 3) % 4);
+        if ((dx ==  0) && (dy == -1)) return hp + 4;
+        if ((dx ==  1) && (dy == -1)) return 4 + ((hp + 1) % 4);
+        if ((dx == -1) && (dy ==  1)) return 4 + ((hp - 1) % 4);
+        return -1;
+    }
+    return -1;
 }
 
 static void get_neighbours(hp_t hp, hp_t* neighbour, int Nside) {
-	int base;
-	int x, y;
-	int nbase;
-	int nx, ny;
+    int base;
+    int x, y;
+    int nbase;
+    int nx, ny;
 
-	base = hp.bighp;
-	x = hp.x;
-	y = hp.y;
+    base = hp.bighp;
+    x = hp.x;
+    y = hp.y;
 
-	// ( + , 0 )
-	nx = (x + 1) % Nside;
-	ny = y;
-	if (x == (Nside - 1)) {
-		nbase = healpix_get_neighbour(base, 1, 0);
-		if (isnorthpolar(base)) {
-			nx = x;
-			swap(&nx, &ny);
-		}
-	} else
-		nbase = base;
+    // ( + , 0 )
+    nx = (x + 1) % Nside;
+    ny = y;
+    if (x == (Nside - 1)) {
+        nbase = healpix_get_neighbour(base, 1, 0);
+        if (isnorthpolar(base)) {
+            nx = x;
+            swap(&nx, &ny);
+        }
+    } else
+        nbase = base;
 
-	neighbour[0].bighp = nbase;
-	neighbour[0].x = nx;
-	neighbour[0].y = ny;
+    neighbour[0].bighp = nbase;
+    neighbour[0].x = nx;
+    neighbour[0].y = ny;
 
-	// ( + , + )
-	nx = (x + 1) % Nside;
-	ny = (y + 1) % Nside;
-	if ((x == Nside - 1) && (y == Nside - 1)) {
-		if (ispolar(base))
-			nbase = healpix_get_neighbour(base, 1, 1);
-		else
-			nbase = -1;
-	} else if (x == (Nside - 1))
-		nbase = healpix_get_neighbour(base, 1, 0);
-	else if (y == (Nside - 1))
-		nbase = healpix_get_neighbour(base, 0, 1);
-	else
-		nbase = base;
+    // ( + , + )
+    nx = (x + 1) % Nside;
+    ny = (y + 1) % Nside;
+    if ((x == Nside - 1) && (y == Nside - 1)) {
+        if (ispolar(base))
+            nbase = healpix_get_neighbour(base, 1, 1);
+        else
+            nbase = -1;
+    } else if (x == (Nside - 1))
+        nbase = healpix_get_neighbour(base, 1, 0);
+    else if (y == (Nside - 1))
+        nbase = healpix_get_neighbour(base, 0, 1);
+    else
+        nbase = base;
 
-	if (isnorthpolar(base)) {
-		if (x == (Nside - 1))
-			nx = Nside - 1;
-		if (y == (Nside - 1))
-			ny = Nside - 1;
-		if ((x == (Nside - 1)) || (y == (Nside - 1)))
-			swap(&nx, &ny);
-	}
+    if (isnorthpolar(base)) {
+        if (x == (Nside - 1))
+            nx = Nside - 1;
+        if (y == (Nside - 1))
+            ny = Nside - 1;
+        if ((x == (Nside - 1)) || (y == (Nside - 1)))
+            swap(&nx, &ny);
+    }
 
-	//printf("(+ +): nbase=%i, nx=%i, ny=%i, pix=%i\n", nbase, nx, ny, nbase*Ns2+xy_to_pnprime(nx,ny,Nside));
+    //printf("(+ +): nbase=%i, nx=%i, ny=%i, pix=%i\n", nbase, nx, ny, nbase*Ns2+xy_to_pnprime(nx,ny,Nside));
 
-	neighbour[1].bighp = nbase;
-	neighbour[1].x = nx;
-	neighbour[1].y = ny;
+    neighbour[1].bighp = nbase;
+    neighbour[1].x = nx;
+    neighbour[1].y = ny;
 
-	// ( 0 , + )
-	nx = x;
-	ny = (y + 1) % Nside;
-	if (y == (Nside - 1)) {
-		nbase = healpix_get_neighbour(base, 0, 1);
-		if (isnorthpolar(base)) {
-			ny = y;
-			swap(&nx, &ny);
-		}
-	} else
-		nbase = base;
+    // ( 0 , + )
+    nx = x;
+    ny = (y + 1) % Nside;
+    if (y == (Nside - 1)) {
+        nbase = healpix_get_neighbour(base, 0, 1);
+        if (isnorthpolar(base)) {
+            ny = y;
+            swap(&nx, &ny);
+        }
+    } else
+        nbase = base;
 
-	//printf("(0 +): nbase=%i, nx=%i, ny=%i, pix=%i\n", nbase, nx, ny, nbase*Ns2+xy_to_pnprime(nx,ny,Nside));
+    //printf("(0 +): nbase=%i, nx=%i, ny=%i, pix=%i\n", nbase, nx, ny, nbase*Ns2+xy_to_pnprime(nx,ny,Nside));
 
-	neighbour[2].bighp = nbase;
-	neighbour[2].x = nx;
-	neighbour[2].y = ny;
+    neighbour[2].bighp = nbase;
+    neighbour[2].x = nx;
+    neighbour[2].y = ny;
 
-	// ( - , + )
-	nx = (x + Nside - 1) % Nside;
-	ny = (y + 1) % Nside;
-	if ((x == 0) && (y == (Nside - 1))) {
-		if (isequatorial(base))
-			nbase = healpix_get_neighbour(base, -1, 1);
-		else
-			nbase = -1;
-	} else if (x == 0) {
-		nbase = healpix_get_neighbour(base, -1, 0);
-		if (issouthpolar(base)) {
-			nx = 0;
-			swap(&nx, &ny);
-		}
-	} else if (y == (Nside - 1)) {
-		nbase = healpix_get_neighbour(base, 0, 1);
-		if (isnorthpolar(base)) {
-			ny = y;
-			swap(&nx, &ny);
-		}
-	} else
-		nbase = base;
+    // ( - , + )
+    nx = (x + Nside - 1) % Nside;
+    ny = (y + 1) % Nside;
+    if ((x == 0) && (y == (Nside - 1))) {
+        if (isequatorial(base))
+            nbase = healpix_get_neighbour(base, -1, 1);
+        else
+            nbase = -1;
+    } else if (x == 0) {
+        nbase = healpix_get_neighbour(base, -1, 0);
+        if (issouthpolar(base)) {
+            nx = 0;
+            swap(&nx, &ny);
+        }
+    } else if (y == (Nside - 1)) {
+        nbase = healpix_get_neighbour(base, 0, 1);
+        if (isnorthpolar(base)) {
+            ny = y;
+            swap(&nx, &ny);
+        }
+    } else
+        nbase = base;
 
-	//printf("(- +): nbase=%i, nx=%i, ny=%i, pix=%i\n", nbase, nx, ny, nbase*Ns2+xy_to_pnprime(nx,ny,Nside));
+    //printf("(- +): nbase=%i, nx=%i, ny=%i, pix=%i\n", nbase, nx, ny, nbase*Ns2+xy_to_pnprime(nx,ny,Nside));
 
-	neighbour[3].bighp = nbase;
-	neighbour[3].x = nx;
-	neighbour[3].y = ny;
+    neighbour[3].bighp = nbase;
+    neighbour[3].x = nx;
+    neighbour[3].y = ny;
 
-	// ( - , 0 )
-	nx = (x + Nside - 1) % Nside;
-	ny = y;
-	if (x == 0) {
-		nbase = healpix_get_neighbour(base, -1, 0);
-		if (issouthpolar(base)) {
-			nx = 0;
-			swap(&nx, &ny);
-		}
-	} else
-		nbase = base;
+    // ( - , 0 )
+    nx = (x + Nside - 1) % Nside;
+    ny = y;
+    if (x == 0) {
+        nbase = healpix_get_neighbour(base, -1, 0);
+        if (issouthpolar(base)) {
+            nx = 0;
+            swap(&nx, &ny);
+        }
+    } else
+        nbase = base;
 
-	//printf("(- 0): nbase=%i, nx=%i, ny=%i, pix=%i\n", nbase, nx, ny, nbase*Ns2+xy_to_pnprime(nx,ny,Nside));
+    //printf("(- 0): nbase=%i, nx=%i, ny=%i, pix=%i\n", nbase, nx, ny, nbase*Ns2+xy_to_pnprime(nx,ny,Nside));
 
-	neighbour[4].bighp = nbase;
-	neighbour[4].x = nx;
-	neighbour[4].y = ny;
+    neighbour[4].bighp = nbase;
+    neighbour[4].x = nx;
+    neighbour[4].y = ny;
 
-	// ( - , - )
-	nx = (x + Nside - 1) % Nside;
-	ny = (y + Nside - 1) % Nside;
-	if ((x == 0) && (y == 0)) {
-		if (ispolar(base))
-			nbase = healpix_get_neighbour(base, -1, -1);
-		else
-			nbase = -1;
-	} else if (x == 0)
-		nbase = healpix_get_neighbour(base, -1, 0);
-	else if (y == 0)
-		nbase = healpix_get_neighbour(base, 0, -1);
-	else
-		nbase = base;
+    // ( - , - )
+    nx = (x + Nside - 1) % Nside;
+    ny = (y + Nside - 1) % Nside;
+    if ((x == 0) && (y == 0)) {
+        if (ispolar(base))
+            nbase = healpix_get_neighbour(base, -1, -1);
+        else
+            nbase = -1;
+    } else if (x == 0)
+        nbase = healpix_get_neighbour(base, -1, 0);
+    else if (y == 0)
+        nbase = healpix_get_neighbour(base, 0, -1);
+    else
+        nbase = base;
 
-	if (issouthpolar(base)) {
-		if (x == 0)
-			nx = 0;
-		if (y == 0)
-			ny = 0;
-		if ((x == 0) || (y == 0))
-			swap(&nx, &ny);
-	}
+    if (issouthpolar(base)) {
+        if (x == 0)
+            nx = 0;
+        if (y == 0)
+            ny = 0;
+        if ((x == 0) || (y == 0))
+            swap(&nx, &ny);
+    }
 
-	//printf("(- -): nbase=%i, nx=%i, ny=%i, pix=%i\n", nbase, nx, ny, nbase*Ns2+xy_to_pnprime(nx,ny,Nside));
+    //printf("(- -): nbase=%i, nx=%i, ny=%i, pix=%i\n", nbase, nx, ny, nbase*Ns2+xy_to_pnprime(nx,ny,Nside));
 
-	neighbour[5].bighp = nbase;
-	neighbour[5].x = nx;
-	neighbour[5].y = ny;
+    neighbour[5].bighp = nbase;
+    neighbour[5].x = nx;
+    neighbour[5].y = ny;
 
-	// ( 0 , - )
-	ny = (y + Nside - 1) % Nside;
-	nx = x;
-	if (y == 0) {
-		nbase = healpix_get_neighbour(base, 0, -1);
-		if (issouthpolar(base)) {
-			ny = y;
-			swap(&nx, &ny);
-		}
-	} else
-		nbase = base;
+    // ( 0 , - )
+    ny = (y + Nside - 1) % Nside;
+    nx = x;
+    if (y == 0) {
+        nbase = healpix_get_neighbour(base, 0, -1);
+        if (issouthpolar(base)) {
+            ny = y;
+            swap(&nx, &ny);
+        }
+    } else
+        nbase = base;
 
-	//printf("(0 -): nbase=%i, nx=%i, ny=%i, pix=%i\n", nbase, nx, ny, nbase*Ns2+xy_to_pnprime(nx,ny,Nside));
+    //printf("(0 -): nbase=%i, nx=%i, ny=%i, pix=%i\n", nbase, nx, ny, nbase*Ns2+xy_to_pnprime(nx,ny,Nside));
 
-	neighbour[6].bighp = nbase;
-	neighbour[6].x = nx;
-	neighbour[6].y = ny;
+    neighbour[6].bighp = nbase;
+    neighbour[6].x = nx;
+    neighbour[6].y = ny;
 
-	// ( + , - )
-	nx = (x + 1) % Nside;
-	ny = (y + Nside - 1) % Nside;
-	if ((x == (Nside - 1)) && (y == 0)) {
-		if (isequatorial(base)) {
-			nbase = healpix_get_neighbour(base, 1, -1);
-		} else
-			nbase = -1;
+    // ( + , - )
+    nx = (x + 1) % Nside;
+    ny = (y + Nside - 1) % Nside;
+    if ((x == (Nside - 1)) && (y == 0)) {
+        if (isequatorial(base)) {
+            nbase = healpix_get_neighbour(base, 1, -1);
+        } else
+            nbase = -1;
 
-	} else if (x == (Nside - 1)) {
-		nbase = healpix_get_neighbour(base, 1, 0);
-		if (isnorthpolar(base)) {
-			nx = x;
-			swap(&nx, &ny);
-		}
-	} else if (y == 0) {
-		nbase = healpix_get_neighbour(base, 0, -1);
-		if (issouthpolar(base)) {
-			ny = y;
-			swap(&nx, &ny);
-		}
-	} else
-		nbase = base;
+    } else if (x == (Nside - 1)) {
+        nbase = healpix_get_neighbour(base, 1, 0);
+        if (isnorthpolar(base)) {
+            nx = x;
+            swap(&nx, &ny);
+        }
+    } else if (y == 0) {
+        nbase = healpix_get_neighbour(base, 0, -1);
+        if (issouthpolar(base)) {
+            ny = y;
+            swap(&nx, &ny);
+        }
+    } else
+        nbase = base;
 
-	//printf("(+ -): nbase=%i, nx=%i, ny=%i, pix=%i\n", nbase, nx, ny, nbase*Ns2+xy_to_pnprime(nx,ny,Nside));
+    //printf("(+ -): nbase=%i, nx=%i, ny=%i, pix=%i\n", nbase, nx, ny, nbase*Ns2+xy_to_pnprime(nx,ny,Nside));
 
-	neighbour[7].bighp = nbase;
-	neighbour[7].x = nx;
-	neighbour[7].y = ny;
+    neighbour[7].bighp = nbase;
+    neighbour[7].x = nx;
+    neighbour[7].y = ny;
 
 }
 
 void healpixl_get_neighbours(int64_t pix, int64_t* neighbour, int Nside) {
-	hp_t neigh[8];
-	hp_t hp;
-	int i;
-	intltohp(pix, &hp, Nside);
-	get_neighbours(hp, neigh, Nside);
-	for (i=0; i<8; i++)
-		if (neigh[i].bighp < 0) {
-			neighbour[i] = -1;
-		} else {
-			neighbour[i] = hptointl(neigh[i], Nside);
-		}
+    hp_t neigh[8];
+    hp_t hp;
+    int i;
+    intltohp(pix, &hp, Nside);
+    get_neighbours(hp, neigh, Nside);
+    for (i=0; i<8; i++)
+        if (neigh[i].bighp < 0) {
+            neighbour[i] = -1;
+        } else {
+            neighbour[i] = hptointl(neigh[i], Nside);
+        }
 }
 
 static hp_t xyztohp(double vx, double vy, double vz, int Nside,
-					double* p_dx, double* p_dy) {
-	double phi;
-	double twothirds = 2.0 / 3.0;
-	double pi = M_PI;
-	double twopi = 2.0 * M_PI;
-	double halfpi = 0.5 * M_PI;
+                    double* p_dx, double* p_dy) {
+    double phi;
+    double twothirds = 2.0 / 3.0;
+    double pi = M_PI;
+    double twopi = 2.0 * M_PI;
+    double halfpi = 0.5 * M_PI;
     double dx, dy;
     int basehp;
-	int x, y;
-	double sector;
-	int offset;
-	double phi_t;
-	hp_t hp;
+    int x, y;
+    double sector;
+    int offset;
+    double phi_t;
+    hp_t hp;
 
-	// only used in asserts()
-	VarUnused double EPS = 1e-8;
+    // only used in asserts()
+    VarUnused double EPS = 1e-8;
 
-	assert(Nside > 0);
+    assert(Nside > 0);
 
-	/* Convert our point into cylindrical coordinates for middle ring */
-	phi = atan2(vy, vx);
-	if (phi < 0.0)
-		phi += twopi;
-	phi_t = fmod(phi, halfpi);
-	assert (phi_t >= 0.0);
+    /* Convert our point into cylindrical coordinates for middle ring */
+    phi = atan2(vy, vx);
+    if (phi < 0.0)
+        phi += twopi;
+    phi_t = fmod(phi, halfpi);
+    assert (phi_t >= 0.0);
 
-	// North or south polar cap.
-	if ((vz >= twothirds) || (vz <= -twothirds)) {
-		double zfactor;
-		anbool north;
-		int column;
-		double root;
-		double xx, yy, kx, ky;
+    // North or south polar cap.
+    if ((vz >= twothirds) || (vz <= -twothirds)) {
+        double zfactor;
+        anbool north;
+        int column;
+        double root;
+        double xx, yy, kx, ky;
 
-		// Which pole?
-		if (vz >= twothirds) {
-			north = TRUE;
-			zfactor = 1.0;
-		} else {
-			north = FALSE;
-			zfactor = -1.0;
-		}
+        // Which pole?
+        if (vz >= twothirds) {
+            north = TRUE;
+            zfactor = 1.0;
+        } else {
+            north = FALSE;
+            zfactor = -1.0;
+        }
 
         // solve eqn 20: k = Ns - xx (in the northern hemi)
-		root = (1.0 - vz*zfactor) * 3.0 * mysquare(Nside * (2.0 * phi_t - pi) / pi);
-		kx = (root <= 0.0) ? 0.0 : sqrt(root);
+        root = (1.0 - vz*zfactor) * 3.0 * mysquare(Nside * (2.0 * phi_t - pi) / pi);
+        kx = (root <= 0.0) ? 0.0 : sqrt(root);
 
         // solve eqn 19 for k = Ns - yy
-		root = (1.0 - vz*zfactor) * 3.0 * mysquare(Nside * 2.0 * phi_t / pi);
-		ky = (root <= 0.0) ? 0.0 : sqrt(root);
+        root = (1.0 - vz*zfactor) * 3.0 * mysquare(Nside * 2.0 * phi_t / pi);
+        ky = (root <= 0.0) ? 0.0 : sqrt(root);
 
-		if (north) {
-			xx = Nside - kx;
-			yy = Nside - ky;
-		} else {
-			xx = ky;
-			yy = kx;
-		}
+        if (north) {
+            xx = Nside - kx;
+            yy = Nside - ky;
+        } else {
+            xx = ky;
+            yy = kx;
+        }
 
-		// xx, yy should be in [0, Nside].
-		x = MIN(Nside-1, floor(xx));
-		assert(x >= 0);
-		assert(x < Nside);
+        // xx, yy should be in [0, Nside].
+        x = MIN(Nside-1, floor(xx));
+        assert(x >= 0);
+        assert(x < Nside);
 
-		y = MIN(Nside-1, floor(yy));
-		assert(y >= 0);
-		assert(y < Nside);
+        y = MIN(Nside-1, floor(yy));
+        assert(y >= 0);
+        assert(y < Nside);
 
-		dx = xx - x;
-		dy = yy - y;
+        dx = xx - x;
+        dy = yy - y;
 
-		sector = (phi - phi_t) / (halfpi);
-		offset = (int)round(sector);
-		assert(fabs(sector - offset) < EPS);
-		offset = ((offset % 4) + 4) % 4;
-		assert(offset >= 0);
-		assert(offset <= 3);
-		column = offset;
+        sector = (phi - phi_t) / (halfpi);
+        offset = (int)round(sector);
+        assert(fabs(sector - offset) < EPS);
+        offset = ((offset % 4) + 4) % 4;
+        assert(offset >= 0);
+        assert(offset <= 3);
+        column = offset;
 
-		if (north)
-			basehp = column;
-		else
-			basehp = 8 + column;
+        if (north)
+            basehp = column;
+        else
+            basehp = 8 + column;
 
-	} else {
-		// could be polar or equatorial.
-		double sector;
-		int offset;
-		double u1, u2;
-		double zunits, phiunits;
+    } else {
+        // could be polar or equatorial.
+        double sector;
+        int offset;
+        double u1, u2;
+        double zunits, phiunits;
         double xx, yy;
 
-		// project into the unit square z=[-2/3, 2/3], phi=[0, pi/2]
-		zunits = (vz + twothirds) / (4.0 / 3.0);
-		phiunits = phi_t / halfpi;
-		// convert into diagonal units
-		// (add 1 to u2 so that they both cover the range [0,2].
-		u1 = zunits + phiunits;
-		u2 = zunits - phiunits + 1.0;
-		assert(u1 >= 0.);
-		assert(u1 <= 2.);
-		assert(u2 >= 0.);
-		assert(u2 <= 2.);
-		// x is the northeast direction, y is the northwest.
+        // project into the unit square z=[-2/3, 2/3], phi=[0, pi/2]
+        zunits = (vz + twothirds) / (4.0 / 3.0);
+        phiunits = phi_t / halfpi;
+        // convert into diagonal units
+        // (add 1 to u2 so that they both cover the range [0,2].
+        u1 = zunits + phiunits;
+        u2 = zunits - phiunits + 1.0;
+        assert(u1 >= 0.);
+        assert(u1 <= 2.);
+        assert(u2 >= 0.);
+        assert(u2 <= 2.);
+        // x is the northeast direction, y is the northwest.
         xx = u1 * Nside;
         yy = u2 * Nside;
 
-		// now compute which big healpix it's in.
-		// (note that we subtract off the modded portion used to
-		// compute the position within the healpix, so this should be
-		// very close to one of the boundaries.)
-		sector = (phi - phi_t) / (halfpi);
-		offset = (int)round(sector);
-		assert(fabs(sector - offset) < EPS);
-		offset = ((offset % 4) + 4) % 4;
-		assert(offset >= 0);
-		assert(offset <= 3);
+        // now compute which big healpix it's in.
+        // (note that we subtract off the modded portion used to
+        // compute the position within the healpix, so this should be
+        // very close to one of the boundaries.)
+        sector = (phi - phi_t) / (halfpi);
+        offset = (int)round(sector);
+        assert(fabs(sector - offset) < EPS);
+        offset = ((offset % 4) + 4) % 4;
+        assert(offset >= 0);
+        assert(offset <= 3);
 
-		// we're looking at a square in z,phi space with an X dividing it.
-		// we want to know which section we're in.
-		// xx ranges from 0 in the bottom-left to 2Nside in the top-right.
-		// yy ranges from 0 in the bottom-right to 2Nside in the top-left.
-		// (of the phi,z unit box)
-		if (xx >= Nside) {
-			xx -= Nside;
-			if (yy >= Nside) {
-				// north polar.
-				yy -= Nside;
-				basehp = offset;
-			} else {
-				// right equatorial.
-				basehp = ((offset + 1) % 4) + 4;
-			}
-		} else {
-			if (yy >= Nside) {
-				// left equatorial.
-				yy -= Nside;
-				basehp = offset + 4;
-			} else {
-				// south polar.
-				basehp = 8 + offset;
-			}
-		}
+        // we're looking at a square in z,phi space with an X dividing it.
+        // we want to know which section we're in.
+        // xx ranges from 0 in the bottom-left to 2Nside in the top-right.
+        // yy ranges from 0 in the bottom-right to 2Nside in the top-left.
+        // (of the phi,z unit box)
+        if (xx >= Nside) {
+            xx -= Nside;
+            if (yy >= Nside) {
+                // north polar.
+                yy -= Nside;
+                basehp = offset;
+            } else {
+                // right equatorial.
+                basehp = ((offset + 1) % 4) + 4;
+            }
+        } else {
+            if (yy >= Nside) {
+                // left equatorial.
+                yy -= Nside;
+                basehp = offset + 4;
+            } else {
+                // south polar.
+                basehp = 8 + offset;
+            }
+        }
 
-		assert(xx >= -EPS);
-		assert(xx < (Nside+EPS));
-		x = MAX(0, MIN(Nside-1, floor(xx)));
-		assert(x >= 0);
-		assert(x < Nside);
-		dx = xx - x;
+        assert(xx >= -EPS);
+        assert(xx < (Nside+EPS));
+        x = MAX(0, MIN(Nside-1, floor(xx)));
+        assert(x >= 0);
+        assert(x < Nside);
+        dx = xx - x;
 
-		assert(yy >= -EPS);
-		assert(yy < (Nside+EPS));
-		y = MAX(0, MIN(Nside-1, floor(yy)));
-		assert(y >= 0);
-		assert(y < Nside);
-		dy = yy - y;
-	}
+        assert(yy >= -EPS);
+        assert(yy < (Nside+EPS));
+        y = MAX(0, MIN(Nside-1, floor(yy)));
+        assert(y >= 0);
+        assert(y < Nside);
+        dy = yy - y;
+    }
 
     hp.bighp = basehp;
-	hp.x = x;
-	hp.y = y;
+    hp.x = x;
+    hp.y = y;
 
     if (p_dx) *p_dx = dx;
     if (p_dy) *p_dy = dy;
@@ -889,9 +889,9 @@ int64_t xyztohealpixl(double x, double y, double z, int Nside) {
 }
 
 int64_t xyztohealpixlf(double x, double y, double z, int Nside,
-					   double* p_dx, double* p_dy) {
-	hp_t hp = xyztohp(x,y,z, Nside, p_dx,p_dy);
-	return hptointl(hp, Nside);
+                       double* p_dx, double* p_dy) {
+    hp_t hp = xyztohp(x,y,z, Nside, p_dx,p_dy);
+    return hptointl(hp, Nside);
 }
 
 int64_t radec_to_healpixl(double ra, double dec, int Nside) {
@@ -903,179 +903,179 @@ int64_t radec_to_healpixlf(double ra, double dec, int Nside, double* dx, double*
 }
 
 Const int64_t radecdegtohealpixl(double ra, double dec, int Nside) {
-	return radec_to_healpixl(deg2rad(ra), deg2rad(dec), Nside);
+    return radec_to_healpixl(deg2rad(ra), deg2rad(dec), Nside);
 }
 
 int64_t radecdegtohealpixlf(double ra, double dec, int Nside, double* dx, double* dy) {
-	return radec_to_healpixlf(deg2rad(ra), deg2rad(dec), Nside, dx, dy);
+    return radec_to_healpixlf(deg2rad(ra), deg2rad(dec), Nside, dx, dy);
 }
 
 int64_t xyzarrtohealpixl(const double* xyz, int Nside) {
-	return xyztohealpixl(xyz[0], xyz[1], xyz[2], Nside);
+    return xyztohealpixl(xyz[0], xyz[1], xyz[2], Nside);
 }
 
 int64_t xyzarrtohealpixlf(const double* xyz, int Nside, double* dx, double* dy) {
-	return xyztohealpixlf(xyz[0], xyz[1], xyz[2], Nside, dx, dy);
+    return xyztohealpixlf(xyz[0], xyz[1], xyz[2], Nside, dx, dy);
 }
 
 static void hp_to_xyz(hp_t* hp, int Nside,
-					  double dx, double dy,
-					  double* rx, double *ry, double *rz) {
-	int chp;
-	anbool equatorial = TRUE;
-	double zfactor = 1.0;
-	int xp, yp;
-	double x, y, z;
-	double pi = M_PI, phi;
-	double rad;
+                      double dx, double dy,
+                      double* rx, double *ry, double *rz) {
+    int chp;
+    anbool equatorial = TRUE;
+    double zfactor = 1.0;
+    int xp, yp;
+    double x, y, z;
+    double pi = M_PI, phi;
+    double rad;
 
-	hp_decompose(hp, &chp, &xp, &yp);
+    hp_decompose(hp, &chp, &xp, &yp);
 
-	// this is x,y position in the healpix reference frame
-	x = xp + dx;
-	y = yp + dy;
+    // this is x,y position in the healpix reference frame
+    x = xp + dx;
+    y = yp + dy;
 
-	if (isnorthpolar(chp)) {
-		if ((x + y) > Nside) {
-			equatorial = FALSE;
-			zfactor = 1.0;
-		}
-	}
-	if (issouthpolar(chp)) {
-		if ((x + y) < Nside) {
-			equatorial = FALSE;
-			zfactor = -1.0;
-		}
-	}
+    if (isnorthpolar(chp)) {
+        if ((x + y) > Nside) {
+            equatorial = FALSE;
+            zfactor = 1.0;
+        }
+    }
+    if (issouthpolar(chp)) {
+        if ((x + y) < Nside) {
+            equatorial = FALSE;
+            zfactor = -1.0;
+        }
+    }
 
-	if (equatorial) {
-		double zoff=0;
-		double phioff=0;
-		x /= (double)Nside;
-		y /= (double)Nside;
+    if (equatorial) {
+        double zoff=0;
+        double phioff=0;
+        x /= (double)Nside;
+        y /= (double)Nside;
 
-		if (chp <= 3) {
-			// north
-			phioff = 1.0;
-		} else if (chp <= 7) {
-			// equator
-			zoff = -1.0;
-			chp -= 4;
-		} else if (chp <= 11) {
-			// south
-			phioff = 1.0;
-			zoff = -2.0;
-			chp -= 8;
-		} else {
-			// should never get here
-			assert(0);
-		}
+        if (chp <= 3) {
+            // north
+            phioff = 1.0;
+        } else if (chp <= 7) {
+            // equator
+            zoff = -1.0;
+            chp -= 4;
+        } else if (chp <= 11) {
+            // south
+            phioff = 1.0;
+            zoff = -2.0;
+            chp -= 8;
+        } else {
+            // should never get here
+            assert(0);
+        }
 
-		z = 2.0/3.0*(x + y + zoff);
-		phi = pi/4*(x - y + phioff + 2*chp);
+        z = 2.0/3.0*(x + y + zoff);
+        phi = pi/4*(x - y + phioff + 2*chp);
 
-	} else {
-		/*
-		 Rearrange eqns (19) and (20) to find phi_t in terms of x,y.
+    } else {
+        /*
+         Rearrange eqns (19) and (20) to find phi_t in terms of x,y.
 
-		 y = Ns - k in eq(19)
-		 x - Ns - k in eq(20)
+         y = Ns - k in eq(19)
+         x - Ns - k in eq(20)
 
-		 (Ns - y)^2 / (Ns - x)^2 = (2 phi_t)^2 / (2 phi_t - pi)^2
+         (Ns - y)^2 / (Ns - x)^2 = (2 phi_t)^2 / (2 phi_t - pi)^2
 
-		 Recall than y<=Ns, x<=Ns and 0<=phi_t<pi/2, so we can choose the
-		 root we want by taking square roots:
+         Recall than y<=Ns, x<=Ns and 0<=phi_t<pi/2, so we can choose the
+         root we want by taking square roots:
 
-		 (Ns - y) (pi - 2 phi_t) = 2 phi_t (Ns - x)
-		 (Ns - y) pi = 2 phi_t (Ns - x + Ns - y)
-		 phi_t = pi (Ns-y) / (2 (Ns - x) + (Ns - y))
-		 */
-		double phi_t;
+         (Ns - y) (pi - 2 phi_t) = 2 phi_t (Ns - x)
+         (Ns - y) pi = 2 phi_t (Ns - x + Ns - y)
+         phi_t = pi (Ns-y) / (2 (Ns - x) + (Ns - y))
+         */
+        double phi_t;
 
-		if (zfactor == -1.0) {
-			swap_double(&x, &y);
-			x = (Nside - x);
-			y = (Nside - y);
-		}
+        if (zfactor == -1.0) {
+            swap_double(&x, &y);
+            x = (Nside - x);
+            y = (Nside - y);
+        }
 
-		if (y == Nside && x == Nside)
-			phi_t = 0.0;
-		else
-			phi_t = pi * (Nside-y) / (2.0 * ((Nside-x) + (Nside-y)));
+        if (y == Nside && x == Nside)
+            phi_t = 0.0;
+        else
+            phi_t = pi * (Nside-y) / (2.0 * ((Nside-x) + (Nside-y)));
 
-		if (phi_t < pi/4.) {
-			z = 1.0 - mysquare(pi * (Nside - x) / ((2.0 * phi_t - pi) * Nside)) / 3.0;
-		} else {
-			z = 1.0 - mysquare(pi * (Nside - y) / (2.0 * phi_t * Nside)) / 3.0;
-		}
-		assert(0.0 <= fabs(z) && fabs(z) <= 1.0);
-		z *= zfactor;
-		assert(0.0 <= fabs(z) && fabs(z) <= 1.0);
+        if (phi_t < pi/4.) {
+            z = 1.0 - mysquare(pi * (Nside - x) / ((2.0 * phi_t - pi) * Nside)) / 3.0;
+        } else {
+            z = 1.0 - mysquare(pi * (Nside - y) / (2.0 * phi_t * Nside)) / 3.0;
+        }
+        assert(0.0 <= fabs(z) && fabs(z) <= 1.0);
+        z *= zfactor;
+        assert(0.0 <= fabs(z) && fabs(z) <= 1.0);
 
-		// The big healpix determines the phi offset
-		if (issouthpolar(chp))
-			phi = pi/2.0* (chp-8) + phi_t;
-		else
-			phi = pi/2.0 * chp + phi_t;
-	}
+        // The big healpix determines the phi offset
+        if (issouthpolar(chp))
+            phi = pi/2.0* (chp-8) + phi_t;
+        else
+            phi = pi/2.0 * chp + phi_t;
+    }
 
-	if (phi < 0.0)
-		phi += 2*pi;
+    if (phi < 0.0)
+        phi += 2*pi;
 
-	rad = sqrt(1.0 - z*z);
-	*rx = rad * cos(phi);
-	*ry = rad * sin(phi);
-	*rz = z;
+    rad = sqrt(1.0 - z*z);
+    *rx = rad * cos(phi);
+    *ry = rad * sin(phi);
+    *rz = z;
 }
 
 void healpixl_to_xyz(int64_t ihp, int Nside,
-					double dx, double dy,
-					double* px, double *py, double *pz) {
-	hp_t hp;
-	intltohp(ihp, &hp, Nside);
-	hp_to_xyz(&hp, Nside, dx, dy, px, py, pz);
+                     double dx, double dy,
+                     double* px, double *py, double *pz) {
+    hp_t hp;
+    intltohp(ihp, &hp, Nside);
+    hp_to_xyz(&hp, Nside, dx, dy, px, py, pz);
 }
 
 void healpixl_to_xyzarr(int64_t ihp, int Nside,
-					   double dx, double dy,
-					   double* xyz) {
-	hp_t hp;
-	intltohp(ihp, &hp, Nside);
-	hp_to_xyz(&hp, Nside, dx, dy, xyz, xyz+1, xyz+2);
+                        double dx, double dy,
+                        double* xyz) {
+    hp_t hp;
+    intltohp(ihp, &hp, Nside);
+    hp_to_xyz(&hp, Nside, dx, dy, xyz, xyz+1, xyz+2);
 }
 
 void healpixl_to_radec(int64_t ihp, int Nside, double dx, double dy,
-											double* ra, double* dec) {
-	hp_t hp;
-	double xyz[3];
-	intltohp(ihp, &hp, Nside);
-	hp_to_xyz(&hp, Nside, dx, dy, xyz, xyz+1, xyz+2);
-	xyzarr2radec(xyz, ra, dec);
+                       double* ra, double* dec) {
+    hp_t hp;
+    double xyz[3];
+    intltohp(ihp, &hp, Nside);
+    hp_to_xyz(&hp, Nside, dx, dy, xyz, xyz+1, xyz+2);
+    xyzarr2radec(xyz, ra, dec);
 }
 
 void healpixl_to_radecdeg(int64_t ihp, int Nside, double dx, double dy,
-						  double* ra, double* dec) {
-	hp_t hp;
-	double xyz[3];
-	intltohp(ihp, &hp, Nside);
-	hp_to_xyz(&hp, Nside, dx, dy, xyz, xyz+1, xyz+2);
-	xyzarr2radecdeg(xyz, ra, dec);
+                          double* ra, double* dec) {
+    hp_t hp;
+    double xyz[3];
+    intltohp(ihp, &hp, Nside);
+    hp_to_xyz(&hp, Nside, dx, dy, xyz, xyz+1, xyz+2);
+    xyzarr2radecdeg(xyz, ra, dec);
 }
 
 void healpixl_to_radecarr(int64_t hp, int Nside,
-						 double dx, double dy,
-						 double* radec) {
-	double xyz[3];
-	healpixl_to_xyzarr(hp, Nside, dx, dy, xyz);
-	xyzarr2radec(xyz, radec, radec+1);
+                          double dx, double dy,
+                          double* radec) {
+    double xyz[3];
+    healpixl_to_xyzarr(hp, Nside, dx, dy, xyz);
+    xyzarr2radec(xyz, radec, radec+1);
 }
 
 void healpixl_to_radecdegarr(int64_t hp, int Nside,
-                            double dx, double dy,
-                            double* radec) {
-	double xyz[3];
-	healpixl_to_xyzarr(hp, Nside, dx, dy, xyz);
-	xyzarr2radecdeg(xyz, radec, radec+1);
+                             double dx, double dy,
+                             double* radec) {
+    double xyz[3];
+    healpixl_to_xyzarr(hp, Nside, dx, dy, xyz);
+    xyzarr2radecdeg(xyz, radec, radec+1);
 }
 
 struct neighbour_dirn {
@@ -1084,33 +1084,33 @@ struct neighbour_dirn {
 };
 
 int healpix_get_neighbours_within_range_radec(double ra, double dec, double radius,
-											  int64_t* healpixes, int Nside) {
-	double xyz[3];
-	double r;
-	radecdeg2xyzarr(ra, dec, xyz);
-	r = deg2dist(radius);
-	return healpix_get_neighbours_within_range(xyz, r, healpixes, Nside);
+                                              int64_t* healpixes, int Nside) {
+    double xyz[3];
+    double r;
+    radecdeg2xyzarr(ra, dec, xyz);
+    r = deg2dist(radius);
+    return healpix_get_neighbours_within_range(xyz, r, healpixes, Nside);
 }
 
 int healpix_get_neighbours_within_range(double* xyz, double range, int64_t* out_healpixes,
-										int Nside) {
-	int64_t hp;
-	int i,j;
-	double fx, fy;
-	int nhp = 0;
+                                        int Nside) {
+    int64_t hp;
+    int i,j;
+    double fx, fy;
+    int nhp = 0;
 
     // HACK -- temp array to avoid cleverly avoiding duplicates
     int64_t healpixes[100];
 
-	//assert(Nside > 0);
-	if (Nside <= 0) {
-		printf("healpix_get_neighbours_within_range: Nside must be > 0.\n");
-		return -1;
-	}
+    //assert(Nside > 0);
+    if (Nside <= 0) {
+        printf("healpix_get_neighbours_within_range: Nside must be > 0.\n");
+        return -1;
+    }
 
-	hp = xyzarrtohealpixlf(xyz, Nside, &fx, &fy);
-	healpixes[nhp] = hp;
-	nhp++;
+    hp = xyzarrtohealpixlf(xyz, Nside, &fx, &fy);
+    healpixes[nhp] = hp;
+    nhp++;
 
     {
         struct neighbour_dirn dirs[] = {
@@ -1205,164 +1205,164 @@ int healpix_get_neighbours_within_range(double* xyz, double range, int64_t* out_
         }
     }
 
-	// Remove duplicates...
-	for (i=0; i<nhp; i++) {
-		for (j=i+1;  j<nhp; j++) {
-			if (healpixes[i] == healpixes[j]) {
-				int k;
-				for (k=j+1; k<nhp; k++)
-					healpixes[k-1] = healpixes[k];
-				nhp--;
-				i=-1;
-				break;
-			}
-		}
-	}
+    // Remove duplicates...
+    for (i=0; i<nhp; i++) {
+        for (j=i+1;  j<nhp; j++) {
+            if (healpixes[i] == healpixes[j]) {
+                int k;
+                for (k=j+1; k<nhp; k++)
+                    healpixes[k-1] = healpixes[k];
+                nhp--;
+                i=-1;
+                break;
+            }
+        }
+    }
 
-	for (i=0; i<nhp; i++)
+    for (i=0; i<nhp; i++)
         out_healpixes[i] = healpixes[i];
 
-	return nhp;
+    return nhp;
 }
 
 double healpix_distance_to_xyz(int64_t hp, int Nside, const double* xyz,
-							   double* closestxyz) {
-	int64_t thehp;
-	// corners
-	double cdx[4], cdy[4];
-	double cdists[4];
-	int corder[4];
-	int i;
-	double dxA,dxB,dyA,dyB;
-	double dxmid, dymid;
-	double dist2A, dist2B;
-	double midxyz[3];
-	double dist2mid = 0.0;
+                               double* closestxyz) {
+    int64_t thehp;
+    // corners
+    double cdx[4], cdy[4];
+    double cdists[4];
+    int corder[4];
+    int i;
+    double dxA,dxB,dyA,dyB;
+    double dxmid, dymid;
+    double dist2A, dist2B;
+    double midxyz[3];
+    double dist2mid = 0.0;
 
-	double EPS = 1e-16;
+    double EPS = 1e-16;
 
-	// If the point is actually inside the healpix, dist = 0.
-	thehp = xyzarrtohealpixl(xyz, Nside);
-	if (thehp == hp) {
-		if (closestxyz)
-			memcpy(closestxyz, xyz, 3*sizeof(double));
-		return 0;
-	}
+    // If the point is actually inside the healpix, dist = 0.
+    thehp = xyzarrtohealpixl(xyz, Nside);
+    if (thehp == hp) {
+        if (closestxyz)
+            memcpy(closestxyz, xyz, 3*sizeof(double));
+        return 0;
+    }
 
-	// Find two nearest corners.
-	for (i=0; i<4; i++) {
-		double cxyz[3];
-		cdx[i] = i/2;
-		cdy[i] = i%2;
-		healpixl_to_xyzarr(hp, Nside, cdx[i], cdy[i], cxyz);
-		cdists[i] = distsq(xyz, cxyz, 3);
-	}
-	permutation_init(corder, 4);
-	permuted_sort(cdists, sizeof(double), compare_doubles_asc, corder, 4);
-	// now "corder" [0] and [1] are the indices of the two nearest corners.
+    // Find two nearest corners.
+    for (i=0; i<4; i++) {
+        double cxyz[3];
+        cdx[i] = i/2;
+        cdy[i] = i%2;
+        healpixl_to_xyzarr(hp, Nside, cdx[i], cdy[i], cxyz);
+        cdists[i] = distsq(xyz, cxyz, 3);
+    }
+    permutation_init(corder, 4);
+    permuted_sort(cdists, sizeof(double), compare_doubles_asc, corder, 4);
+    // now "corder" [0] and [1] are the indices of the two nearest corners.
 
-	// Binary search for closest dx,dy.
-	dxA = cdx[corder[0]];
-	dyA = cdy[corder[0]];
-	dist2A = cdists[corder[0]];
-	dxB = cdx[corder[1]];
-	dyB = cdy[corder[1]];
-	dist2B = cdists[corder[1]];
-	// the closest two points should share an edge... unless we're in some
-	// weird configuration like the opposite side of the sphere.
-	if (!((dxA == dxB) || (dyA == dyB))) {
-		// weird configuration -- return the closest corner.
-		if (closestxyz)
-			healpixl_to_xyzarr(hp, Nside, cdx[corder[0]], cdy[corder[0]], closestxyz);
-		return distsq2deg(cdists[corder[0]]);
-	}
-	assert(dxA == dxB || dyA == dyB);
-	assert(dist2A <= dist2B);
+    // Binary search for closest dx,dy.
+    dxA = cdx[corder[0]];
+    dyA = cdy[corder[0]];
+    dist2A = cdists[corder[0]];
+    dxB = cdx[corder[1]];
+    dyB = cdy[corder[1]];
+    dist2B = cdists[corder[1]];
+    // the closest two points should share an edge... unless we're in some
+    // weird configuration like the opposite side of the sphere.
+    if (!((dxA == dxB) || (dyA == dyB))) {
+        // weird configuration -- return the closest corner.
+        if (closestxyz)
+            healpixl_to_xyzarr(hp, Nside, cdx[corder[0]], cdy[corder[0]], closestxyz);
+        return distsq2deg(cdists[corder[0]]);
+    }
+    assert(dxA == dxB || dyA == dyB);
+    assert(dist2A <= dist2B);
 
-	while (1) {
-		dxmid = (dxA + dxB) / 2.0;
-		dymid = (dyA + dyB) / 2.0;
-		// converged to EPS?
-		if ((dxA != dxB && (fabs(dxmid - dxA) < EPS || fabs(dxmid - dxB) < EPS)) ||
-			(dyA != dyB && (fabs(dymid - dyA) < EPS || fabs(dymid - dyB) < EPS)))
-			break;
-		healpixl_to_xyzarr(hp, Nside, dxmid, dymid, midxyz);
-		dist2mid = distsq(xyz, midxyz, 3);
-		//printf("  dx,dy (%g,%g) %g  (%g,%g) %g  (%g,%g) %g\n", dxA, dyA, dist2A, dxmid, dymid, dist2mid, dxB, dyB, dist2B);
-		if ((dist2mid >= dist2A) && (dist2mid >= dist2B))
-			break;
-		if (dist2A < dist2B) {
-			dist2B = dist2mid;
-			dxB = dxmid;
-			dyB = dymid;
-		} else {
-			dist2A = dist2mid;
-			dxA = dxmid;
-			dyA = dymid;
-		}
-	}
+    while (1) {
+        dxmid = (dxA + dxB) / 2.0;
+        dymid = (dyA + dyB) / 2.0;
+        // converged to EPS?
+        if ((dxA != dxB && (fabs(dxmid - dxA) < EPS || fabs(dxmid - dxB) < EPS)) ||
+            (dyA != dyB && (fabs(dymid - dyA) < EPS || fabs(dymid - dyB) < EPS)))
+            break;
+        healpixl_to_xyzarr(hp, Nside, dxmid, dymid, midxyz);
+        dist2mid = distsq(xyz, midxyz, 3);
+        //printf("  dx,dy (%g,%g) %g  (%g,%g) %g  (%g,%g) %g\n", dxA, dyA, dist2A, dxmid, dymid, dist2mid, dxB, dyB, dist2B);
+        if ((dist2mid >= dist2A) && (dist2mid >= dist2B))
+            break;
+        if (dist2A < dist2B) {
+            dist2B = dist2mid;
+            dxB = dxmid;
+            dyB = dymid;
+        } else {
+            dist2A = dist2mid;
+            dxA = dxmid;
+            dyA = dymid;
+        }
+    }
 
-	// Check whether endpoint A is actually closer.
-	dist2A = cdists[corder[0]];
-	if (dist2A < dist2mid) {
-		dxA = cdx[corder[0]];
-		dyA = cdy[corder[0]];
-		healpixl_to_xyzarr(hp, Nside, dxA, dyA, midxyz);
-		dist2mid = dist2A;
-	}
+    // Check whether endpoint A is actually closer.
+    dist2A = cdists[corder[0]];
+    if (dist2A < dist2mid) {
+        dxA = cdx[corder[0]];
+        dyA = cdy[corder[0]];
+        healpixl_to_xyzarr(hp, Nside, dxA, dyA, midxyz);
+        dist2mid = dist2A;
+    }
 
-	if (closestxyz)
-		memcpy(closestxyz, midxyz, 3*sizeof(double));
-	return distsq2deg(dist2mid);
+    if (closestxyz)
+        memcpy(closestxyz, midxyz, 3*sizeof(double));
+    return distsq2deg(dist2mid);
 }
 
 double healpix_distance_to_radec(int64_t hp, int Nside, double ra, double dec,
-								 double* closestradec) {
-	double xyz[3];
-	double closestxyz[3];
-	double dist;
-	radecdeg2xyzarr(ra, dec, xyz);
-	dist = healpix_distance_to_xyz(hp, Nside, xyz, closestxyz);
-	if (closestradec)
-		xyzarr2radecdegarr(closestxyz, closestradec);
-	return dist;
+                                 double* closestradec) {
+    double xyz[3];
+    double closestxyz[3];
+    double dist;
+    radecdeg2xyzarr(ra, dec, xyz);
+    dist = healpix_distance_to_xyz(hp, Nside, xyz, closestxyz);
+    if (closestradec)
+        xyzarr2radecdegarr(closestxyz, closestradec);
+    return dist;
 }
 
 int healpix_within_range_of_radec(int64_t hp, int Nside, double ra, double dec,
-								  double radius) {
-	// This is the dumb trivial implementation...
-	return (healpix_distance_to_radec(hp, Nside, ra, dec, NULL) <= radius);
+                                  double radius) {
+    // This is the dumb trivial implementation...
+    return (healpix_distance_to_radec(hp, Nside, ra, dec, NULL) <= radius);
 }
 int healpix_within_range_of_xyz(int64_t hp, int Nside, const double* xyz,
-								double radius) {
-	return (healpix_distance_to_xyz(hp, Nside, xyz, NULL) <= radius);
+                                double radius) {
+    return (healpix_distance_to_xyz(hp, Nside, xyz, NULL) <= radius);
 }
 int healpixl_within_range_of_xyz(int64_t hp, int Nside, const double* xyz,
-								double radius) {
-	return (healpix_distance_to_xyz(hp, Nside, xyz, NULL) <= radius);
+                                 double radius) {
+    return (healpix_distance_to_xyz(hp, Nside, xyz, NULL) <= radius);
 }
 
 void healpix_radec_bounds(int64_t hp, int nside,
-						  double* p_ralo, double* p_rahi,
-						  double* p_declo, double* p_dechi) {
-	// corners!
-	double ralo,rahi,declo,dechi;
-	double ra,dec;
-	double dx, dy;
-	ralo = declo =  HUGE_VAL;
-	rahi = dechi = -HUGE_VAL;
-	for (dy=0; dy<2; dy+=1.0) {
-		for (dx=0; dx<2; dx+=1.0) {
-			healpixl_to_radecdeg(hp, nside, dx, dy, &ra, &dec);
-			// FIXME -- wrap-around.
-			ralo = MIN(ra, ralo);
-			rahi = MAX(ra, rahi);
-			declo = MIN(dec, declo);
-			dechi = MAX(dec, dechi);
-		}
-	}
-	if (p_ralo) *p_ralo = ralo;
-	if (p_rahi) *p_rahi = rahi;
-	if (p_declo) *p_declo = declo;
-	if (p_dechi) *p_dechi = dechi;
+                          double* p_ralo, double* p_rahi,
+                          double* p_declo, double* p_dechi) {
+    // corners!
+    double ralo,rahi,declo,dechi;
+    double ra,dec;
+    double dx, dy;
+    ralo = declo =  HUGE_VAL;
+    rahi = dechi = -HUGE_VAL;
+    for (dy=0; dy<2; dy+=1.0) {
+        for (dx=0; dx<2; dx+=1.0) {
+            healpixl_to_radecdeg(hp, nside, dx, dy, &ra, &dec);
+            // FIXME -- wrap-around.
+            ralo = MIN(ra, ralo);
+            rahi = MAX(ra, rahi);
+            declo = MIN(dec, declo);
+            dechi = MAX(dec, dechi);
+        }
+    }
+    if (p_ralo) *p_ralo = ralo;
+    if (p_rahi) *p_rahi = rahi;
+    if (p_declo) *p_declo = declo;
+    if (p_dechi) *p_dechi = dechi;
 }

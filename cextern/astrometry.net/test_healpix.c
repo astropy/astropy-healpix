@@ -8,7 +8,7 @@
 #include <assert.h>
 
 #include "os-features.h"
-#include "cutest.h"
+#include "CuTest.h"
 #include "starutil.h"
 #include "healpix.h"
 #include "bl.h"
@@ -84,9 +84,9 @@ static void hpmap(int nside, const char* fn) {
 #endif
   double xyz[3];
   double range;
-  int hps[9];
+  int64_t hps[9];
   int i;
-  int hp;
+  int64_t hp;
   double dx, dy;
 
   // pick a point on the edge.
@@ -172,19 +172,19 @@ int tst_xyztohpf(CuTest* ct,
   int outhp;
   double outx,outy,outz;
   double dist;
-  healpix_to_xyz(hp, nside, dx, dy, &x, &y, &z);
-  outhp = xyztohealpixf(x, y, z, nside, &outdx, &outdy);
-  healpix_to_xyz(outhp, nside, outdx, outdy, &outx, &outy, &outz);
+  healpixl_to_xyz(hp, nside, dx, dy, &x, &y, &z);
+  outhp = xyztohealpixlf(x, y, z, nside, &outdx, &outdy);
+  healpixl_to_xyz(outhp, nside, outdx, outdy, &outx, &outy, &outz);
   dist = sqrt(MAX(0, square(x-outx) + square(y-outy) + square(z-outz)));
   printf("true/computed:\n"
-	 "hp: %i / %i\n"
+	 "hp: %d / %d\n"
 	 "dx: %.20g / %.20g\n"
 	 "dy: %.20g / %.20g\n"
 	 "x:  %g / %g\n"
 	 "y:  %g / %g\n"
 	 "z:  %g / %g\n"
 	 "dist: %g\n\n",
-	 hp, outhp, dx, outdx, dy, outdy,
+	 (int)hp, (int)outhp, dx, outdx, dy, outdy,
 	 x, outx, y, outy, z, outz, dist);
 
   if (dist > 1e-6) {
@@ -227,7 +227,7 @@ void tEst_xyztohpf(CuTest* ct) {
       fprintf(stderr, "xp=[]\n");
       fprintf(stderr, "yp=[]\n");
       for (dy=0.0; dy<=1.05; dy+=step) {
-	healpix_to_xyz(hp, nside, dx, dy, &x, &y, &z);
+	healpixl_to_xyz(hp, nside, dx, dy, &x, &y, &z);
 	a = xy2ra(x,y) / (2.0 * M_PI);
 	b = z2dec(z) / (M_PI);
 	fprintf(stderr, "xp.append(%g)\n", a);
@@ -239,7 +239,7 @@ void tEst_xyztohpf(CuTest* ct) {
       fprintf(stderr, "xp=[]\n");
       fprintf(stderr, "yp=[]\n");
       for (dx=0.0; dx<=1.0; dx+=step) {
-	healpix_to_xyz(hp, nside, dx, dy, &x, &y, &z);
+	healpixl_to_xyz(hp, nside, dx, dy, &x, &y, &z);
 	a = xy2ra(x,y) / (2.0 * M_PI);
 	b = z2dec(z) / (M_PI);
 	fprintf(stderr, "xp.append(%g)\n", a);
@@ -271,7 +271,7 @@ static void tst_neighbours(CuTest* ct, int pix, int* true_neigh, int true_nn,
   int i;
   for (i=0; i<8; i++)
     neigh[i] = -1;
-  nn = healpix_get_neighbours(pix, neigh, Nside);
+  healpixl_get_neighbours(pix, neigh, Nside);
   /*
     printf("true(%i) : [ ", pix);
     for (i=0; i<true_nn; i++)
@@ -282,7 +282,6 @@ static void tst_neighbours(CuTest* ct, int pix, int* true_neigh, int true_nn,
     printf("%u, ", neigh[i]);
     printf("]\n");
   */
-  CuAssertIntEquals(ct, nn, true_nn);
 
   for (i=0; i<true_nn; i++)
     CuAssertIntEquals(ct, true_neigh[i], neigh[i]);
@@ -303,11 +302,11 @@ static void tst_nested(CuTest* ct, int pix, int* true_neigh, int true_nn,
 
   CuAssert(ct, "true_nn <= 8", true_nn <= 8);
   for (i=0; i<true_nn; i++) {
-    truexy[i] = healpix_nested_to_xy(true_neigh[i], Nside);
-    CuAssertIntEquals(ct, true_neigh[i], healpix_xy_to_nested(truexy[i], Nside));
+    truexy[i] = healpixl_nested_to_xy(true_neigh[i], Nside);
+    CuAssertIntEquals(ct, true_neigh[i], healpixl_xy_to_nested(truexy[i], Nside));
   }
-  xypix = healpix_nested_to_xy(pix, Nside);
-  CuAssertIntEquals(ct, pix, healpix_xy_to_nested(xypix, Nside));
+  xypix = healpixl_nested_to_xy(pix, Nside);
+  CuAssertIntEquals(ct, pix, healpixl_xy_to_nested(xypix, Nside));
 
   tst_neighbours(ct, xypix, truexy, true_nn, Nside);
 }
@@ -315,7 +314,6 @@ static void tst_nested(CuTest* ct, int pix, int* true_neigh, int true_nn,
 void print_node(double z, double phi, int Nside) {
   double ra, dec;
   int hp;
-  int nn;
   int neigh[8];
   int k;
 
@@ -329,12 +327,12 @@ void print_node(double z, double phi, int Nside) {
     ra -= 2.0 * M_PI;
 
   // find its healpix.
-  hp = radec_to_healpix(ra, dec, Nside);
+  hp = radec_to_healpixl(ra, dec, Nside);
   // find its neighbourhood.
-  nn = healpix_get_neighbours(hp, neigh, Nside);
+  healpixl_get_neighbours(hp, neigh, Nside);
   fprintf(stderr, "  N%i [ label=\"%i\", pos=\"%g,%g!\" ];\n", hp, hp,
 	  scale * ra/M_PI, scale * z);
-  for (k=0; k<nn; k++) {
+  for (k=0; k<8; k++) {
     fprintf(stderr, "  N%i -- N%i\n", hp, neigh[k]);
   }
 }
@@ -575,7 +573,7 @@ void print_healpix_grid(int Nside) {
   fprintf(stderr, "x%i=[", Nside);
   for (i=0; i<N; i++) {
     for (j=0; j<N; j++) {
-      fprintf(stderr, "%i ", radec_to_healpix(i*2*M_PI/N, M_PI*(j-N/2)/N, Nside));
+      fprintf(stderr, "%i ", radec_to_healpixl(i*2*M_PI/N, M_PI*(j-N/2)/N, Nside));
     }
     fprintf(stderr, ";");
   }
@@ -591,7 +589,7 @@ void print_healpix_borders(int Nside) {
   fprintf(stderr, "x%i=[", Nside);
   for (i=0; i<N; i++) {
     for (j=0; j<N; j++) {
-      fprintf(stderr, "%i ", radec_to_healpix(i*2*M_PI/N, M_PI*(j-N/2)/N, Nside));
+      fprintf(stderr, "%i ", radec_to_healpixl(i*2*M_PI/N, M_PI*(j-N/2)/N, Nside));
     }
     fprintf(stderr, ";");
   }
@@ -657,16 +655,18 @@ void test_distortion_at_pole(CuTest* ct) {
     healpixl_to_radecdeg(hp, Nside, 1, 1, &ra3, &dec3);
     healpixl_to_radecdeg(hp, Nside, 1, 0, &ra4, &dec4);
 
-    // sides
-    d1 = arcsec_between_radecdeg(ra1, dec1, ra2, dec2);
-    d2 = arcsec_between_radecdeg(ra2, dec2, ra3, dec3);
-    d3 = arcsec_between_radecdeg(ra3, dec3, ra4, dec4);
-    d4 = arcsec_between_radecdeg(ra4, dec4, ra1, dec1);
-    // diagonals
-    d5 = arcsec_between_radecdeg(ra1, dec1, ra3, dec3);
-    d6 = arcsec_between_radecdeg(ra2, dec2, ra4, dec4);
+    // FIXME: implement or remove
+    // At the moment `arcsec_between_radecdeg` is not included here.
+    // // sides
+    // d1 = arcsec_between_radecdeg(ra1, dec1, ra2, dec2);
+    // d2 = arcsec_between_radecdeg(ra2, dec2, ra3, dec3);
+    // d3 = arcsec_between_radecdeg(ra3, dec3, ra4, dec4);
+    // d4 = arcsec_between_radecdeg(ra4, dec4, ra1, dec1);
+    // // diagonals
+    // d5 = arcsec_between_radecdeg(ra1, dec1, ra3, dec3);
+    // d6 = arcsec_between_radecdeg(ra2, dec2, ra4, dec4);
 
-    printf("%-15s (%4.1f, %4.1f): %-5.3f, %-5.3f, %-5.3f, %-5.3f / %-5.3f, %-5.3f\n", testnames[i], ra, dec, d1, d2, d3, d4, d5, d6);
+    // printf("%-15s (%4.1f, %4.1f): %-5.3f, %-5.3f, %-5.3f, %-5.3f / %-5.3f, %-5.3f\n", testnames[i], ra, dec, d1, d2, d3, d4, d5, d6);
   }
 }
 
@@ -680,8 +680,6 @@ int main(int argc, char** args) {
 
   /* Add new tests here */
   SUITE_ADD_TEST(suite, test_healpix_neighbours);
-  SUITE_ADD_TEST(suite, test_healpix_pnprime_to_xy);
-  SUITE_ADD_TEST(suite, test_healpix_xy_to_pnprime);
   SUITE_ADD_TEST(suite, test_healpix_distance_to_radec);
 
   /* Run the suite, collect results and display */
@@ -711,7 +709,7 @@ int main(int argc, char** args) {
     ra = ((double)rastep / (double)(Nra-1)) * 2.0 * M_PI;
     for (decstep=0; decstep<Ndec; decstep++) {
     dec = (((double)decstep / (double)(Ndec-1)) * M_PI) - M_PI/2.0;
-    healpix = radec_to_healpix(ra, dec);
+    healpix = radec_to_healpixl(ra, dec);
     printf("radechealpix(%i,:)=[%g,%g,%i];\n",
     (rastep*Ndec) + decstep + 1, ra, dec, healpix);
     }

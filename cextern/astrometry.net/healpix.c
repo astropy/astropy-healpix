@@ -714,7 +714,7 @@ void healpixl_get_neighbours(int64_t pix, int64_t* neighbour, int Nside) {
         }
 }
 
-static hp_t xyztohp(double vx, double vy, double vz, int Nside,
+static hp_t xyztohp(long double vx, long double vy, long double vz, int Nside,
                     double* p_dx, double* p_dy) {
     double phi;
     double twothirds = 2.0 / 3.0;
@@ -743,27 +743,27 @@ static hp_t xyztohp(double vx, double vy, double vz, int Nside,
 
     // North or south polar cap.
     if ((vz >= twothirds) || (vz <= -twothirds)) {
-        double zfactor;
         anbool north;
         int column;
         double root;
         double xx, yy, kx, ky;
+        double dz;
 
         // Which pole?
         if (vz >= twothirds) {
             north = TRUE;
-            zfactor = 1.0;
+            dz = 1.0L - vz;
         } else {
             north = FALSE;
-            zfactor = -1.0;
+            dz = 1.0L + vz;
         }
-
+        
         // solve eqn 20: k = Ns - xx (in the northern hemi)
-        root = (1.0 - vz*zfactor) * 3.0 * mysquare(Nside * (2.0 * phi_t - pi) / pi);
+        root = dz * 3.0 * mysquare(Nside * (2.0 * phi_t - pi) / pi);
         kx = (root <= 0.0) ? 0.0 : sqrt(root);
 
         // solve eqn 19 for k = Ns - yy
-        root = (1.0 - vz*zfactor) * 3.0 * mysquare(Nside * 2.0 * phi_t / pi);
+        root = dz * 3.0 * mysquare(Nside * 2.0 * phi_t / pi);
         ky = (root <= 0.0) ? 0.0 : sqrt(root);
 
         if (north) {
@@ -899,7 +899,9 @@ int64_t radec_to_healpixl(double ra, double dec, int Nside) {
 }
 
 int64_t radec_to_healpixlf(double ra, double dec, int Nside, double* dx, double* dy) {
-    return xyztohealpixlf(radec2x(ra,dec), radec2y(ra,dec), radec2z(ra,dec), Nside, dx, dy);
+    hp_t hp = xyztohp(radec2xl(ra,dec), radec2yl(ra,dec), radec2zl(ra,dec),
+                      Nside, dx, dy);
+    return hptointl(hp, Nside);
 }
 
 Const int64_t radecdegtohealpixl(double ra, double dec, int Nside) {

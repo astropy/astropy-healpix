@@ -75,6 +75,11 @@ InlineDeclare Const double jdtomjd(double jd);
 InlineDeclare Const double xy2ra(double x, double y);
 InlineDeclare Const double z2dec(double z);
 
+// RA,Dec in radians -> long double
+#define radec2xl(r,d) (cosl(d)*cosl(r))
+#define radec2yl(r,d) (cosl(d)*sinl(r))
+#define radec2zl(r,d) (sinl(d))
+
 double atora(const char* str);
 double atodec(const char* str);
 

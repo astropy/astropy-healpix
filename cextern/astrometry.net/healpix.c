@@ -714,13 +714,15 @@ void healpixl_get_neighbours(int64_t pix, int64_t* neighbour, int Nside) {
         }
 }
 
-static hp_t xyztohp(double vx, double vy, double vz, int Nside,
+static hp_t xyztohp(double vx, double vy, double vz, double coz,
+                    int Nside,
                     double* p_dx, double* p_dy) {
     double phi;
     double twothirds = 2.0 / 3.0;
     double pi = M_PI;
     double twopi = 2.0 * M_PI;
     double halfpi = 0.5 * M_PI;
+    double root3 = sqrt(3.0);
     double dx, dy;
     int basehp;
     int x, y;
@@ -743,7 +745,6 @@ static hp_t xyztohp(double vx, double vy, double vz, int Nside,
 
     // North or south polar cap.
     if ((vz >= twothirds) || (vz <= -twothirds)) {
-        double zfactor;
         anbool north;
         int column;
         double root;
@@ -752,19 +753,20 @@ static hp_t xyztohp(double vx, double vy, double vz, int Nside,
         // Which pole?
         if (vz >= twothirds) {
             north = TRUE;
-            zfactor = 1.0;
         } else {
             north = FALSE;
-            zfactor = -1.0;
+            vz *= -1.0;
         }
 
+        // if not passed, compute coz
+        if (coz == 0.0)
+            coz = hypot(vx, vy);
+
         // solve eqn 20: k = Ns - xx (in the northern hemi)
-        root = (1.0 - vz*zfactor) * 3.0 * mysquare(Nside * (2.0 * phi_t - pi) / pi);
-        kx = (root <= 0.0) ? 0.0 : sqrt(root);
+        kx = (coz / sqrt(1.0 + vz)) * root3 * fabs(Nside * (2.0 * phi_t - pi) / pi);
 
         // solve eqn 19 for k = Ns - yy
-        root = (1.0 - vz*zfactor) * 3.0 * mysquare(Nside * 2.0 * phi_t / pi);
-        ky = (root <= 0.0) ? 0.0 : sqrt(root);
+        ky = (coz / sqrt(1.0 + vz)) * root3 * Nside * 2.0 * phi_t / pi;
 
         if (north) {
             xx = Nside - kx;
@@ -890,7 +892,7 @@ int64_t xyztohealpixl(double x, double y, double z, int Nside) {
 
 int64_t xyztohealpixlf(double x, double y, double z, int Nside,
                        double* p_dx, double* p_dy) {
-    hp_t hp = xyztohp(x,y,z, Nside, p_dx,p_dy);
+    hp_t hp = xyztohp(x,y,z, 0., Nside, p_dx,p_dy);
     return hptointl(hp, Nside);
 }
 
@@ -899,7 +901,9 @@ int64_t radec_to_healpixl(double ra, double dec, int Nside) {
 }
 
 int64_t radec_to_healpixlf(double ra, double dec, int Nside, double* dx, double* dy) {
-    return xyztohealpixlf(radec2x(ra,dec), radec2y(ra,dec), radec2z(ra,dec), Nside, dx, dy);
+    hp_t hp = xyztohp(radec2x(ra,dec), radec2y(ra,dec),
+                      radec2z(ra,dec), cos(dec), Nside, dx, dy);
+    return hptointl(hp, Nside);
 }
 
 Const int64_t radecdegtohealpixl(double ra, double dec, int Nside) {

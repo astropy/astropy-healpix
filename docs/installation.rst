@@ -104,16 +104,26 @@ Contributing
 
 This section contains some tips how to hack on **astropy-healpix**.
 
-You can run the tests in a temp folder via::
+One quick way to get a Python environment with everything needed to
+work on ``astropy-healpix`` (code, run tests, build docs) is like this:
 
-    python setup.py test -V
+.. code-block:: bash
 
-Or build the C / Cython extensions in-place and run the tests from the source folder::
+    git clone https://github.com/astropy/astropy-healpix
+    cd astropy-healpix
+    conda env create -f environment-dev.yml
+    conda activate astropy-healpix
 
-    python setup.py build_ext -i
+Run this command to do an in-place build and put this local version on
+your Python ``sys.path``::
+
+    python setup.py develop
+
+To run the tests, use ``pytest`` directly:
+
     python -m pytest -v astropy_healpix
 
-To build the docs::
+To build the docs, use this command::
 
     python setup.py build_docs
     open docs/_build/html/index.html

@@ -267,6 +267,7 @@ def healpix_to_lonlat(healpix_index, nside, dx=None, dy=None, order='ring'):
         raise ValueError('Either both or neither dx and dy must be specified')
 
     healpix_index = np.asarray(healpix_index, dtype=np.int64)
+    nside = np.asarray(nside, dtype=np.int64)
 
     if dx is None and dy is not None:
         dx = 0.5
@@ -282,13 +283,15 @@ def healpix_to_lonlat(healpix_index, nside, dx=None, dy=None, order='ring'):
         dx = dx.ravel()
         dy = dy.ravel()
 
-    shape = healpix_index.shape
-    healpix_index = healpix_index.ravel()
-    nside = int(nside)
-
     _validate_healpix_index('healpix_index', healpix_index, nside)
     _validate_nside(nside)
     order = _validate_order(order)
+
+    healpix_index, nside = np.broadcast_arrays(healpix_index, nside)
+
+    shape = healpix_index.shape
+    healpix_index = healpix_index.ravel()
+    nside = nside.ravel()
 
     if dx is None:
         lon, lat = core_cython.healpix_to_lonlat(healpix_index, nside, order)
@@ -331,14 +334,14 @@ def lonlat_to_healpix(lon, lat, nside, return_offsets=False, order='ring'):
     lon = lon.to(u.rad).value
     lat = lat.to(u.rad).value
 
-    lon, lat = np.broadcast_arrays(lon, lat)
+    lon, lat, nside = np.broadcast_arrays(lon, lat, nside)
 
     shape = np.shape(lon)
 
     lon = lon.astype(float).ravel()
     lat = lat.astype(float).ravel()
+    nside = nside.astype(np.int64).ravel()
 
-    nside = int(nside)
     _validate_nside(nside)
     order = _validate_order(order)
 
@@ -368,9 +371,11 @@ def nested_to_ring(nested_index, nside):
     """
 
     nested_index = np.asarray(nested_index, dtype=np.int64)
+    nside = np.asarray(nside, dtype=np.int64)
+    nested_index, nside = np.broadcast_arrays(nested_index, nside)
     shape = nested_index.shape
     nested_index = nested_index.ravel()
-    nside = int(nside)
+    nside = nside.ravel()
 
     _validate_healpix_index('nested_index', nested_index, nside)
     _validate_nside(nside)
@@ -397,9 +402,11 @@ def ring_to_nested(ring_index, nside):
     """
 
     ring_index = np.asarray(ring_index, dtype=np.int64)
+    nside = np.asarray(nside, dtype=np.int64)
+    ring_index, nside = np.broadcast_arrays(ring_index, nside)
     shape = ring_index.shape
     ring_index = ring_index.ravel()
-    nside = int(nside)
+    nside = nside.ravel()
 
     _validate_healpix_index('ring_index', ring_index, nside)
     _validate_nside(nside)
@@ -436,13 +443,13 @@ def bilinear_interpolation_weights(lon, lat, nside, order='ring'):
     lon = lon.to(u.rad).value
     lat = lat.to(u.rad).value
 
-    lon, lat = np.broadcast_arrays(lon, lat)
+    lon, lat, nside = np.broadcast_arrays(lon, lat, nside)
 
     shape = np.shape(lon)
 
     lon = lon.astype(float).ravel()
     lat = lat.astype(float).ravel()
-    nside = int(nside)
+    nside = nside.astype(np.int64).ravel()
 
     order = _validate_order(order)
     _validate_nside(nside)
@@ -509,15 +516,17 @@ def neighbours(healpix_index, nside, order='ring'):
     """
 
     healpix_index = np.asarray(healpix_index, dtype=np.int64)
-    nside = int(nside)
-
-    shape = np.shape(healpix_index)
-
-    healpix_index = healpix_index.ravel()
+    nside = np.asarray(nside, dtype=np.int64)
 
     _validate_healpix_index('healpix_index', healpix_index, nside)
     _validate_nside(nside)
     order = _validate_order(order)
+
+    healpix_index, nside = np.broadcast_arrays(healpix_index, nside)
+    shape = np.shape(healpix_index)
+
+    healpix_index = healpix_index.ravel()
+    nside = nside.ravel()
 
     neigh = core_cython.neighbours(healpix_index, nside, order)
     return _restore_shape(neigh, shape=(8,) + shape)

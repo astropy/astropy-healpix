@@ -977,6 +977,7 @@ static void hp_to_xyz(hp_t* hp, int Nside,
 
         z = 2.0/3.0*(x + y + zoff);
         phi = pi/4*(x - y + phioff + 2*chp);
+        rad = sqrt(1.0 - z*z);
 
     } else {
         /*
@@ -995,6 +996,7 @@ static void hp_to_xyz(hp_t* hp, int Nside,
          phi_t = pi (Ns-y) / (2 (Ns - x) + (Ns - y))
          */
         double phi_t;
+        double vv;
 
         if (zfactor == -1.0) {
             swap_double(&x, &y);
@@ -1008,10 +1010,15 @@ static void hp_to_xyz(hp_t* hp, int Nside,
             phi_t = pi * (Nside-y) / (2.0 * ((Nside-x) + (Nside-y)));
 
         if (phi_t < pi/4.) {
-            z = 1.0 - mysquare(pi * (Nside - x) / ((2.0 * phi_t - pi) * Nside)) / 3.0;
+            // z = 1.0 - mysquare(pi * (Nside - x) / ((2.0 * phi_t - pi) * Nside)) / 3.0;
+            vv = fabs(pi * (Nside - x) / ((2.0 * phi_t - pi) * Nside) / sqrt(3));
         } else {
-            z = 1.0 - mysquare(pi * (Nside - y) / (2.0 * phi_t * Nside)) / 3.0;
+            // z = 1.0 - mysquare(pi * (Nside - y) / (2.0 * phi_t * Nside)) / 3.0;
+            vv = fabs(pi * (Nside-y) / (2. * phi_t * Nside) / sqrt(3));
         }
+        z = (1 - vv) * (1 + vv);
+        rad = sqrt(1.0 + z) * vv;
+
         assert(0.0 <= fabs(z) && fabs(z) <= 1.0);
         z *= zfactor;
         assert(0.0 <= fabs(z) && fabs(z) <= 1.0);
@@ -1026,7 +1033,6 @@ static void hp_to_xyz(hp_t* hp, int Nside,
     if (phi < 0.0)
         phi += 2*pi;
 
-    rad = sqrt(1.0 - z*z);
     *rx = rad * cos(phi);
     *ry = rad * sin(phi);
     *rz = z;

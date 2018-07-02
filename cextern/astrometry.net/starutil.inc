@@ -118,8 +118,11 @@ InlineDefine Const double xy2ra(double x, double y) {
 InlineDefine Flatten void xyz2radec(double x, double y, double z, double *ra, double *dec) {
     if (ra)
     	*ra = xy2ra(x, y);
-	if (dec)
-        *dec = z2dec(z);
+    if (dec)
+        if (fabs(z) > 0.9)
+            *dec = M_PI / 2.0 - atan2(hypot(x, y), z);
+        else
+            *dec = z2dec(z);
 }
 
 InlineDefine Flatten void xyzarr2radec(const double* xyz, double *ra, double *dec) {

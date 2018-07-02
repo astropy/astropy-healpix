@@ -37,6 +37,7 @@ def get_extensions():
         language="c",
         extra_compile_args=['-O2'])
 
-    add_openmp_flags_if_available(extension)
+    if os.environ.get('ASTROPY_HEALPIX_USE_OPENMP') == '1':
+        add_openmp_flags_if_available(extension)
 
     return [extension]

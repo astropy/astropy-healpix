@@ -38,19 +38,49 @@ not matter. For larger arrays, the difference is a factor of a few at most
 (without multi-threading). We will add more benchmarks over time to provide a
 more complete picture.
 
+Using OpenMP
+------------
+
+The **astropy-healpix** package can optionally be build with OpenMP support
+(this is not done by default). For example, if build with OpenMP support, then
+when calling :meth:`~astropy_healpix.HEALPix.healpix_to_skycoord` with an array
+of HEALPix indices, the array is split up into multiple chunks which are
+distributed over threads. This should speed up the calculation by a factor
+depending on the number of available cores.
+
+To build **astropy-healpix** with OpenMP support, you should set the
+``ASTROPY_HEALPIX_USE_OPENMP`` environment variable to ``1`` when building the
+package, for example::
+
+    ASTROPY_HEALPIX_USE_OPENMP=1 python setup.py install
+
+or::
+
+    ASTROPY_HEALPIX_USE_OPENMP=1 pip install astropy-healpix
+
+Note that doing this means that the build will be attempted with OpenMP but this
+is not guaranteed to be successful depending on which compiler is used. You can
+check the installation log for the following message which indicates that OpenMP
+is being used::
+
+    Compiling Cython extension with OpenMP support
+
+If your compiler does not support OpenMP, you will instead see the following
+message::
+
+    Cannot compile Cython extension with OpenMP, reverting to non-parallel code
+
+See `Handling compilers that don't support OpenMP`_ for information on changing
+the compiler to one that supports OpenMP if you have issues.
+
 Controlling the number of threads
 ---------------------------------
 
-By default, OpenMP is used if available to parallelize many of the functions in
-**astropy-healpix** using multi-threading (the results above do). For example, when calling
-:meth:`~astropy_healpix.HEALPix.healpix_to_skycoord` with an array of HEALPix indices, the array
-is split up into multiple chunks which are distributed over threads. This should
-speed up the calculation by a factor depending on the number of available cores.
-
-However, in some cases (such as in a shared computing environment) you may want
-to restrict this behavior to only ever use one core. You can control the number
-of threads used by setting the ``OMP_NUM_THREADS`` environment variable (set
-this to 1 to disable multi-threading).
+In some cases (such as in a shared computing environment) you may want to
+restrict the number of threads used by OpenMP, for example to only ever use one
+core. You can control the number of threads used by setting the
+``OMP_NUM_THREADS`` environment variable (set this to 1 to disable
+multi-threading).
 
 Handling compilers that don't support OpenMP
 --------------------------------------------
@@ -63,13 +93,3 @@ via MacPorts, you can do:
 .. code-block:: bash
 
     $ CC=gcc-mp-6 python setup.py install
-
-You can check the installation log for the following message which indicates
-that OpenMP is being used::
-
-    Compiling Cython extension with OpenMP support
-
-If your compiler does not support OpenMP, you will instead see the following
-message::
-
-    Cannot compile Cython extension with OpenMP, reverting to non-parallel code

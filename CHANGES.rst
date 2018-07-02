@@ -3,6 +3,9 @@
 
 - Add ``pixel_resolution_to_nside`` function. [#31]
 
+- Disable OpenMP by default. This can be enabled during building by setting
+  ``ASTROPY_HEALPIX_USE_OPENMP=1``. [#102]
+
 0.2 (2017-10-15)
 ================
 

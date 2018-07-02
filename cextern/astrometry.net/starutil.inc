@@ -120,7 +120,7 @@ InlineDefine Flatten void xyz2radec(double x, double y, double z, double *ra, do
     	*ra = xy2ra(x, y);
     if (dec)
         if (fabs(z) > 0.9)
-            *dec = M_PI_2 - atan2(hypot(x, y), z);
+            *dec = M_PI / 2.0 - atan2(hypot(x, y), z);
         else
             *dec = z2dec(z);
 }

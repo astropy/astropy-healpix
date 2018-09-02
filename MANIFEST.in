@@ -6,7 +6,7 @@ include ez_setup.py
 include ah_bootstrap.py
 include setup.cfg
 
-recursive-include astropy_healpix *.pyx *.c *.pxd
+recursive-include astropy_healpix *.pyx *.c *.h *.pxd
 recursive-include docs *
 recursive-include licenses *
 recursive-include cextern *

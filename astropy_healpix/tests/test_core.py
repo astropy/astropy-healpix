@@ -52,7 +52,7 @@ def test_uniq_to_levelipix(level):
     # Generate 10 HEALPix indexes for each level
     size = 10
     npix = 3 << 2*(level + 1)
-    ipix_arr = np.random.randint(npix, size=size)
+    ipix_arr = np.random.randint(npix, size=size, dtype=np.int64)
     level_arr = np.ones(size) * level
 
     level_res_arr, ipix_res_arr = uniq_to_levelipix(levelipix_to_uniq(level_arr, ipix_arr))

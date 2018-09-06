@@ -20,6 +20,8 @@ __all__ = [
     'npix_to_nside',
     'level_to_nside',
     'nside_to_level',
+    'levelipix_to_uniq',
+    'uniq_to_levelipix',
     'lonlat_to_healpix',
     'healpix_to_lonlat',
     'bilinear_interpolation_weights',
@@ -63,6 +65,9 @@ def _validate_nside(nside):
     if not np.all(2 ** log_2_nside == nside):
         raise ValueError('nside must be a power of two')
 
+def _validate_npix(level, ipix):
+    if not np.all(ipix < (3 << 2*(level + 1))):
+        raise ValueError('ipix for a specific level must be inferior to npix')
 
 def level_to_nside(level):
     """
@@ -106,6 +111,63 @@ def nside_to_level(nside):
 
     _validate_nside(nside)
     return np.log2(nside)
+
+
+def uniq_to_levelipix(uniq):
+    """
+	Convert a HEALPix cell uniq number to its (level, ipix) equivalent
+
+    A uniq number is a 64 bit integer equals to : ipix + 4*(4**level). Please read
+    this `paper <http://ivoa.net/documents/MOC/20140602/REC-MOC-1.0-20140602.pdf>`_
+    for more details about uniq numbers.
+
+    Parameters
+    ----------
+    uniq : int
+        The uniq number of a HEALPix cell.
+
+    Returns
+    -------
+    level, ipix: int, int
+        The level and index of the HEALPix cell computed from ``uniq``.
+    """
+    uniq = np.asarray(uniq, dtype=np.int64)
+
+    level = ((np.log2(uniq//4)) // 2)
+    level = level.astype(np.int64)
+    _validate_level(level)
+
+    ipix = uniq - (1 << 2*(level + 1))
+    _validate_npix(level, ipix)
+
+    return level, ipix
+
+
+def levelipix_to_uniq(level, ipix):
+    """
+    Convert a level and HEALPix index into a uniq number representing the cell
+
+    This function is the inverse of `uniq_to_levelipix`.
+
+    Parameters
+    ----------
+    level : int
+        The level of the HEALPix cell
+    ipix : int
+        The index of the HEALPix cell
+
+    Returns
+    -------
+    uniq : int
+        The uniq number representing the HEALPix cell.
+    """
+    level = np.asarray(level, dtype=np.int64)
+    ipix = np.asarray(ipix, dtype=np.int64)
+
+    _validate_level(level)
+    _validate_npix(level, ipix)
+
+    return ipix + (1 << 2*(level + 1))
 
 
 def nside_to_pixel_area(nside):

@@ -37,12 +37,12 @@ def test_nside_to_level():
     assert exc.value.args[0] == 'nside must be a power of two'
 
 
-@pytest.mark.parametrize("level, ipix, expected_nuniq", [
-    (0, 11, 11+4),
-    (15, 62540, 62540 + 4*4**15),
-])
-def test_levelipix_to_uniq(level, ipix, expected_nuniq):
-    assert ipix + 4*4**level == levelipix_to_uniq(level, ipix)
+def test_levelipix_to_uniq():
+    assert 11 + 4*4**0 == levelipix_to_uniq(0, 11)
+    assert 62540 + 4*4**15 == levelipix_to_uniq(15, 62540)
+    with pytest.raises(ValueError) as exc:
+        levelipix_to_uniq(1, 49)
+    assert exc.value.args[0] == 'ipix for a specific level must be inferior to npix'
 
 
 @pytest.mark.parametrize("level", [

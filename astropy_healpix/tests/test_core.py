@@ -17,7 +17,8 @@ from ..core import (nside_to_pixel_area, nside_to_pixel_resolution, pixel_resolu
                     nside_to_npix, npix_to_nside, healpix_to_lonlat,
                     lonlat_to_healpix, interpolate_bilinear_lonlat,
                     neighbours, healpix_cone_search, boundaries_lonlat,
-                    level_to_nside, nested_to_ring, ring_to_nested,
+                    level_to_nside, nside_to_level,
+                    nested_to_ring, ring_to_nested,
                     bilinear_interpolation_weights)
 
 
@@ -26,6 +27,13 @@ def test_level_to_nside():
     with pytest.raises(ValueError) as exc:
         level_to_nside(-1)
     assert exc.value.args[0] == 'level must be positive'
+
+
+def test_nside_to_level():
+    assert nside_to_level(1024) == 10
+    with pytest.raises(ValueError) as exc:
+        nside_to_level(511)
+    assert exc.value.args[0] == 'nside must be a power of two'
 
 
 def test_nside_to_pixel_area():

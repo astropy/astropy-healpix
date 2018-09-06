@@ -18,6 +18,8 @@ __all__ = [
     'pixel_resolution_to_nside',
     'nside_to_npix',
     'npix_to_nside',
+    'level_to_nside',
+    'nside_to_level',
     'lonlat_to_healpix',
     'healpix_to_lonlat',
     'bilinear_interpolation_weights',
@@ -77,8 +79,33 @@ def level_to_nside(level):
     nside : int
         The number of pixels on the side of one of the 12 'top-level' HEALPix tiles.
     """
+    level = np.asarray(level, dtype=np.int64)
+
     _validate_level(level)
     return 2 ** level
+
+
+def nside_to_level(nside):
+    """
+    Find the HEALPix level for a given nside. (this is given by log2(nside))
+
+    This function is the inverse of `level_to_nside`.
+
+    Parameters
+    ----------
+    nside : int
+        The number of pixels on the side of one of the 12 'top-level' HEALPix tiles.
+        Must be a power of two.
+
+    Returns
+    -------
+    level : int
+        The level of the HEALPix cells
+    """
+    nside = np.asarray(nside, dtype=np.int64)
+
+    _validate_nside(nside)
+    return np.log2(nside)
 
 
 def nside_to_pixel_area(nside):

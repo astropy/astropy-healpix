@@ -1,5 +1,17 @@
+#include <math.h>
+
 #include "interpolation.h"
 #include "healpix.h"
+
+// Old versions of MSVC do not support C99 and therefore
+// do not define NAN in math.h.
+#ifndef NAN
+static const union {
+    unsigned long integer;
+    float value;
+} type_punned_nan = {0xFFFFFFFFFFFFFFFFul};
+#define NAN (type_punned_nan.value)
+#endif
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -34,6 +46,16 @@ void interpolate_weights(double lon, double lat, int64_t *ring_indices,
 
   // Convert to a ring index and decompose into ring number and longitude index
   ring1 = healpixl_xy_to_ring(xy_index, Nside);
+  if (ring1 < 0)
+  {
+      int i;
+      for (i = 0; i < 4; i ++)
+      {
+          ring_indices[i] = -1;
+          weights[i] = NAN;
+      }
+      return;
+  }
   healpixl_decompose_ring(ring1, Nside, &ring_number, &longitude_index);
 
   // Figure out how many pixels are in the ring

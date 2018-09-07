@@ -49,10 +49,12 @@ def test_level_ipix_to_uniq():
     0, 5, 10, 15, 20, 22, 25, 26, 27, 28, 29
 ])
 def test_uniq_to_level_ipix(level):
-    # Generate 10 HEALPix indexes for each level
     npix = 3 << 2*(level + 1)
-    # Take an ipix smaller than the maximum number of pixels for its level
-    ipix = npix >> 1
+    # Take 10 pixel indices between 0 and npix - 1
+    size = 10
+
+    ipix = np.arange(size, dtype=np.int64) * (npix // size)
+    level = np.ones(size) * level
 
     level_res, ipix_res = uniq_to_level_ipix(level_ipix_to_uniq(level, ipix))
     assert np.all(level_res == level) & np.all(ipix_res == ipix)

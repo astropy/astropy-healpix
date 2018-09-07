@@ -65,14 +65,17 @@ def _validate_nside(nside):
     if not np.all(2 ** log_2_nside == nside):
         raise ValueError('nside must be a power of two')
 
+
 def _validate_npix(level, ipix):
     if not np.all(ipix < (3 << 2*(level + 1))):
         raise ValueError('ipix for a specific level must be inferior to npix')
 
+
 def level_to_nside(level):
     """
-    Find the pixel dimensions of the top-level HEALPix tiles given the
-    resolution level (this is given by 2**level).
+    Find the pixel dimensions of the top-level HEALPix tiles.
+
+    This is given by ``nside = 2**level``.
 
     Parameters
     ----------
@@ -92,7 +95,9 @@ def level_to_nside(level):
 
 def nside_to_level(nside):
     """
-    Find the HEALPix level for a given nside. (this is given by log2(nside))
+    Find the HEALPix level for a given nside.
+
+    This is given by ``level = log2(nside)``.
 
     This function is the inverse of `level_to_nside`.
 

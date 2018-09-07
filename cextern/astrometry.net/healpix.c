@@ -66,6 +66,9 @@ Const int64_t healpixl_xy_to_nested(int64_t hp, int Nside) {
     int i;
     int64_t ns2 = (int64_t)Nside * (int64_t)Nside;
 
+    if (hp < 0 || Nside < 0)
+        return -1;
+
     healpixl_decompose_xy(hp, &bighp, &x, &y, Nside);
     if (!is_power_of_two(Nside)) {
         fprintf(stderr, "healpix_xy_to_nested: Nside must be a power of two.\n");
@@ -93,6 +96,8 @@ Const int64_t healpixl_nested_to_xy(int64_t hp, int Nside) {
     int64_t index;
     int64_t ns2 = (int64_t)Nside * (int64_t)Nside;
     int i;
+    if (hp < 0 || Nside < 0)
+        return -1;
     if (!is_power_of_two(Nside)) {
         fprintf(stderr, "healpix_xy_to_nested: Nside must be a power of two.\n");
         return -1;
@@ -178,7 +183,9 @@ Const int64_t healpixl_ring_to_xy(int64_t ring, int Nside) {
     int bighp, x, y;
     int ringind, longind;
     healpixl_decompose_ring(ring, Nside, &ringind, &longind);
-    if (ringind <= Nside) {
+    if (ring < 0 || Nside < 0) {
+        return -1;
+    } else if (ringind <= Nside) {
         int64_t ind;
         int v;
         int F1;
@@ -294,7 +301,7 @@ Const int64_t healpixl_xy_to_ring(int64_t hp, int Nside) {
      */
     // this probably can't happen...
     if ((ring < 1) || (ring >= 4L*Nside)) {
-        fprintf(stderr, "Invalid ring index: %i %i\n", ring, 4*Nside);
+        //fprintf(stderr, "Invalid ring index: %i %i\n", ring, 4*Nside);
         return -1;
     }
     if (ring <= Nside) {

@@ -242,6 +242,13 @@ def test_interpolate_bilinear_invalid():
                                     values, order='banana')
     assert exc.value.args[0] == "order must be 'nested' or 'ring'"
 
+    result = interpolate_bilinear_lonlat([0, np.nan] * u.deg,
+                                         [0, np.nan] * u.deg, values,
+                                         order='nested')
+    assert result.shape == (2,)
+    assert result[0] == 1
+    assert np.isnan(result[1])
+
 
 def test_interpolate_bilinear_lonlat_shape():
 

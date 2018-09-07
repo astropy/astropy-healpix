@@ -115,7 +115,7 @@ def nside_to_level(nside):
     nside = np.asarray(nside, dtype=np.int64)
 
     _validate_nside(nside)
-    return np.log2(nside)
+    return np.log2(nside).astype(np.int64)
 
 
 def uniq_to_levelipix(uniq):

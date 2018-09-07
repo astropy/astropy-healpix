@@ -138,7 +138,7 @@ def uniq_to_levelipix(uniq):
     """
     uniq = np.asarray(uniq, dtype=np.int64)
 
-    level = ((np.log2(uniq//4)) // 2)
+    level = (np.log2(uniq//4)) // 2
     level = level.astype(np.int64)
     _validate_level(level)
 

@@ -20,8 +20,8 @@ __all__ = [
     'npix_to_nside',
     'level_to_nside',
     'nside_to_level',
-    'levelipix_to_uniq',
-    'uniq_to_levelipix',
+    'level_ipix_to_uniq',
+    'uniq_to_level_ipix',
     'lonlat_to_healpix',
     'healpix_to_lonlat',
     'bilinear_interpolation_weights',
@@ -118,11 +118,11 @@ def nside_to_level(nside):
     return np.log2(nside).astype(np.int64)
 
 
-def uniq_to_levelipix(uniq):
+def uniq_to_level_ipix(uniq):
     """
-	Convert a HEALPix cell uniq number to its (level, ipix) equivalent
+    Convert a HEALPix cell uniq number to its (level, ipix) equivalent.
 
-    A uniq number is a 64 bit integer equals to : ipix + 4*(4**level). Please read
+    A uniq number is a 64 bits integer equaling to : ipix + 4*(4**level). Please read
     this `paper <http://ivoa.net/documents/MOC/20140602/REC-MOC-1.0-20140602.pdf>`_
     for more details about uniq numbers.
 
@@ -148,11 +148,11 @@ def uniq_to_levelipix(uniq):
     return level, ipix
 
 
-def levelipix_to_uniq(level, ipix):
+def level_ipix_to_uniq(level, ipix):
     """
-    Convert a level and HEALPix index into a uniq number representing the cell
+    Convert a level and HEALPix index into a uniq number representing the cell.
 
-    This function is the inverse of `uniq_to_levelipix`.
+    This function is the inverse of `uniq_to_level_ipix`.
 
     Parameters
     ----------

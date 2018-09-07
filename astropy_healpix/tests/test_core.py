@@ -19,7 +19,7 @@ from ..core import (nside_to_pixel_area, nside_to_pixel_resolution, pixel_resolu
                     neighbours, healpix_cone_search, boundaries_lonlat,
                     level_to_nside, nside_to_level,
                     nested_to_ring, ring_to_nested,
-                    levelipix_to_uniq, uniq_to_levelipix,
+                    level_ipix_to_uniq, uniq_to_level_ipix,
                     bilinear_interpolation_weights)
 
 
@@ -37,18 +37,18 @@ def test_nside_to_level():
     assert exc.value.args[0] == 'nside must be a power of two'
 
 
-def test_levelipix_to_uniq():
-    assert 11 + 4*4**0 == levelipix_to_uniq(0, 11)
-    assert 62540 + 4*4**15 == levelipix_to_uniq(15, 62540)
+def test_level_ipix_to_uniq():
+    assert 11 + 4*4**0 == level_ipix_to_uniq(0, 11)
+    assert 62540 + 4*4**15 == level_ipix_to_uniq(15, 62540)
     with pytest.raises(ValueError) as exc:
-        levelipix_to_uniq(1, 49)
+        level_ipix_to_uniq(1, 49)
     assert exc.value.args[0] == 'ipix for a specific level must be inferior to npix'
 
 
 @pytest.mark.parametrize("level", [
     0, 5, 10, 15, 20, 22, 25, 26, 27, 28, 29
 ])
-def test_uniq_to_levelipix(level):
+def test_uniq_to_level_ipix(level):
     # Generate 10 HEALPix indexes for each level
     npix = 3 << 2*(level + 1)
     # Take an ipix smaller than the maximum number of pixels for its level

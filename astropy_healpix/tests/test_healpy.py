@@ -206,7 +206,11 @@ def test_boundaries_shape():
     assert b1.shape == b2.shape
 
 
-@given(vectors=arrays(float, (3,), elements=floats(-1, 1)),
+def not_at_origin(vec):
+    return np.linalg.norm(vec) > 0
+
+
+@given(vectors=arrays(float, (3,), elements=floats(-1, 1)).filter(not_at_origin),
        lonlat=booleans(), ndim=integers(0, 4))
 @settings(max_examples=500, derandomize=True)
 def test_vec2ang(vectors, lonlat, ndim):

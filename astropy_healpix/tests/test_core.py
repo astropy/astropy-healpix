@@ -17,7 +17,9 @@ from ..core import (nside_to_pixel_area, nside_to_pixel_resolution, pixel_resolu
                     nside_to_npix, npix_to_nside, healpix_to_lonlat,
                     lonlat_to_healpix, interpolate_bilinear_lonlat,
                     neighbours, healpix_cone_search, boundaries_lonlat,
-                    level_to_nside, nested_to_ring, ring_to_nested,
+                    level_to_nside, nside_to_level,
+                    nested_to_ring, ring_to_nested,
+                    level_ipix_to_uniq, uniq_to_level_ipix,
                     bilinear_interpolation_weights)
 
 
@@ -26,6 +28,36 @@ def test_level_to_nside():
     with pytest.raises(ValueError) as exc:
         level_to_nside(-1)
     assert exc.value.args[0] == 'level must be positive'
+
+
+def test_nside_to_level():
+    assert nside_to_level(1024) == 10
+    with pytest.raises(ValueError) as exc:
+        nside_to_level(511)
+    assert exc.value.args[0] == 'nside must be a power of two'
+
+
+def test_level_ipix_to_uniq():
+    assert 11 + 4*4**0 == level_ipix_to_uniq(0, 11)
+    assert 62540 + 4*4**15 == level_ipix_to_uniq(15, 62540)
+    with pytest.raises(ValueError) as exc:
+        level_ipix_to_uniq(1, 49)
+    assert exc.value.args[0] == 'ipix for a specific level must be inferior to npix'
+
+
+@pytest.mark.parametrize("level", [
+    0, 5, 10, 15, 20, 22, 25, 26, 27, 28, 29
+])
+def test_uniq_to_level_ipix(level):
+    npix = 3 << 2*(level + 1)
+    # Take 10 pixel indices between 0 and npix - 1
+    size = 10
+
+    ipix = np.arange(size, dtype=np.int64) * (npix // size)
+    level = np.ones(size) * level
+
+    level_res, ipix_res = uniq_to_level_ipix(level_ipix_to_uniq(level, ipix))
+    assert np.all(level_res == level) & np.all(ipix_res == ipix)
 
 
 def test_nside_to_pixel_area():

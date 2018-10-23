@@ -1,13 +1,15 @@
-Performance and OpenMP
-======================
-
-Measuring performance
----------------------
+Performance
+===========
 
 At this time, we have focused mostly on implementing functionality into the
-**astropy-healpix** package, and performance may therefore not be as good in
-some cases as the `healpy <https://github.com/healpy/healpy>`__ library. Once
-the API is stable, we will focus on improving performance. To get an idea of
+**astropy-healpix** package, performance is not as good in most
+cases as the `healpy <https://github.com/healpy/healpy>`__ library. Once
+the API is stable, we will focus on improving performance.
+
+Benchmark
+---------
+
+To get an idea of
 how the performance of the two packages compare, we have included some simple
 benchmarks that compare the healpy-compatible interface of **astropy-healpix**
 with healpy itself. These benchmarks are run with:
@@ -34,42 +36,5 @@ with healpy itself. These benchmarks are run with:
 
 For small arrays, ``pix2ang`` in **astropy-healpix** performs worse, but in both
 caes the times are less than a millisecond, and such differences may therefore
-not matter. For larger arrays, the difference is a factor of a few at most
-(without multi-threading). We will add more benchmarks over time to provide a
-more complete picture.
-
-Controlling the number of threads
----------------------------------
-
-By default, OpenMP is used if available to parallelize many of the functions in
-**astropy-healpix** using multi-threading (the results above do). For example, when calling
-:meth:`~astropy_healpix.HEALPix.healpix_to_skycoord` with an array of HEALPix indices, the array
-is split up into multiple chunks which are distributed over threads. This should
-speed up the calculation by a factor depending on the number of available cores.
-
-However, in some cases (such as in a shared computing environment) you may want
-to restrict this behavior to only ever use one core. You can control the number
-of threads used by setting the ``OMP_NUM_THREADS`` environment variable (set
-this to 1 to disable multi-threading).
-
-Handling compilers that don't support OpenMP
---------------------------------------------
-
-If you are compiling the **astropy-healpix** package yourself, note that the
-default C compiler on MacOS X (clang) does not support OpenMP. You will need to
-explicitly set a different compiler - for example if you have GCC 6 installed
-via MacPorts, you can do:
-
-.. code-block:: bash
-
-    $ CC=gcc-mp-6 python setup.py install
-
-You can check the installation log for the following message which indicates
-that OpenMP is being used::
-
-    Compiling Cython extension with OpenMP support
-
-If your compiler does not support OpenMP, you will instead see the following
-message::
-
-    Cannot compile Cython extension with OpenMP, reverting to non-parallel code
+not matter. For larger arrays, the difference is a factor of a few at most.
+We will add more benchmarks over time to provide a more complete picture.

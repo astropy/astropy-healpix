@@ -3,7 +3,6 @@
 import os
 
 from distutils.core import Extension
-from astropy_helpers.openmp_helpers import add_openmp_flags_if_available
 
 HEALPIX_ROOT = os.path.relpath(os.path.dirname(__file__))
 
@@ -36,7 +35,5 @@ def get_extensions():
         libraries=libraries,
         language="c",
         extra_compile_args=['-O2'])
-
-    add_openmp_flags_if_available(extension)
 
     return [extension]

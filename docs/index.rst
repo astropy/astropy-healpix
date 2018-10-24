@@ -47,3 +47,4 @@ User documentation
    performance
    healpy_compat
    api
+   changes

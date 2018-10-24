@@ -1,18 +1,28 @@
-0.3 (unreleased)
+.. _changes:
+
+*******
+Changes
+*******
+
+0.3 (2018-10-24)
 ================
 
+- Remove OpenMP from astropy-healpix [#108]
+- Fix bilinear interpolation of invalid values [#106]
+- Add uniq to (level, ipix) and inverse function [#105]
+- compute z more stably; improve on z2dec [#101]
+- use more stable cos(Dec) term [#94]
+- Fix get_interp_weights for phi=None case [#89]
+- Add pix2vec, vec2pix, ang2vec [#73]
 - Add ``pixel_resolution_to_nside`` function. [#31]
 
 0.2 (2017-10-15)
 ================
 
 - Expand benchmarks to include ang2pix, nest2ring and ring2nest. [#62]
-
 - Use OpenMP to parallelize the Cython wrappers. [#59]
-
 - Renamed the ``healpix_neighbours`` function to ``neighbours`` and added
   a wrapper to the high-level class. [#61]
-
 - Fix bilinear interpolation which was being done incorrectly, and added
   a new ``bilinear_interpolation_weights`` function to get the interpolation
   weights. [#63]

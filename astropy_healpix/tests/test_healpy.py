@@ -4,8 +4,6 @@ from __future__ import absolute_import, print_function, division
 
 from itertools import product
 
-from .six import integer_types
-
 import pytest
 import numpy as np
 
@@ -80,7 +78,7 @@ def test_ang2pix(nside_pow, lon, lat, nest, lonlat):
 
 def test_ang2pix_shape():
     ipix = hp_compat.ang2pix(8, 1., 2.)
-    assert isinstance(ipix, integer_types)
+    assert np.can_cast(ipix, np.int64)
 
     ipix = hp_compat.ang2pix(8, [[1., 2.], [3., 4.]], [[1., 2.], [3., 4.]])
     assert ipix.shape == (2, 2)
@@ -142,7 +140,7 @@ def test_pix2vec(nside_pow, frac, nest):
 
 def test_vec2pix_shape():
     ipix = hp_compat.vec2pix(8, 1., 2., 3.)
-    assert isinstance(ipix, integer_types)
+    assert np.can_cast(ipix, np.int64)
 
     ipix = hp_compat.vec2pix(8, [[1., 2.], [3., 4.]], [[5., 6.], [7., 8.]], [[9., 10.], [11., 12.]])
     assert ipix.shape == (2, 2)

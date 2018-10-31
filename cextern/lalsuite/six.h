@@ -42,7 +42,7 @@ typedef struct PyModuleDef {
 
 #define PyModuleDef_HEAD_INIT 0
 
-static inline PyObject *PyModule_Create(PyModuleDef *def)
+static PyObject *PyModule_Create(PyModuleDef *def)
 {
     (void)PyModule_Create; /* Suppress unused function warning */
 
@@ -55,7 +55,7 @@ static inline PyObject *PyModule_Create(PyModuleDef *def)
     return Py_InitModule3(def->m_name, def->m_methods, def->m_doc);
 }
 
-static inline PyObject *PyModule_Create2(PyModuleDef *def, int module_api_version)
+static PyObject *PyModule_Create2(PyModuleDef *def, int module_api_version)
 {
     (void)PyModule_Create2; /* Suppress unused function warning */
 

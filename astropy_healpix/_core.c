@@ -18,10 +18,23 @@
 #include "ieee754.h"
 
 
+/* Data structure for storing function pointers for routines that are specific
+ * to the HEALPix ordering scheme. When we create the ufuncs using
+ * PyUFunc_FromFuncAndData, we will set them up to pass a pointer to this
+ * data structure through as the void *data parameter for the loop functions
+ * defined below. */
 typedef struct {
     int64_t (*order_to_xy)(int64_t, int);
     int64_t (*xy_to_order)(int64_t, int);
 } order_funcs;
+
+static const order_funcs
+    nested_order_funcs = {healpixl_nested_to_xy, healpixl_xy_to_nested},
+    ring_order_funcs   = {healpixl_ring_to_xy, healpixl_xy_to_ring};
+
+static void *no_ufunc_data[]     = {NULL},
+            *nested_ufunc_data[] = {&nested_order_funcs},
+            *ring_ufunc_data[]   = {&ring_order_funcs};
 
 
 static int64_t nside2npix(int nside)
@@ -271,14 +284,6 @@ static const PyUFuncGenericFunction
     ring_to_nested_loops                [] = {ring_to_nested_loop},
     bilinear_interpolation_weights_loops[] = {bilinear_interpolation_weights_loop},
     neighbours_loops                    [] = {neighbours_loop};
-
-static const order_funcs
-    nested_order_funcs = {healpixl_nested_to_xy, healpixl_xy_to_nested},
-    ring_order_funcs   = {healpixl_ring_to_xy, healpixl_xy_to_ring};
-
-static void *no_ufunc_data[]     = {NULL},
-            *nested_ufunc_data[] = {&nested_order_funcs},
-            *ring_ufunc_data[]   = {&ring_order_funcs};
 
 static const char
     healpix_to_lonlat_types[] = {

@@ -219,13 +219,14 @@ static void neighbours_loop(
 static PyObject *healpix_cone_search(
     PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    PyObject *result = NULL;
+    PyObject *result;
     static const char *kws[] = {"lon", "lat", "radius", "nside", "order", NULL};
     double lon, lat, radius;
     int nside;
     char *order;
     int64_t *indices, n_indices;
     int64_t *result_data;
+    npy_intp dims[1];
 
     if (!PyArg_ParseTupleAndKeywords(
             args, kwargs, "dddis", kws, &lon, &lat, &radius, &nside, &order))
@@ -237,30 +238,27 @@ static PyObject *healpix_cone_search(
     {
         PyErr_SetString(
             PyExc_RuntimeError, "healpix_rangesearch_radec_simple failed");
-        goto done;
+        return NULL;
     }
 
+    dims[0] = n_indices;
+    result = PyArray_SimpleNew(1, dims, NPY_INT64);
+    if (result)
     {
-        npy_intp dims[] = {n_indices};
-        result = PyArray_SimpleNew(1, dims, NPY_INT64);
-    }
-    if (!result)
-        goto done;
+        result_data = PyArray_DATA((PyArrayObject *) result);
 
-    result_data = PyArray_DATA((PyArrayObject *) result);
-
-    if (strcmp(order, "nested") == 0)
-    {
-        int i;
-        for (i = 0; i < n_indices; i ++)
-            result_data[i] = healpixl_xy_to_nested(indices[i], nside);
-    } else {
-        int i;
-        for (i = 0; i < n_indices; i ++)
-            result_data[i] = healpixl_xy_to_ring(indices[i], nside);
+        if (strcmp(order, "nested") == 0)
+        {
+            int i;
+            for (i = 0; i < n_indices; i ++)
+                result_data[i] = healpixl_xy_to_nested(indices[i], nside);
+        } else {
+            int i;
+            for (i = 0; i < n_indices; i ++)
+                result_data[i] = healpixl_xy_to_ring(indices[i], nside);
+        }
     }
 
-done:
     free(indices);
     return result;
 }

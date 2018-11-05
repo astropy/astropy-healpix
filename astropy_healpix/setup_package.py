@@ -16,6 +16,9 @@ C_FILES = ['bl.c',
 
 
 C_DIR = os.path.join('cextern', 'astrometry.net')
+C_DIRS = ['numpy', C_DIR, HEALPIX_ROOT,
+          os.path.join('cextern', 'lalsuite'),
+          os.path.join('cextern', 'numpy')]
 
 
 def get_extensions():
@@ -24,14 +27,12 @@ def get_extensions():
 
     sources = [os.path.join(C_DIR, filename) for filename in C_FILES]
     sources.append(os.path.join(HEALPIX_ROOT, 'interpolation.c'))
-    sources.append(os.path.join(HEALPIX_ROOT, 'core_cython.pyx'))
-
-    include_dirs = ['numpy', C_DIR, HEALPIX_ROOT]
+    sources.append(os.path.join(HEALPIX_ROOT, '_core.c'))
 
     extension = Extension(
-        name="astropy_healpix.core_cython",
+        name="astropy_healpix._core",
         sources=sources,
-        include_dirs=include_dirs,
+        include_dirs=C_DIRS,
         libraries=libraries,
         language="c",
         extra_compile_args=['-O2'])

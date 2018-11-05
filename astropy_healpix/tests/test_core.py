@@ -159,9 +159,11 @@ def test_healpix_to_lonlat_invalid():
     dx = [0.1, 0.4, 0.9]
     dy = [0.4, 0.3, 0.2]
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.warns(RuntimeWarning, match='invalid value'):
         lon, lat = healpix_to_lonlat([-1, 2, 3], 4)
-    assert exc.value.args[0] == 'healpix_index must be in the range [0:192]'
+
+    with pytest.warns(RuntimeWarning, match='invalid value'):
+        lon, lat = healpix_to_lonlat([192, 2, 3], 4)
 
     with pytest.raises(ValueError) as exc:
         lon, lat = healpix_to_lonlat([1, 2, 3], 5)
@@ -193,14 +195,14 @@ def test_healpix_to_lonlat_shape():
 
 def test_lonlat_to_healpix_shape():
     healpix_index = lonlat_to_healpix(2 * u.deg, 3 * u.deg, 8)
-    assert isinstance(healpix_index, integer_types)
+    assert np.can_cast(healpix_index, np.int64)
 
     lon, lat = np.ones((2, 4)) * u.deg, np.zeros((2, 4)) * u.deg
     healpix_index = lonlat_to_healpix(lon, lat, 8)
     assert healpix_index.shape == (2, 4)
 
     healpix_index, dx, dy = lonlat_to_healpix(2 * u.deg, 3 * u.deg, 8, return_offsets=True)
-    assert isinstance(healpix_index, integer_types)
+    assert np.can_cast(healpix_index, np.int64)
     assert isinstance(dx, float)
     assert isinstance(dy, float)
 
@@ -214,7 +216,7 @@ def test_lonlat_to_healpix_shape():
 @pytest.mark.parametrize('function', [nested_to_ring, ring_to_nested])
 def test_nested_ring_shape(function):
     index = function(1, 8)
-    assert isinstance(index, integer_types)
+    assert np.can_cast(index, np.int64)
 
     index = function([[1, 2, 3], [2, 3, 4]], 8)
     assert index.shape == (2, 3)
@@ -330,9 +332,11 @@ def test_neighbours(order):
 
 
 def test_neighbours_invalid():
-    with pytest.raises(ValueError) as exc:
+    with pytest.warns(RuntimeWarning, match='invalid value'):
         neighbours([-1, 2, 3], 4)
-    assert exc.value.args[0] == 'healpix_index must be in the range [0:192]'
+
+    with pytest.warns(RuntimeWarning, match='invalid value'):
+        neighbours([192, 2, 3], 4)
 
     with pytest.raises(ValueError) as exc:
         neighbours([1, 2, 3], 5)

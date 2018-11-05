@@ -7,7 +7,8 @@ Changes
 0.4 (unreleased)
 ================
 
-- No changes yet.
+- Rewrite core module in C to make ``healpix_to_lonlat`` and
+  ``lonlat_to_healpix`` broadcastable over both pixel index and nside. [#110]
 
 0.3.1 (2018-10-24)
 ==================

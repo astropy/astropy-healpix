@@ -18,6 +18,8 @@
 #include "ieee754.h"
 
 
+#define INVALID_INDEX (-1)
+
 /* Data structure for storing function pointers for routines that are specific
  * to the HEALPix ordering scheme. When we create the ufuncs using
  * PyUFunc_FromFuncAndData, we will set them up to pass a pointer to this
@@ -63,7 +65,7 @@ static void healpix_to_lonlat_loop(
         double  dy    = *(double *)  &args[3][i * steps[3]];
         double  *lon  =  (double *)  &args[4][i * steps[4]];
         double  *lat  =  (double *)  &args[5][i * steps[5]];
-        int64_t xy = -1;
+        int64_t xy = INVALID_INDEX;
 
         if (pixel_nside_valid(pixel, nside))
             xy = funcs->order_to_xy(pixel, nside);
@@ -93,13 +95,13 @@ static void lonlat_to_healpix_loop(
         int64_t *pixel =  (int64_t *) &args[3][i * steps[3]];
         double  *dx    =  (double *)  &args[4][i * steps[4]];
         double  *dy    =  (double *)  &args[5][i * steps[5]];
-        int64_t xy = -1;
+        int64_t xy = INVALID_INDEX;
 
         xy = radec_to_healpixlf(lon, lat, nside, dx, dy);
         if (xy >= 0)
             *pixel = funcs->xy_to_order(xy, nside);
         else {
-            *pixel = -1;
+            *pixel = INVALID_INDEX;
             *dx = *dy = NPY_NAN;
             _npy_set_floatstatus_invalid();
         }
@@ -117,14 +119,14 @@ static void nested_to_ring_loop(
         int64_t nested = *(int64_t *) &args[0][i * steps[0]];
         int     nside  = *(int *)     &args[1][i * steps[1]];
         int64_t *ring  =  (int64_t *) &args[2][i * steps[2]];
-        int64_t xy = -1;
+        int64_t xy = INVALID_INDEX;
 
         if (pixel_nside_valid(nested, nside))
             xy = healpixl_nested_to_xy(nested, nside);
         if (xy >= 0)
             *ring = healpixl_xy_to_ring(xy, nside);
         else {
-            *ring = -1;
+            *ring = INVALID_INDEX;
             _npy_set_floatstatus_invalid();
         }
     }
@@ -141,14 +143,14 @@ static void ring_to_nested_loop(
         int64_t ring   = *(int64_t *) &args[0][i * steps[0]];
         int     nside  = *(int *)     &args[1][i * steps[1]];
         int64_t *nested = (int64_t *) &args[2][i * steps[2]];
-        int64_t xy = -1;
+        int64_t xy = INVALID_INDEX;
 
         if (pixel_nside_valid(ring, nside))
             xy = healpixl_ring_to_xy(ring, nside);
         if (xy >= 0)
             *nested = healpixl_xy_to_nested(xy, nside);
         else {
-            *nested = -1;
+            *nested = INVALID_INDEX;
             _npy_set_floatstatus_invalid();
         }
     }
@@ -189,9 +191,11 @@ static void neighbours_loop(
     {
         int64_t pixel = *(int64_t *) &args[0][i * steps[0]];
         int     nside = *(int *)     &args[1][i * steps[1]];
-        int64_t neighbours[] = {-1, -1, -1, -1, -1, -1, -1, -1};
+        int64_t neighbours[] = {
+            INVALID_INDEX, INVALID_INDEX, INVALID_INDEX, INVALID_INDEX,
+            INVALID_INDEX, INVALID_INDEX, INVALID_INDEX, INVALID_INDEX};
         int j;
-        int64_t xy = -1;
+        int64_t xy = INVALID_INDEX;
 
         if (pixel_nside_valid(pixel, nside))
             xy = funcs->order_to_xy(pixel, nside);
@@ -207,7 +211,7 @@ static void neighbours_loop(
             if (xy >= 0)
                 pixel = funcs->xy_to_order(xy, nside);
             else {
-                pixel = -1;
+                pixel = INVALID_INDEX;
                 _npy_set_floatstatus_invalid();
             }
             *(int64_t *) &args[2 + j][i * steps[2 + j]] = pixel;

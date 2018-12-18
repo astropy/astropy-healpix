@@ -143,13 +143,17 @@ int64_t healpix_rangesearch_radec_simple(double ra, double dec, double radius,
                                          int Nside, int approx, int64_t **indices) {
     double xyz[3];
     ll* hps = ll_new(256);
+    int64_t n_pixels;
     radecdeg2xyzarr(ra, dec, xyz);
     hp_rangesearch(xyz, radius, Nside, hps, (anbool)approx);
+    n_pixels = ll_size(hps);
     *indices = (int64_t *)malloc((size_t)ll_size(hps) * sizeof(int64_t));
-    if (*indices == NULL) {
+    if (*indices) {
+        ll_copy(hps, 0, hps->N, *indices);
+    } else {
         fprintf(stderr, "malloc failed\n");
-        return(-1);
+        n_pixels = -1;
     }
-    ll_copy(hps, 0, hps->N, *indices);
-    return (int64_t)ll_size(hps);
+    ll_free(hps);
+    return n_pixels;
 }

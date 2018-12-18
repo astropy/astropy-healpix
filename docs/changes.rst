@@ -4,9 +4,11 @@
 Changes
 *******
 
-0.4 (unreleased)
+0.4 (2018-12-18)
 ================
 
+- Healpix rangesearch cleanup [#113]
+- Update astropy-helpers to v2.0.8 [#112]
 - Rewrite core module in C to make ``healpix_to_lonlat`` and
   ``lonlat_to_healpix`` broadcastable over both pixel index and nside. [#110]
 

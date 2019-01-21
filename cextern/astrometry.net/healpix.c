@@ -198,7 +198,7 @@ Const int64_t healpixl_ring_to_xy(int64_t ring, int Nside) {
         v = F1*Nside - ringind - 1;
         x = v - y;
         return healpixl_compose_xy(bighp, x, y, Nside);
-    } else if (ringind < 3L*Nside) {
+    } else if (ringind < (int64_t)3*Nside) {
         int panel;
         int ind;
         int bottomleft;
@@ -211,7 +211,7 @@ Const int64_t healpixl_ring_to_xy(int64_t ring, int Nside) {
         panel = longind / Nside;
         ind = longind % Nside;
         bottomleft = ind < (ringind - Nside + 1) / 2;
-        topleft = ind < (3L*Nside - ringind + 1)/2;
+        topleft = ind < ((int64_t)3*Nside - ringind + 1)/2;
 
         if (!bottomleft && topleft) {
             // top row.
@@ -226,7 +226,7 @@ Const int64_t healpixl_ring_to_xy(int64_t ring, int Nside) {
             // right side.
             bighp = 4 + (panel + 1) % 4;
             if (bighp == 4) {
-                longind -= (4L*Nside - 1);
+                longind -= ((int64_t)4*Nside - 1);
                 // Gah!  Wacky hack - it seems that since
                 // "longind" is negative in this case, the
                 // rounding behaves differently, so we end up
@@ -300,7 +300,7 @@ Const int64_t healpixl_xy_to_ring(int64_t hp, int Nside) {
      [3Nside, 4Nside-1] : s pole
      */
     // this probably can't happen...
-    if ((ring < 1) || (ring >= 4L*Nside)) {
+    if ((ring < 1) || (ring >= (int64_t)4*Nside)) {
         //fprintf(stderr, "Invalid ring index: %i %i\n", ring, 4*Nside);
         return -1;
     }
@@ -312,13 +312,13 @@ Const int64_t healpixl_xy_to_ring(int64_t hp, int Nside) {
         index += ((bighp % 4) * ring);
         // offset from the other rings
         index += (int64_t)ring*(ring-1)*2;
-    } else if (ring >= 3L*Nside) {
+    } else if (ring >= (int64_t)3*Nside) {
         // south polar.
         // Here I first flip everything so that we label the pixels
         // at zero starting in the southeast corner, increasing to the
         // west and north, then subtract that from the total number of
         // healpixels.
-        int ri = 4L*Nside - ring;
+        int ri = (int64_t)4*Nside - ring;
         // index within this healpix
         index = (ri-1) - x;
         // big healpixes
@@ -451,7 +451,7 @@ void healpixl_decompose_xy(int64_t finehp,
     int64_t hp;
     int64_t ns2 = (int64_t)Nside * (int64_t)Nside;
     assert(Nside > 0);
-    assert(finehp < (12L * ns2));
+    assert(finehp < ((int64_t)12 * ns2));
     assert(finehp >= 0);
     if (pbighp) {
         int bighp = (int)(finehp / ns2);

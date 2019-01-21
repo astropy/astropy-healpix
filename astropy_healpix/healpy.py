@@ -121,8 +121,8 @@ def vec2pix(nside, x, y, z, nest=False):
     theta, phi = vec2ang(np.transpose([x, y, z]))
     # hp.vec2ang() returns raveled arrays, which are 1D.
     if np.isscalar(x):
-        theta = np.asscalar(theta)
-        phi = np.asscalar(phi)
+        theta = theta.item()
+        phi = phi.item()
     else:
         shape = np.shape(x)
         theta = theta.reshape(shape)

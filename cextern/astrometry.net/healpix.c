@@ -394,15 +394,6 @@ static Inline anbool issouthpolar(int healpix)
     return (healpix >= 8);
 }
 
-static int compose_xy(int x, int y, int Nside) {
-    assert(Nside > 0);
-    assert(x >= 0);
-    assert(x < Nside);
-    assert(y >= 0);
-    assert(y < Nside);
-    return (x * Nside) + y;
-}
-
 int64_t healpixl_compose_xy(int bighp, int x, int y, int Nside) {
     int64_t ns = Nside;
     assert(Nside > 0);

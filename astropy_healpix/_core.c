@@ -269,7 +269,7 @@ static PyObject *healpix_cone_search(
 
 
 static PyMethodDef methods[] = {
-    {"healpix_cone_search", healpix_cone_search, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"healpix_cone_search", (PyCFunction) healpix_cone_search, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL, NULL, 0, NULL}
 };
 

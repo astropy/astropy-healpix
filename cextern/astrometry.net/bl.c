@@ -3,6 +3,7 @@
  # Licensed under a 3-clause BSD style license - see LICENSE
  */
 
+#define _GNU_SOURCE  /* for GNU extension vasprintf() */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

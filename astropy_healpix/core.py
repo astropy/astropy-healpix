@@ -38,9 +38,9 @@ def _restore_shape(*args, **kwargs):
             return args[0].reshape(shape)
     else:
         if len(args) > 1:
-            return [np.asscalar(arg) for arg in args]
+            return [arg.item() for arg in args]
         else:
-            return np.asscalar(args[0])
+            return args[0].item()
 
 
 def _validate_order(order):

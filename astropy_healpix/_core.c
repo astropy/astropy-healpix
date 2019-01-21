@@ -30,7 +30,7 @@ typedef struct {
     int64_t (*xy_to_order)(int64_t, int);
 } order_funcs;
 
-static const order_funcs
+static order_funcs
     nested_order_funcs = {healpixl_nested_to_xy, healpixl_xy_to_nested},
     ring_order_funcs   = {healpixl_ring_to_xy, healpixl_xy_to_ring};
 
@@ -224,7 +224,7 @@ static PyObject *healpix_cone_search(
     PyObject *self, PyObject *args, PyObject *kwargs)
 {
     PyObject *result;
-    static const char *kws[] = {"lon", "lat", "radius", "nside", "order", NULL};
+    static char *kws[] = {"lon", "lat", "radius", "nside", "order", NULL};
     double lon, lat, radius;
     int nside;
     char *order;
@@ -279,7 +279,7 @@ static PyModuleDef moduledef = {
     "_core", NULL, -1, methods
 };
 
-static const PyUFuncGenericFunction
+static PyUFuncGenericFunction
     healpix_to_lonlat_loops             [] = {healpix_to_lonlat_loop},
     lonlat_to_healpix_loops             [] = {lonlat_to_healpix_loop},
     nested_to_ring_loops                [] = {nested_to_ring_loop},
@@ -287,7 +287,7 @@ static const PyUFuncGenericFunction
     bilinear_interpolation_weights_loops[] = {bilinear_interpolation_weights_loop},
     neighbours_loops                    [] = {neighbours_loop};
 
-static const char
+static char
     healpix_to_lonlat_types[] = {
         NPY_INT64, NPY_INT, NPY_DOUBLE, NPY_DOUBLE, NPY_DOUBLE, NPY_DOUBLE},
     lonlat_to_healpix_types[] = {

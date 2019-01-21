@@ -754,7 +754,6 @@ static hp_t xyztohp(double vx, double vy, double vz, double coz,
     if ((vz >= twothirds) || (vz <= -twothirds)) {
         anbool north;
         int column;
-        double root;
         double xx, yy, kx, ky;
 
         // Which pole?

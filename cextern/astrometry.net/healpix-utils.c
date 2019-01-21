@@ -39,7 +39,7 @@ ll* healpix_region_search(int seed, ll* seeds, int Nside,
             break;
         for (j=0; j<N; j++) {
             int64_t hp;
-            int i, nn;
+            int i;
             int64_t neigh[8];
             hp = ll_get(frontier, j);
             healpixl_get_neighbours(hp, neigh, Nside);
@@ -81,7 +81,7 @@ static ll* hp_rangesearch(const double* xyz, double radius, int Nside, ll* hps, 
     ll_append(frontier, hp);
     ll_append(hps, hp);
     while (ll_size(frontier)) {
-        int64_t nn, neighbours[8];
+        int64_t neighbours[8];
         int64_t i;
         hp = ll_pop(frontier);
         healpixl_get_neighbours(hp, neighbours, Nside);

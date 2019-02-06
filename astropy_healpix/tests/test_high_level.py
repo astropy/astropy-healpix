@@ -1,7 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-
-from __future__ import absolute_import, print_function, division
-
 import pytest
 import numpy as np
 from numpy.testing import assert_allclose, assert_equal

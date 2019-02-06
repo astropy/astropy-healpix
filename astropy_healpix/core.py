@@ -1,7 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-
-from __future__ import absolute_import, print_function, division
-
 import math
 
 import numpy as np
@@ -58,13 +55,13 @@ def _validate_order(order):
 def _validate_healpix_index(label, healpix_index, nside):
     npix = nside_to_npix(nside)
     if np.any((healpix_index < 0) | (healpix_index > npix - 1)):
-        raise ValueError('{0} must be in the range [0:{1}]'.format(label, npix))
+        raise ValueError('{} must be in the range [0:{}]'.format(label, npix))
 
 
 def _validate_offset(label, offset):
     offset = np.asarray(offset)
     if np.any((offset < 0) | (offset > 1)):
-        raise ValueError('d{0} must be in the range [0:1]'.format(label))
+        raise ValueError('d{} must be in the range [0:1]'.format(label))
 
 
 def _validate_level(level):

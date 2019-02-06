@@ -1,7 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-
-from __future__ import absolute_import, print_function, division
-
 from itertools import product
 
 import pytest

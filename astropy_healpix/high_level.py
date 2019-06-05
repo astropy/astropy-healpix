@@ -7,10 +7,11 @@ from astropy.coordinates import SkyCoord
 from astropy.coordinates.representation import UnitSphericalRepresentation
 
 from .core import (nside_to_pixel_area, nside_to_pixel_resolution,
-                   nside_to_npix, healpix_to_lonlat, lonlat_to_healpix,
-                   bilinear_interpolation_weights, interpolate_bilinear_lonlat,
-                   ring_to_nested, nested_to_ring, healpix_cone_search,
-                   boundaries_lonlat, neighbours)
+                   nside_to_npix, npix_to_nside, healpix_to_lonlat,
+                   lonlat_to_healpix, bilinear_interpolation_weights,
+                   interpolate_bilinear_lonlat, ring_to_nested, nested_to_ring,
+                   healpix_cone_search, boundaries_lonlat, neighbours)
+from .utils import parse_input_healpix_data
 
 __all__ = ['HEALPix']
 
@@ -51,6 +52,40 @@ class HEALPix(object):
         self.nside = nside
         self.order = order
         self.frame = frame
+
+    @classmethod
+    def from_header(cls, input_data, field=0, hdu_in=None, nested=None):
+        """
+        Parameters
+        ----------
+        input_data : str or `~astropy.io.fits.TableHDU` or `~astropy.io.fits.BinTableHDU` or tuple
+            The input data to reproject. This can be:
+
+                * The name of a HEALPIX FITS file
+                * A `~astropy.io.fits.TableHDU` or `~astropy.io.fits.BinTableHDU`
+                  instance
+                * A tuple where the first element is a `~numpy.ndarray` and the
+                  second element is a `~astropy.coordinates.BaseCoordinateFrame`
+                  instance or a string alias for a coordinate frame.
+
+        hdu_in : int or str, optional
+            If ``input_data`` is a FITS file, specifies the HDU to use.
+            (the default HDU for HEALPIX data is 1, unlike with image files where
+            it is generally 0)
+        nested : bool, optional
+            The order of the healpix_data, either nested (True) or ring (False).
+            If a FITS file is passed in, this is determined from the header.
+
+        Returns
+        -------
+        healpix : `~astropy_healpix.HEALPix`
+            A HEALPix pixellization corresponding to the input data.
+        """
+        array_in, frame, nested = parse_input_healpix_data(
+            input_data, field=field, hdu_in=hdu_in, nested=nested)
+        nside = npix_to_nside(len(array_in))
+        order = 'nested' if nested else 'ring'
+        return cls(nside=nside, order=order, frame=frame)
 
     @property
     def pixel_area(self):

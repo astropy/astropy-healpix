@@ -8,6 +8,7 @@ from numpy.testing import assert_allclose, assert_equal
 
 from astropy import units as u
 from astropy.coordinates import Longitude, Latitude, Galactic, SkyCoord
+from astropy.io.fits import Header
 
 from ..high_level import HEALPix
 
@@ -107,6 +108,25 @@ class TestCelestialHEALPix:
 
     def setup_class(self):
         self.pix = HEALPix(nside=256, order='nested', frame=Galactic())
+
+    def test_healpix_from_header(self):
+        """Test instantiation from a FITS header.
+
+        Notes
+        -----
+        We don't need to test all possible options, because
+        :meth:`~astropy_healpix.HEALPix.from_header` is just a wrapper around
+        :meth:`~astropy_healpix.utils.parse_input_healpix_data`, which is
+        tested exhaustively in :mod:`~astropy_healpix.tests.test_utils`.
+        """
+
+        pix = HEALPix.from_header(
+            (np.empty(self.pix.npix), 'G'),
+            nested=self.pix.order == 'nested')
+
+        assert pix.nside == self.pix.nside
+        assert type(pix.frame) == type(self.pix.frame)
+        assert pix.order == self.pix.order
 
     def test_healpix_to_skycoord(self):
         coord = self.pix.healpix_to_skycoord([1, 2, 3])

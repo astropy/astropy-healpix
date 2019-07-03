@@ -1,7 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-
-from __future__ import absolute_import, print_function, division
-
 import math
 
 import numpy as np
@@ -58,13 +55,13 @@ def _validate_order(order):
 def _validate_healpix_index(label, healpix_index, nside):
     npix = nside_to_npix(nside)
     if np.any((healpix_index < 0) | (healpix_index > npix - 1)):
-        raise ValueError('{0} must be in the range [0:{1}]'.format(label, npix))
+        raise ValueError(f'{label} must be in the range [0:{npix}]')
 
 
 def _validate_offset(label, offset):
     offset = np.asarray(offset)
     if np.any((offset < 0) | (offset > 1)):
-        raise ValueError('d{0} must be in the range [0:1]'.format(label))
+        raise ValueError(f'd{label} must be in the range [0:1]')
 
 
 def _validate_level(level):
@@ -285,7 +282,7 @@ def pixel_resolution_to_nside(resolution, round='nearest'):
     elif round == 'down':
         level = np.floor(level)
     else:
-        raise ValueError('Invalid value for round: {!r}'.format(round))
+        raise ValueError(f'Invalid value for round: {round!r}')
 
     # For very low requested resolution (i.e. large angle values), we
     # return ``level=0``, i.e. ``nside=1``, i.e. the lowest resolution

@@ -7,9 +7,6 @@
 #include "healpix-utils.h"
 #include "interpolation.h"
 
-/* FIXME: Remove this once we drop Python 2 support. */
-#include "six.h"
-
 /* FIXME: We need npy_set_floatstatus_invalid(), but unlike most of the Numpy
  * C API it is only available on some platforms if you explicitly link against
  * Numpy, which is not typically done for building C extensions. This bundled
@@ -369,7 +366,3 @@ PyMODINIT_FUNC PyInit__core(void)
 
     return module;
 }
-
-
-/* FIXME: Remove this once we drop Python 2 support. */
-SIX_COMPAT_MODULE(_core)

@@ -17,7 +17,6 @@ C_FILES = ['bl.c',
 
 C_DIR = os.path.join('cextern', 'astrometry.net')
 C_DIRS = ['numpy', C_DIR, HEALPIX_ROOT,
-          os.path.join('cextern', 'lalsuite'),
           os.path.join('cextern', 'numpy')]
 
 

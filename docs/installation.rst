@@ -14,11 +14,11 @@ Dependencies
 Required dependencies
 ---------------------
 
-The **astropy-healpix** package works with Python 2.7 or 3.5 and later (on Linux, MacOS
-X and Windows), and requires the following dependencies:
+The **astropy-healpix** package works with Python 3.6 and later (on Linux, MacOS
+and Windows), and requires the following dependencies:
 
-* `Numpy <http://www.numpy.org>`__ 1.10 or later
-* `Astropy <http://www.astropy.org>`__ 1.2 or later
+* `Numpy <http://www.numpy.org>`__ 1.11 or later
+* `Astropy <http://www.astropy.org>`__ 2.0 or later
 
 If you use :ref:`pip` or :ref:`conda`, these will be installed automatically.
 

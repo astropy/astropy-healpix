@@ -1,7 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-
-from __future__ import absolute_import, print_function, division
-
 import os
 from astropy.coordinates import SkyCoord
 from astropy.coordinates.representation import UnitSphericalRepresentation
@@ -25,10 +22,10 @@ method.
 
 class NoFrameError(Exception):
     def __init__(self, alternative_method):
-        super(NoFrameError, self).__init__(NO_FRAME_MESSAGE.format(alternative_method))
+        super().__init__(NO_FRAME_MESSAGE.format(alternative_method))
 
 
-class HEALPix(object):
+class HEALPix:
     """
     A HEALPix pixellization.
 
@@ -232,7 +229,7 @@ class HEALPix(object):
             1-D array of interpolated values
         """
         if len(values) != self.npix:
-            raise ValueError('values must be an array of length {0} (got {1})'.format(self.npix, len(values)))
+            raise ValueError('values must be an array of length {} (got {})'.format(self.npix, len(values)))
         return interpolate_bilinear_lonlat(lon, lat, values, order=self.order)
 
     def cone_search_lonlat(self, lon, lat, radius):

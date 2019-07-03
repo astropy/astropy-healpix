@@ -52,9 +52,9 @@ def autoscaler(timer, mintime):
 
 def get_import(package, function):
     if package == 'astropy_healpix':
-        return 'from astropy_healpix.healpy import {}'.format(function)
+        return f'from astropy_healpix.healpy import {function}'
     else:
-        return 'from healpy import {}'.format(function)
+        return f'from healpy import {function}'
 
 
 def bench_pix2ang(size=None, nside=None, nest=None, package=None, fast=False):
@@ -64,8 +64,8 @@ def bench_pix2ang(size=None, nside=None, nest=None, package=None, fast=False):
         get_import(package, 'pix2ang'),
         'import numpy as np',
         'nside={}'.format(int(nside)),
-        'ipix=(np.random.random({}) * 12 * nside ** 2).astype(np.int64)'.format(shape),
-        'nest={}'.format(nest)])
+        f'ipix=(np.random.random({shape}) * 12 * nside ** 2).astype(np.int64)',
+        f'nest={nest}'])
 
     stmt = 'pix2ang(nside, ipix, nest)'
 
@@ -79,9 +79,9 @@ def bench_ang2pix(size=None, nside=None, nest=None, package=None, fast=False):
         get_import(package, 'ang2pix'),
         'import numpy as np',
         'nside={}'.format(int(nside)),
-        'lon=360 * np.random.random({})'.format(shape),
-        'lat=180 * np.random.random({}) - 90'.format(shape),
-        'nest={}'.format(nest)])
+        f'lon=360 * np.random.random({shape})',
+        f'lat=180 * np.random.random({shape}) - 90',
+        f'nest={nest}'])
 
     stmt = 'ang2pix(nside, lon, lat, nest, lonlat=True)'
 
@@ -95,7 +95,7 @@ def bench_nest2ring(size=None, nside=None, package=None, fast=False):
         get_import(package, 'nest2ring'),
         'import numpy as np',
         'nside={}'.format(int(nside)),
-        'ipix=(np.random.random({}) * 12 * nside ** 2).astype(np.int64)'.format(shape)])
+        f'ipix=(np.random.random({shape}) * 12 * nside ** 2).astype(np.int64)'])
 
     stmt = 'nest2ring(nside, ipix)'
 
@@ -109,7 +109,7 @@ def bench_ring2nest(size=None, nside=None, package=None, fast=False):
         get_import(package, 'ring2nest'),
         'import numpy as np',
         'nside={}'.format(int(nside)),
-        'ipix=(np.random.random({}) * 12 * nside ** 2).astype(np.int64)'.format(shape)])
+        f'ipix=(np.random.random({shape}) * 12 * nside ** 2).astype(np.int64)'])
 
     stmt = 'ring2nest(nside, ipix)'
 
@@ -123,9 +123,9 @@ def bench_get_interp_weights(size=None, nside=None, nest=None, package=None, fas
         get_import(package, 'get_interp_weights'),
         'import numpy as np',
         'nside={}'.format(int(nside)),
-        'lon=360 * np.random.random({})'.format(shape),
-        'lat=180 * np.random.random({}) - 90'.format(shape),
-        'nest={}'.format(nest)])
+        f'lon=360 * np.random.random({shape})',
+        f'lat=180 * np.random.random({shape}) - 90',
+        f'nest={nest}'])
 
     stmt = 'get_interp_weights(nside, lon, lat, nest=nest, lonlat=True)'
 

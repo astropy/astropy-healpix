@@ -58,13 +58,11 @@ def get_import(package, function):
 
 
 def bench_pix2ang(size=None, nside=None, nest=None, package=None, fast=False):
-    shape = (int(size), )
-
     setup = '\n'.join([
         get_import(package, 'pix2ang'),
         'import numpy as np',
-        'nside={}'.format(int(nside)),
-        f'ipix=(np.random.random({shape}) * 12 * nside ** 2).astype(np.int64)',
+        f'nside={nside}',
+        f'ipix=(np.random.random({size}) * 12 * nside ** 2).astype(np.int64)',
         f'nest={nest}'])
 
     stmt = 'pix2ang(nside, ipix, nest)'
@@ -73,14 +71,12 @@ def bench_pix2ang(size=None, nside=None, nest=None, package=None, fast=False):
 
 
 def bench_ang2pix(size=None, nside=None, nest=None, package=None, fast=False):
-    shape = (int(size), )
-
     setup = '\n'.join([
         get_import(package, 'ang2pix'),
         'import numpy as np',
-        'nside={}'.format(int(nside)),
-        f'lon=360 * np.random.random({shape})',
-        f'lat=180 * np.random.random({shape}) - 90',
+        f'nside={nside}',
+        f'lon=360 * np.random.random({size})',
+        f'lat=180 * np.random.random({size}) - 90',
         f'nest={nest}'])
 
     stmt = 'ang2pix(nside, lon, lat, nest, lonlat=True)'
@@ -89,13 +85,11 @@ def bench_ang2pix(size=None, nside=None, nest=None, package=None, fast=False):
 
 
 def bench_nest2ring(size=None, nside=None, package=None, fast=False):
-    shape = (int(size), )
-
     setup = '\n'.join([
         get_import(package, 'nest2ring'),
         'import numpy as np',
-        'nside={}'.format(int(nside)),
-        f'ipix=(np.random.random({shape}) * 12 * nside ** 2).astype(np.int64)'])
+        f'nside={nside}',
+        f'ipix=(np.random.random({size}) * 12 * nside ** 2).astype(np.int64)'])
 
     stmt = 'nest2ring(nside, ipix)'
 
@@ -103,13 +97,11 @@ def bench_nest2ring(size=None, nside=None, package=None, fast=False):
 
 
 def bench_ring2nest(size=None, nside=None, package=None, fast=False):
-    shape = (int(size), )
-
     setup = '\n'.join([
         get_import(package, 'ring2nest'),
         'import numpy as np',
-        'nside={}'.format(int(nside)),
-        f'ipix=(np.random.random({shape}) * 12 * nside ** 2).astype(np.int64)'])
+        f'nside={nside}',
+        f'ipix=(np.random.random({size}) * 12 * nside ** 2).astype(np.int64)'])
 
     stmt = 'ring2nest(nside, ipix)'
 
@@ -117,14 +109,12 @@ def bench_ring2nest(size=None, nside=None, package=None, fast=False):
 
 
 def bench_get_interp_weights(size=None, nside=None, nest=None, package=None, fast=False):
-    shape = (int(size), )
-
     setup = '\n'.join([
         get_import(package, 'get_interp_weights'),
         'import numpy as np',
-        'nside={}'.format(int(nside)),
-        f'lon=360 * np.random.random({shape})',
-        f'lat=180 * np.random.random({shape}) - 90',
+        f'nside={nside}',
+        f'lon=360 * np.random.random({size})',
+        f'lat=180 * np.random.random({size}) - 90',
         f'nest={nest}'])
 
     stmt = 'get_interp_weights(nside, lon, lat, nest=nest, lonlat=True)'
@@ -149,37 +139,37 @@ def bench_run(fast=False):
     results = []
 
     if fast:
-        SIZES = [10, 1e3, 1e5]
+        SIZES = [10, 1_000, 100_000]
     else:
-        SIZES = [10, 1e3, 1e6]
+        SIZES = [10, 1_000, 1_000_000]
 
     for nest in [True, False]:
         for size in SIZES:
             for nside in [1, 128]:
                 results.append(run_single('pix2ang', bench_pix2ang, fast=fast,
-                                          size=int(size), nside=nside, nest=nest))
+                                          size=size, nside=nside, nest=nest))
 
     for nest in [True, False]:
         for size in SIZES:
             for nside in [1, 128]:
                 results.append(run_single('ang2pix', bench_ang2pix, fast=fast,
-                                          size=int(size), nside=nside, nest=nest))
+                                          size=size, nside=nside, nest=nest))
 
     for size in SIZES:
         for nside in [1, 128]:
             results.append(run_single('nest2ring', bench_nest2ring, fast=fast,
-                                      size=int(size), nside=nside))
+                                      size=size, nside=nside))
 
     for size in SIZES:
         for nside in [1, 128]:
             results.append(run_single('ring2nest', bench_ring2nest, fast=fast,
-                                      size=int(size), nside=nside))
+                                      size=size, nside=nside))
 
     for nest in [True, False]:
         for size in SIZES:
             for nside in [1, 128]:
                 results.append(run_single('get_interp_weights', bench_get_interp_weights,
-                                          fast=fast, size=int(size),
+                                          fast=fast, size=size,
                                           nside=nside, nest=nest))
 
     return results

@@ -5,7 +5,6 @@ from numpy.testing import assert_allclose, assert_equal
 
 from astropy import units as u
 from astropy.coordinates import Longitude, Latitude, Galactic, SkyCoord
-from astropy.io.fits import Header
 
 from ..high_level import HEALPix
 

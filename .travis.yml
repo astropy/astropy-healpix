@@ -86,6 +86,7 @@ matrix:
         # may run for a long time
         - os: linux
           env: SETUP_CMD='build_docs -w'
+               CONDA_DEPENDENCIES='healpy>1.10 hypothesis<4.42 sphinx-astropy'
 
         # Now try Astropy dev and LTS versions
         - os: linux

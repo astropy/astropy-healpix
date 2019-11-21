@@ -36,7 +36,7 @@ env:
 
         # List other runtime dependencies for the package that are available as
         # conda packages here.
-        - CONDA_DEPENDENCIES='Cython healpy>1.10 hypothesis'
+        - CONDA_DEPENDENCIES='Cython healpy>1.10 hypothesis<4.42'
 
         # List other runtime dependencies for the package that are available as
         # pip packages here.

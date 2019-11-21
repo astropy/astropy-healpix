@@ -94,7 +94,7 @@ matrix:
                EVENT_TYPE='pull_request push cron'
         - os: linux
           env: ASTROPY_VERSION=lts SETUP_CMD='test --skip-docs'
-               CONDA_DEPENDENCIES='healpy>1.10 attrs pytest' ATTRS_VERSION=18
+               CONDA_DEPENDENCIES='healpy>1.10 attrs pytest attrs=18 hypothesis=3'
 
         # Try all python versions and Numpy versions. Since we can assume that
         # the Numpy developers have taken care of testing Numpy with different

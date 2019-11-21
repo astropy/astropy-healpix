@@ -8,7 +8,7 @@ jobs:
       - checkout
       - run:
           name: Install dependencies
-          command: /opt/python/cp36-cp36m/bin/pip install numpy astropy pytest-astropy Cython hypothesis
+          command: /opt/python/cp36-cp36m/bin/pip install -e .[test]
       - run:
           name: Run tests
           command: /opt/python/cp36-cp36m/bin/python setup.py test

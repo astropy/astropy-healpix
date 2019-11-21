@@ -104,15 +104,11 @@ release = package.__version__
 # name of a builtin theme or the name of a custom theme in html_theme_path.
 #html_theme = None
 
-{% if cookiecutter.sphinx_theme == "astropy-bootstrap" %}
 html_theme_options = {
     'logotext1': 'astropy',  # white,  semi-bold
     'logotext2': '-healpix',  # orange, light
     'logotext3': ':docs'   # white,  light
     }
-{% else %}
-html_theme = "{{ cookiecutter.sphinx_theme }}"
-{% endif %}
 
 # Custom sidebar templates, maps document names to template names.
 #html_sidebars = {}

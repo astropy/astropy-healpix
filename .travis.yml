@@ -63,9 +63,17 @@ matrix:
     fast_finish: true
 
     include:
+
         # Try MacOS X
         - os: osx
           env: SETUP_CMD='test' SETUP_CMD='test --skip-docs'
+
+        # Try Windows
+        - os: windows
+          env: SETUP_CMD='test' SETUP_CMD='test --skip-docs'
+        - os: windows
+          env: SETUP_CMD='test' SETUP_CMD='test --skip-docs'
+               PYTHON_VERSION=3.7
 
         # Do a coverage test.
         - os: linux

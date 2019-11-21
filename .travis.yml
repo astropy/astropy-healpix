@@ -47,7 +47,7 @@ env:
         # are in astropy-ci-extras. If your package uses either of these,
         # add the channels to CONDA_CHANNELS along with any other channels
         # you want to use.
-        - CONDA_CHANNELS='conda-forge astropy-ci-extras astropy'
+        - CONDA_CHANNELS='conda-forge astropy'
 
         # If there are matplotlib or other GUI tests, uncomment the following
         # line to use the X virtual framebuffer.
@@ -94,6 +94,7 @@ matrix:
                EVENT_TYPE='pull_request push cron'
         - os: linux
           env: ASTROPY_VERSION=lts SETUP_CMD='test --skip-docs'
+               PYTEST_VERSION=4
 
         # Try all python versions and Numpy versions. Since we can assume that
         # the Numpy developers have taken care of testing Numpy with different
@@ -101,9 +102,14 @@ matrix:
         # time.
 
         - os: linux
-          env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.12
+          env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.14
+               CONDA_DEPENDENCIES='hypothesis<4.42'
+               CONDA_CHANNELS='astropy'
+
         - os: linux
-          env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.11
+          env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.13
+               CONDA_DEPENDENCIES='hypothesis<4.42'
+               CONDA_CHANNELS='astropy'
 
         # Try numpy pre-release
         - os: linux

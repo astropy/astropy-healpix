@@ -29,3 +29,5 @@ version = generate_version_py()
 # See the docstring for setup_helpers.update_package_files for more
 # details.
 package_info = get_package_info()
+
+setup(version=version, cmdclass=cmdclass, **package_info)

@@ -36,7 +36,7 @@ env:
 
         # List other runtime dependencies for the package that are available as
         # conda packages here.
-        - CONDA_DEPENDENCIES='Cython healpy>1.10 hypothesis<4.42'
+        - CONDA_DEPENDENCIES='healpy>1.10 hypothesis<4.42'
 
         # List other runtime dependencies for the package that are available as
         # pip packages here.
@@ -71,9 +71,11 @@ matrix:
         # Try Windows
         - os: windows
           env: SETUP_CMD='test' SETUP_CMD='test --skip-docs'
+               CONDA_DEPENDENCIES='hypothesis<4.42'
         - os: windows
           env: SETUP_CMD='test' SETUP_CMD='test --skip-docs'
                PYTHON_VERSION=3.7
+               CONDA_DEPENDENCIES='hypothesis<4.42'
 
         # Do a coverage test.
         - os: linux

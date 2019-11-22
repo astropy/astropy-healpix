@@ -1,7 +1,17 @@
-# See http://read-the-docs.readthedocs.io/en/latest/yaml-config.html
-conda:
-    file: docs/environment.yml
+version: 2
+
+build:
+  image: latest
 
 python:
-   version: 3.5
-   setup_py_install: true
+  version: 3.7
+  install:
+    - method: pip
+      path: .
+      extra_requirements:
+        - docs
+
+submodules:
+  include: all
+
+formats: []

@@ -1,4 +1,4 @@
-# Conda environment for Gammapy development
+# Conda environment for astropy-healpix development
 #
 # Install:    conda env create -f environment-dev.yml
 # Update:     conda env update -f environment-dev.yml

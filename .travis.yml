@@ -18,8 +18,6 @@ addons:
     apt:
         packages:
             - graphviz
-            - texlive-latex-extra
-            - dvipng
 
 env:
     global:
@@ -35,10 +33,10 @@ env:
         - PIP_DEPENDENCIES=''
         - EVENT_TYPE='pull_request push'
 
-        
+
         # List other runtime dependencies for the package that are available as
         # conda packages here.
-        - CONDA_DEPENDENCIES='Cython healpy>1.10 hypothesis'
+        - CONDA_DEPENDENCIES='healpy>1.10 hypothesis<4.42'
 
         # List other runtime dependencies for the package that are available as
         # pip packages here.
@@ -49,7 +47,7 @@ env:
         # are in astropy-ci-extras. If your package uses either of these,
         # add the channels to CONDA_CHANNELS along with any other channels
         # you want to use.
-        - CONDA_CHANNELS='conda-forge astropy-ci-extras astropy'
+        - CONDA_CHANNELS='conda-forge astropy'
 
         # If there are matplotlib or other GUI tests, uncomment the following
         # line to use the X virtual framebuffer.
@@ -65,9 +63,19 @@ matrix:
     fast_finish: true
 
     include:
+
         # Try MacOS X
         - os: osx
           env: SETUP_CMD='test' SETUP_CMD='test --skip-docs'
+
+        # Try Windows
+        - os: windows
+          env: SETUP_CMD='test' SETUP_CMD='test --skip-docs'
+               CONDA_DEPENDENCIES='hypothesis<4.42'
+        - os: windows
+          env: SETUP_CMD='test' SETUP_CMD='test --skip-docs'
+               PYTHON_VERSION=3.7
+               CONDA_DEPENDENCIES='hypothesis<4.42'
 
         # Do a coverage test.
         - os: linux
@@ -78,6 +86,7 @@ matrix:
         # may run for a long time
         - os: linux
           env: SETUP_CMD='build_docs -w'
+               CONDA_DEPENDENCIES='healpy>1.10 hypothesis<4.42 sphinx-astropy'
 
         # Now try Astropy dev and LTS versions
         - os: linux
@@ -85,6 +94,7 @@ matrix:
                EVENT_TYPE='pull_request push cron'
         - os: linux
           env: ASTROPY_VERSION=lts SETUP_CMD='test --skip-docs'
+               CONDA_DEPENDENCIES='healpy>1.10 attrs pytest attrs=18 hypothesis=3'
 
         # Try all python versions and Numpy versions. Since we can assume that
         # the Numpy developers have taken care of testing Numpy with different
@@ -92,9 +102,14 @@ matrix:
         # time.
 
         - os: linux
-          env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.12
+          env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.14
+               CONDA_DEPENDENCIES='hypothesis<4.42'
+               CONDA_CHANNELS='astropy'
+
         - os: linux
-          env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.11
+          env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.13
+               CONDA_DEPENDENCIES='hypothesis<4.42'
+               CONDA_CHANNELS='astropy'
 
         # Try numpy pre-release
         - os: linux

@@ -47,4 +47,9 @@ User documentation
    performance
    healpy_compat
    api
-   changes
+
+Version history
+===============
+
+For a list of changes in each version, see the `CHANGES.rst
+<https://github.com/astropy/astropy-healpix/blob/master/CHANGES.rst>`_ file.

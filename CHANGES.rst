@@ -5,9 +5,16 @@ Changes
 *******
 
 0.5 (unreleased)
-----------------
+================
 
-- No changes yet
+- Update package infrastructure to use ``setup.cfg``. [#134]
+- Make sure that Numpy is declared as a build-time dependency. [#134]
+- Update astropy-helpers to v3.2.2. [#134]
+- Update minimum required Python version to 3.6. [#125]
+- Add ``HEALPix.from_header``. [#127]
+- Clean up C code to avoid compilation warnings. [#118, #119, #120, #121, #122, #123]
+- Fix unit tests on 32-bit architectures. [#117]
+- Fix compatibility with Numpy 1.16 and later. [#116]
 
 0.4 (2018-12-18)
 ================
@@ -49,4 +56,3 @@ Changes
 ================
 
 - Initial release
-

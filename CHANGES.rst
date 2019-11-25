@@ -4,7 +4,7 @@
 Changes
 *******
 
-0.5 (unreleased)
+0.5 (2019-11-25)
 ================
 
 - Update package infrastructure to use ``setup.cfg``. [#134]

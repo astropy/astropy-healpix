@@ -62,7 +62,7 @@ def test_npix2nside(npix):
            lambda lon: abs(lon) > 1e-10),
        lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(
            lambda lat: abs(lat) < 89.99 and abs(lat) > 1e-10))
-@settings(max_examples=2000, derandomize=True)
+@settings(max_examples=2000, derandomize=True, deadline=None)
 def test_ang2pix(nside_pow, lon, lat, nest, lonlat):
     nside = 2 ** nside_pow
     if lonlat:
@@ -94,7 +94,7 @@ def test_pix2ang_shape():
 
 @given(nside_pow=integers(0, 29), nest=booleans(), lonlat=booleans(),
        frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1))
-@settings(max_examples=2000, derandomize=True)
+@settings(max_examples=2000, derandomize=True, deadline=None)
 @example(nside_pow=29, frac=0.1666666694606345, nest=False, lonlat=False)
 @example(nside_pow=27, frac=2./3., nest=True, lonlat=False)
 def test_pix2ang(nside_pow, frac, nest, lonlat):
@@ -116,7 +116,7 @@ def test_pix2ang(nside_pow, frac, nest, lonlat):
        x=floats(-1, 1, allow_nan=False, allow_infinity=False).filter(lambda x: abs(x) > 1e-10),
        y=floats(-1, 1, allow_nan=False, allow_infinity=False).filter(lambda y: abs(y) > 1e-10),
        z=floats(-1, 1, allow_nan=False, allow_infinity=False).filter(lambda z: abs(z) > 1e-10))
-@settings(max_examples=2000, derandomize=True)
+@settings(max_examples=2000, derandomize=True, deadline=None)
 def test_vec2pix(nside_pow, x, y, z, nest):
     nside = 2 ** nside_pow
     ipix1 = hp_compat.vec2pix(nside, x, y, z, nest=nest)
@@ -126,7 +126,7 @@ def test_vec2pix(nside_pow, x, y, z, nest):
 
 @given(nside_pow=integers(0, 29), nest=booleans(),
        frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1))
-@settings(max_examples=2000, derandomize=True)
+@settings(max_examples=2000, derandomize=True, deadline=None)
 @example(nside_pow=29, frac=0.1666666694606345, nest=False)
 def test_pix2vec(nside_pow, frac, nest):
     nside = 2 ** nside_pow
@@ -158,7 +158,7 @@ def test_pix2vec_shape():
 
 @given(nside_pow=integers(0, 29),
        frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1))
-@settings(max_examples=2000, derandomize=True)
+@settings(max_examples=2000, derandomize=True, deadline=None)
 def test_nest2ring(nside_pow, frac):
     nside = 2 ** nside_pow
     nest = int(frac * 12 * nside ** 2)
@@ -169,7 +169,7 @@ def test_nest2ring(nside_pow, frac):
 
 @given(nside_pow=integers(0, 29),
        frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1))
-@settings(max_examples=2000, derandomize=True)
+@settings(max_examples=2000, derandomize=True, deadline=None)
 @example(nside_pow=29, frac=0.16666666697710755)
 def test_ring2nest(nside_pow, frac):
     nside = 2 ** nside_pow
@@ -181,7 +181,7 @@ def test_ring2nest(nside_pow, frac):
 
 @given(nside_pow=integers(0, 29), step=integers(1, 10), nest=booleans(),
        frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1))
-@settings(max_examples=500, derandomize=True)
+@settings(max_examples=500, derandomize=True, deadline=None)
 def test_boundaries(nside_pow, frac, step, nest):
     nside = 2 ** nside_pow
     pix = int(frac * 12 * nside ** 2)
@@ -208,7 +208,7 @@ def not_at_origin(vec):
 
 @given(vectors=arrays(float, (3,), elements=floats(-1, 1)).filter(not_at_origin),
        lonlat=booleans(), ndim=integers(0, 4))
-@settings(max_examples=500, derandomize=True)
+@settings(max_examples=500, derandomize=True, deadline=None)
 def test_vec2ang(vectors, lonlat, ndim):
     vectors = np.broadcast_to(vectors, (2,) * ndim + (3,))
     theta1, phi1 = hp_compat.vec2ang(vectors, lonlat=lonlat)
@@ -224,7 +224,7 @@ def test_vec2ang(vectors, lonlat, ndim):
            lambda lon: abs(lon) > 1e-10),
        lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(
            lambda lat: abs(lat) < 89.99 and abs(lat) > 1e-10))
-@settings(max_examples=2000, derandomize=True)
+@settings(max_examples=2000, derandomize=True, deadline=None)
 def test_ang2vec(lon, lat, lonlat):
     if lonlat:
         theta, phi = lon, lat
@@ -245,7 +245,7 @@ def test_ang2vec(lon, lat, lonlat):
            lambda lon: abs(lon) > 1e-5),
        lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(
            lambda lat: abs(lat) < 89.99 and abs(lat) > 1e-5))
-@settings(max_examples=500, derandomize=True)
+@settings(max_examples=500, derandomize=True, deadline=None)
 @example(nside_pow=27, lon=1.0000000028043134e-05, lat=-41.81031451395941, nest=False, lonlat=False)
 @example(nside_pow=6, lon=1.6345238095238293, lat=69.42254649458224, nest=False, lonlat=False)
 @example(nside_pow=15, lon=1.0000000028043134e-05, lat=1.000000000805912e-05,
@@ -294,7 +294,7 @@ VALUES = np.random.random(12 * NSIDE_POW_MAX ** 2)
            lambda lon: abs(lon) > 1e-5),
        lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(
            lambda lat: abs(lat) < 89.99 and abs(lat) > 1e-5))
-@settings(max_examples=500, derandomize=True)
+@settings(max_examples=500, derandomize=True, deadline=None)
 def test_interp_val(nside_pow, lon, lat, nest, lonlat):
     nside = 2 ** nside_pow
     if lonlat:

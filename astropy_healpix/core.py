@@ -20,6 +20,8 @@ __all__ = [
     'uniq_to_level_ipix',
     'lonlat_to_healpix',
     'healpix_to_lonlat',
+    'xyz_to_healpix',
+    'healpix_to_xyz',
     'bilinear_interpolation_weights',
     'interpolate_bilinear_lonlat',
     'neighbours',
@@ -430,6 +432,93 @@ def lonlat_to_healpix(lon, lat, nside, return_offsets=False, order='ring'):
     lat = lat.to_value(u.rad)
 
     healpix_index, dx, dy = func(lon, lat, nside)
+
+    if return_offsets:
+        return healpix_index, dx, dy
+    else:
+        return healpix_index
+
+
+def healpix_to_xyz(healpix_index, nside, dx=None, dy=None, order='ring'):
+    """
+    Convert HEALPix indices (optionally with offsets) to Cartesian coordinates.
+
+    If no offsets (``dx`` and ``dy``) are provided, the coordinates will default
+    to those at the center of the HEALPix pixels.
+
+    Parameters
+    ----------
+    healpix_index : int or `~numpy.ndarray`
+        HEALPix indices (as a scalar or array)
+    nside : int or `~numpy.ndarray`
+        Number of pixels along the side of each of the 12 top-level HEALPix tiles
+    dx, dy : float or `~numpy.ndarray`, optional
+        Offsets inside the HEALPix pixel, which must be in the range [0:1],
+        where 0.5 is the center of the HEALPix pixels (as scalars or arrays)
+    order : { 'nested' | 'ring' }, optional
+        Order of HEALPix pixels
+
+    Returns
+    -------
+    x, y, z : float or `~numpy.ndarray`
+        The Cartesian coordinate components
+    """
+
+    _validate_nside(nside)
+
+    if _validate_order(order) == 'ring':
+        func = _core.healpix_ring_to_xyz
+    else:  # _validate_order(order) == 'nested'
+        func = _core.healpix_nested_to_xyz
+
+    if dx is None:
+        dx = 0.5
+    else:
+        _validate_offset('x', dx)
+    if dy is None:
+        dy = 0.5
+    else:
+        _validate_offset('y', dy)
+
+    nside = np.asarray(nside, dtype=np.intc)
+
+    return func(healpix_index, nside, dx, dy)
+
+
+def xyz_to_healpix(x, y, z, nside, return_offsets=False, order='ring'):
+    """
+    Convert longitudes/latitudes to HEALPix indices
+
+    Parameters
+    ----------
+    x, y, z : float or `~numpy.ndarray`
+        The Cartesian coordinate components
+    nside : int or `~numpy.ndarray`
+        Number of pixels along the side of each of the 12 top-level HEALPix tiles
+    order : { 'nested' | 'ring' }
+        Order of HEALPix pixels
+    return_offsets : bool, optional
+        If `True`, the returned values are the HEALPix pixel indices as well as
+        ``dx`` and ``dy``, the fractional positions inside the pixels. If
+        `False` (the default), only the HEALPix pixel indices is returned.
+
+    Returns
+    -------
+    healpix_index : int or `~numpy.ndarray`
+        The HEALPix indices
+    dx, dy : `~numpy.ndarray`
+        Offsets inside the HEALPix pixel in the range [0:1], where 0.5 is the
+        center of the HEALPix pixels
+    """
+
+    if _validate_order(order) == 'ring':
+        func = _core.xyz_to_healpix_ring
+    else:  # _validate_order(order) == 'nested'
+        func = _core.xyz_to_healpix_nested
+
+    nside = np.asarray(nside, dtype=np.intc)
+
+    healpix_index, dx, dy = func(x, y, z, nside)
 
     if return_offsets:
         return healpix_index, dx, dy

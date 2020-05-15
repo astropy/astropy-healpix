@@ -88,7 +88,8 @@ class TestHEALPix:
         lon, lat = [1, 2] * u.deg, [3, 4] * u.deg
         with pytest.raises(ValueError) as exc:
             self.pix.cone_search_lonlat(lon, lat, 1 * u.deg)
-        assert exc.value.args[0] == 'The longitude, latitude and radius must be scalar Quantity objects'
+        assert exc.value.args[0] == ('The longitude, latitude and radius must '
+                                     'be scalar Quantity objects')
 
     def test_boundaries_lonlat(self):
         lon, lat = self.pix.boundaries_lonlat([10, 20, 30], 4)
@@ -121,7 +122,7 @@ class TestCelestialHEALPix:
             nested=self.pix.order == 'nested')
 
         assert pix.nside == self.pix.nside
-        assert type(pix.frame) == type(self.pix.frame)
+        assert type(pix.frame) == type(self.pix.frame)  # noqa
         assert pix.order == self.pix.order
 
     def test_healpix_to_skycoord(self):

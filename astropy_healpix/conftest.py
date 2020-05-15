@@ -21,6 +21,7 @@ else:
     except ImportError:
         ASTROPY_HEADER = False
 
+
 def pytest_configure(config):
 
     if ASTROPY_HEADER:

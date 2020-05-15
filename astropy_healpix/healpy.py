@@ -10,6 +10,7 @@ from astropy.coordinates.representation import CartesianRepresentation, UnitSphe
 from .core import (nside_to_pixel_resolution, nside_to_pixel_area,
                    nside_to_npix, npix_to_nside, nested_to_ring, ring_to_nested,
                    level_to_nside, lonlat_to_healpix, healpix_to_lonlat,
+                   xyz_to_healpix, healpix_to_xyz,
                    boundaries_lonlat, bilinear_interpolation_weights,
                    interpolate_bilinear_lonlat)
 
@@ -109,23 +110,12 @@ def ang2pix(nside, theta, phi, nest=False, lonlat=False):
 
 def pix2vec(nside, ipix, nest=False):
     """Drop-in replacement for healpy `~healpy.pixelfunc.pix2vec`."""
-    lon, lat = healpix_to_lonlat(ipix, nside, order='nested' if nest else 'ring')
-    return ang2vec(*_lonlat_to_healpy(lon, lat))
+    return healpix_to_xyz(ipix, nside, order='nested' if nest else 'ring')
 
 
 def vec2pix(nside, x, y, z, nest=False):
     """Drop-in replacement for healpy `~healpy.pixelfunc.vec2pix`."""
-    theta, phi = vec2ang(np.transpose([x, y, z]))
-    # hp.vec2ang() returns raveled arrays, which are 1D.
-    if np.isscalar(x):
-        theta = theta.item()
-        phi = phi.item()
-    else:
-        shape = np.shape(x)
-        theta = theta.reshape(shape)
-        phi = phi.reshape(shape)
-    lon, lat = _healpy_to_lonlat(theta, phi)
-    return lonlat_to_healpix(lon, lat, nside, order='nested' if nest else 'ring')
+    return xyz_to_healpix(x, y, z, nside, order='nested' if nest else 'ring')
 
 
 def nest2ring(nside, ipix):

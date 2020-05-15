@@ -106,6 +106,72 @@ static void lonlat_to_healpix_loop(
 }
 
 
+static void healpix_to_xyz_loop(
+    char **args, npy_intp *dimensions, npy_intp *steps, void *data)
+{
+    order_funcs *funcs = data;
+    npy_intp i, n = dimensions[0];
+
+    for (i = 0; i < n; i ++)
+    {
+        int64_t pixel = *(int64_t *) &args[0][i * steps[0]];
+        int     nside = *(int *)     &args[1][i * steps[1]];
+        double  dx    = *(double *)  &args[2][i * steps[2]];
+        double  dy    = *(double *)  &args[3][i * steps[3]];
+        double  *x    =  (double *)  &args[4][i * steps[4]];
+        double  *y    =  (double *)  &args[5][i * steps[5]];
+        double  *z    =  (double *)  &args[6][i * steps[6]];
+        int64_t xy = INVALID_INDEX;
+
+        if (pixel_nside_valid(pixel, nside))
+            xy = funcs->order_to_xy(pixel, nside);
+
+        if (xy >= 0)
+            healpixl_to_xyz(xy, nside, dx, dy, x, y, z);
+        else
+        {
+            *x = *y = *z = NPY_NAN;
+            _npy_set_floatstatus_invalid();
+        }
+    }
+}
+
+
+static void xyz_to_healpix_loop(
+    char **args, npy_intp *dimensions, npy_intp *steps, void *data)
+{
+    order_funcs *funcs = data;
+    npy_intp i, n = dimensions[0];
+
+    for (i = 0; i < n; i ++)
+    {
+        double  x      = *(double *)  &args[0][i * steps[0]];
+        double  y      = *(double *)  &args[1][i * steps[1]];
+        double  z      = *(double *)  &args[2][i * steps[2]];
+        int     nside  = *(int *)     &args[3][i * steps[3]];
+        int64_t *pixel =  (int64_t *) &args[4][i * steps[4]];
+        double  *dx    =  (double *)  &args[5][i * steps[5]];
+        double  *dy    =  (double *)  &args[6][i * steps[6]];
+        int64_t xy = INVALID_INDEX;
+
+        /* xyztohealpixlf expects a unit vector */
+        double norm = sqrt(x*x + y*y + z*z);
+        x /= norm;
+        y /= norm;
+        z /= norm;
+
+        xy = xyztohealpixlf(x, y, z, nside, dx, dy);
+        if (xy >= 0)
+            *pixel = funcs->xy_to_order(xy, nside);
+        else {
+            *pixel = INVALID_INDEX;
+            *dx = *dy = NPY_NAN;
+            _npy_set_floatstatus_invalid();
+        }
+    }
+}
+
+
 static void nested_to_ring_loop(
     char **args, npy_intp *dimensions, npy_intp *steps, void *data)
 {
@@ -279,6 +345,8 @@ static PyModuleDef moduledef = {
 static PyUFuncGenericFunction
     healpix_to_lonlat_loops             [] = {healpix_to_lonlat_loop},
     lonlat_to_healpix_loops             [] = {lonlat_to_healpix_loop},
+    healpix_to_xyz_loops                [] = {healpix_to_xyz_loop},
+    xyz_to_healpix_loops                [] = {xyz_to_healpix_loop},
     nested_to_ring_loops                [] = {nested_to_ring_loop},
     ring_to_nested_loops                [] = {ring_to_nested_loop},
     bilinear_interpolation_weights_loops[] = {bilinear_interpolation_weights_loop},
@@ -289,6 +357,10 @@ static char
         NPY_INT64, NPY_INT, NPY_DOUBLE, NPY_DOUBLE, NPY_DOUBLE, NPY_DOUBLE},
     lonlat_to_healpix_types[] = {
         NPY_DOUBLE, NPY_DOUBLE, NPY_INT, NPY_INT64, NPY_DOUBLE, NPY_DOUBLE},
+    healpix_to_xyz_types[] = {
+        NPY_INT64, NPY_INT, NPY_DOUBLE, NPY_DOUBLE, NPY_DOUBLE, NPY_DOUBLE, NPY_DOUBLE},
+    xyz_to_healpix_types[] = {
+        NPY_DOUBLE, NPY_DOUBLE, NPY_DOUBLE, NPY_INT, NPY_INT64, NPY_DOUBLE, NPY_DOUBLE},
     healpix_to_healpix_types[] = {
         NPY_INT64, NPY_INT, NPY_INT64},
     bilinear_interpolation_weights_types[] = {
@@ -333,6 +405,30 @@ PyMODINIT_FUNC PyInit__core(void)
             lonlat_to_healpix_loops, ring_ufunc_data,
             lonlat_to_healpix_types, 1, 3, 3, PyUFunc_None,
             "lonlat_to_healpix_ring", NULL, 0));
+
+    PyModule_AddObject(
+        module, "healpix_nested_to_xyz", PyUFunc_FromFuncAndData(
+            healpix_to_xyz_loops, nested_ufunc_data,
+            healpix_to_xyz_types, 1, 4, 3, PyUFunc_None,
+            "healpix_nested_to_xyz", NULL, 0));
+
+    PyModule_AddObject(
+        module, "healpix_ring_to_xyz", PyUFunc_FromFuncAndData(
+            healpix_to_xyz_loops, ring_ufunc_data,
+            healpix_to_xyz_types, 1, 4, 3, PyUFunc_None,
+            "healpix_ring_to_xyz", NULL, 0));
+
+    PyModule_AddObject(
+        module, "xyz_to_healpix_nested", PyUFunc_FromFuncAndData(
+            xyz_to_healpix_loops, nested_ufunc_data,
+            xyz_to_healpix_types, 1, 4, 3, PyUFunc_None,
+            "xyz_to_healpix_nested", NULL, 0));
+
+    PyModule_AddObject(
+        module, "xyz_to_healpix_ring", PyUFunc_FromFuncAndData(
+            xyz_to_healpix_loops, ring_ufunc_data,
+            xyz_to_healpix_types, 1, 4, 3, PyUFunc_None,
+            "xyz_to_healpix_ring", NULL, 0));
 
     PyModule_AddObject(
         module, "nested_to_ring", PyUFunc_FromFuncAndData(

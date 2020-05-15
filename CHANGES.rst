@@ -7,7 +7,9 @@ Changes
 0.6 (unreleased)
 ================
 
-- No changes yet.
+- Update package infrastructure to follow APE17 guidelines. [#142]
+- Added new functions ``healpix_to_xyz`` and ``xyz_to_healpix`` to
+  convert to/from cartesian coordinates. [#141]
 
 0.5 (2019-11-25)
 ================

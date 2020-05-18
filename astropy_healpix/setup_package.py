@@ -4,6 +4,8 @@ import os
 
 from distutils.core import Extension
 
+import numpy as np
+
 HEALPIX_ROOT = os.path.relpath(os.path.dirname(__file__))
 
 C_FILES = ['bl.c',
@@ -16,7 +18,7 @@ C_FILES = ['bl.c',
 
 
 C_DIR = os.path.join('cextern', 'astrometry.net')
-C_DIRS = ['numpy', C_DIR, HEALPIX_ROOT,
+C_DIRS = [np.get_include(), C_DIR, HEALPIX_ROOT,
           os.path.join('cextern', 'numpy')]
 
 

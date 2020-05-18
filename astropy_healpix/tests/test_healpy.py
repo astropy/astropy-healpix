@@ -8,13 +8,13 @@ from numpy.testing import assert_equal, assert_allclose
 
 from .. import healpy as hp_compat
 
-# NOTE: If healpy is installed, we use it in these tests, but healpy is not a
-# formal dependency of astropy-healpix.
-hp = pytest.importorskip('healpy')
-
 from hypothesis import given, settings, example
 from hypothesis.strategies import integers, floats, booleans
 from hypothesis.extra.numpy import arrays
+
+# NOTE: If healpy is installed, we use it in these tests, but healpy is not a
+# formal dependency of astropy-healpix.
+hp = pytest.importorskip('healpy')
 
 NSIDE_VALUES = [2 ** n for n in range(1, 6)]
 
@@ -58,7 +58,8 @@ def test_npix2nside(npix):
 # the equator since points that fall at exact boundaries are ambiguous.
 
 @given(nside_pow=integers(0, 29), nest=booleans(), lonlat=booleans(),
-       lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(lambda lon: abs(lon) > 1e-10),
+       lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(
+           lambda lon: abs(lon) > 1e-10),
        lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(
            lambda lat: abs(lat) < 89.99 and abs(lat) > 1e-10))
 @settings(max_examples=2000, derandomize=True)
@@ -219,7 +220,8 @@ def test_vec2ang(vectors, lonlat, ndim):
 
 
 @given(lonlat=booleans(),
-       lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(lambda lon: abs(lon) > 1e-10),
+       lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(
+           lambda lon: abs(lon) > 1e-10),
        lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(
            lambda lat: abs(lat) < 89.99 and abs(lat) > 1e-10))
 @settings(max_examples=2000, derandomize=True)
@@ -234,17 +236,20 @@ def test_ang2vec(lon, lat, lonlat):
 
 
 # The following fails, need to investigate:
-# @example(nside_pow=29, lon=1.0000000028043134e-05, lat=1.000000000805912e-05, nest=False, lonlat=False)
+# @example(nside_pow=29, lon=1.0000000028043134e-05, lat=1.000000000805912e-05,
+# nest=False, lonlat=False)
 #
 
 @given(nside_pow=integers(0, 28), nest=booleans(), lonlat=booleans(),
-       lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(lambda lon: abs(lon) > 1e-5),
+       lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(
+           lambda lon: abs(lon) > 1e-5),
        lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(
            lambda lat: abs(lat) < 89.99 and abs(lat) > 1e-5))
 @settings(max_examples=500, derandomize=True)
 @example(nside_pow=27, lon=1.0000000028043134e-05, lat=-41.81031451395941, nest=False, lonlat=False)
 @example(nside_pow=6, lon=1.6345238095238293, lat=69.42254649458224, nest=False, lonlat=False)
-@example(nside_pow=15, lon=1.0000000028043134e-05, lat=1.000000000805912e-05, nest=False, lonlat=False)
+@example(nside_pow=15, lon=1.0000000028043134e-05, lat=1.000000000805912e-05,
+         nest=False, lonlat=False)
 @example(nside_pow=0, lon=315.0000117809725, lat=1.000000000805912e-05, nest=False, lonlat=False)
 @example(nside_pow=0, lon=1.0000000028043134e-05, lat=-41.81031489577861, nest=False, lonlat=False)
 @example(nside_pow=0, lon=35.559942143736414, lat=-41.8103252622604, nest=False, lonlat=False)
@@ -285,7 +290,8 @@ VALUES = np.random.random(12 * NSIDE_POW_MAX ** 2)
 
 
 @given(nside_pow=integers(0, NSIDE_POW_MAX), nest=booleans(), lonlat=booleans(),
-       lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(lambda lon: abs(lon) > 1e-5),
+       lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(
+           lambda lon: abs(lon) > 1e-5),
        lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(
            lambda lat: abs(lat) < 89.99 and abs(lat) > 1e-5))
 @settings(max_examples=500, derandomize=True)

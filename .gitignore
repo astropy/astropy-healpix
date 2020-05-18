@@ -61,3 +61,5 @@ v
 
 .hypothesis
 .eggs
+
+pip-wheel-metadata/

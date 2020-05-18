@@ -229,7 +229,8 @@ class HEALPix:
             1-D array of interpolated values
         """
         if len(values) != self.npix:
-            raise ValueError('values must be an array of length {} (got {})'.format(self.npix, len(values)))
+            raise ValueError('values must be an array of length {} (got {})'
+                             .format(self.npix, len(values)))
         return interpolate_bilinear_lonlat(lon, lat, values, order=self.order)
 
     def cone_search_lonlat(self, lon, lat, radius):

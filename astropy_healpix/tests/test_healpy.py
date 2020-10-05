@@ -23,14 +23,14 @@ NSIDE_VALUES = [2 ** n for n in range(1, 6)]
 def test_nside2pixarea(nside, degrees):
     actual = hp_compat.nside2pixarea(nside=nside, degrees=degrees)
     expected = hp.nside2pixarea(nside=nside, degrees=degrees)
-    assert_equal(actual, expected)
+    assert_allclose(actual, expected)
 
 
 @pytest.mark.parametrize(('nside', 'arcmin'), product(NSIDE_VALUES, (False, True)))
 def test_nside2resol(nside, arcmin):
     actual = hp_compat.nside2resol(nside=nside, arcmin=arcmin)
     expected = hp.nside2resol(nside=nside, arcmin=arcmin)
-    assert_equal(actual, expected)
+    assert_allclose(actual, expected)
 
 
 @pytest.mark.parametrize('nside', NSIDE_VALUES)

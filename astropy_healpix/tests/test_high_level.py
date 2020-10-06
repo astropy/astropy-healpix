@@ -24,6 +24,9 @@ class TestHEALPix:
         assert_allclose(pixel_resolution.value, 13.741945647269624)
         assert pixel_resolution.unit == u.arcmin
 
+    def test_level(self):
+        assert self.pix.level == 8
+
     def test_npix(self):
         assert self.pix.npix == 12 * 256 ** 2
 

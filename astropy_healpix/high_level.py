@@ -4,10 +4,11 @@ from astropy.coordinates import SkyCoord
 from astropy.coordinates.representation import UnitSphericalRepresentation
 
 from .core import (nside_to_pixel_area, nside_to_pixel_resolution,
-                   nside_to_npix, npix_to_nside, healpix_to_lonlat,
-                   lonlat_to_healpix, bilinear_interpolation_weights,
-                   interpolate_bilinear_lonlat, ring_to_nested, nested_to_ring,
-                   healpix_cone_search, boundaries_lonlat, neighbours)
+                   nside_to_level, nside_to_npix, npix_to_nside,
+                   healpix_to_lonlat, lonlat_to_healpix,
+                   bilinear_interpolation_weights, interpolate_bilinear_lonlat,
+                   ring_to_nested, nested_to_ring, healpix_cone_search,
+                   boundaries_lonlat, neighbours)
 from .utils import parse_input_healpix_data
 
 __all__ = ['HEALPix']
@@ -104,6 +105,13 @@ class HEALPix:
         The number of pixels in the pixellization of the sphere.
         """
         return nside_to_npix(self.nside)
+
+    @property
+    def level(self):
+        """
+        The HEALPix level.
+        """
+        return nside_to_level(self.nside)
 
     def healpix_to_lonlat(self, healpix_index, dx=None, dy=None):
         """

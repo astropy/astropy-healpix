@@ -52,4 +52,4 @@ Version history
 ===============
 
 For a list of changes in each version, see the `CHANGES.rst
-<https://github.com/astropy/astropy-healpix/blob/master/CHANGES.rst>`_ file.
+<https://github.com/astropy/astropy-healpix/blob/main/CHANGES.rst>`_ file.

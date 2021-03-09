@@ -31,7 +31,7 @@ else:
     HEALPY_INSTALLED = True
 
 
-# Copied from https://github.com/kwgoodman/bottleneck/blob/master/bottleneck/benchmark/autotimeit.py
+# Copied from https://github.com/kwgoodman/bottleneck/blob/main/bottleneck/benchmark/autotimeit.py
 def autotimeit(stmt, setup='pass', repeat=3, mintime=0.2):
     timer = timeit.Timer(stmt, setup)
     number, time1 = autoscaler(timer, mintime)
@@ -39,7 +39,7 @@ def autotimeit(stmt, setup='pass', repeat=3, mintime=0.2):
     return min(time2 + [time1]) / number
 
 
-# Copied from https://github.com/kwgoodman/bottleneck/blob/master/bottleneck/benchmark/autotimeit.py
+# Copied from https://github.com/kwgoodman/bottleneck/blob/main/bottleneck/benchmark/autotimeit.py
 def autoscaler(timer, mintime):
     number = 1
     for i in range(12):

@@ -4,7 +4,7 @@
  *
  * Low-level routines related to IEEE-754 format
  *
- * Adapted from https://github.com/numpy/numpy/blob/main/numpy/core/src/npymath/ieee754.c.src,
+ * Adapted from https://github.com/numpy/numpy/blob/master/numpy/core/src/npymath/ieee754.c.src,
  * removing all functions except for npy_set_floatstatus_invalid, which is
  * made static and has is renamed to _npy_set_floatstatus_invalid.
  *

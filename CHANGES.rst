@@ -7,6 +7,9 @@ Changes
 0.7 (unreleased)
 ================
 
+- Added new methods ``healpix_to_xyz`` and ``xyz_to_healpix`` to
+  the high level interface. [#153]
+
 0.6 (2021-03-10)
 ================
 

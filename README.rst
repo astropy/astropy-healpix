@@ -1,4 +1,4 @@
-|RTD| |Travis Status| |AppVeyor status| |CircleCI| |Coverage Status|
+|RTD| |AppVeyor status| |CircleCI| |Coverage Status|
 
 About
 -----
@@ -8,10 +8,8 @@ and based on C code written by Dustin Lang in `astrometry.net <http://astrometry
 `Documentation <http://astropy-healpix.readthedocs.io>`__ for
 information about installing and using this package.
 
-.. |Travis Status| image:: https://travis-ci.org/astropy/astropy-healpix.svg
-   :target: https://travis-ci.org/astropy/astropy-healpix?branch=master
-.. |AppVeyor status| image:: https://ci.appveyor.com/api/projects/status/5kxwb47o2umy370m/branch/master?svg=true
-   :target: https://ci.appveyor.com/project/Astropy/astropy-healpix/branch/master
+.. |AppVeyor status| image:: https://ci.appveyor.com/api/projects/status/5kxwb47o2umy370m/branch/main?svg=true
+   :target: https://ci.appveyor.com/project/Astropy/astropy-healpix/branch/main
 .. |CircleCI| image:: https://circleci.com/gh/astropy/astropy-healpix.svg?style=svg
    :target: https://circleci.com/gh/astropy/astropy-healpix
 .. |Coverage Status| image:: https://coveralls.io/repos/astropy/astropy-healpix/badge.svg

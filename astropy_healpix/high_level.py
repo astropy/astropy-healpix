@@ -6,6 +6,7 @@ from astropy.coordinates.representation import UnitSphericalRepresentation
 from .core import (nside_to_pixel_area, nside_to_pixel_resolution,
                    nside_to_level, nside_to_npix, npix_to_nside,
                    healpix_to_lonlat, lonlat_to_healpix,
+                   healpix_to_xyz, xyz_to_healpix,
                    bilinear_interpolation_weights, interpolate_bilinear_lonlat,
                    ring_to_nested, nested_to_ring, healpix_cone_search,
                    boundaries_lonlat, neighbours)
@@ -160,6 +161,59 @@ class HEALPix:
         """
         return lonlat_to_healpix(lon, lat, self.nside,
                                  return_offsets=return_offsets, order=self.order)
+
+    def healpix_to_xyz(self, healpix_index, dx=None, dy=None):
+        """
+        Convert HEALPix indices (optionally with offsets) to Cartesian coordinates
+
+        Parameters
+        ----------
+        healpix_index : `~numpy.ndarray`
+            1-D array of HEALPix indices
+        dx, dy : `~numpy.ndarray`, optional
+            1-D arrays of offsets inside the HEALPix pixel, which must be in
+            the range [0:1] (0.5 is the center of the HEALPix pixels). If not
+            specified, the position at the center of the pixel is used.
+
+        Returns
+        -------
+        x : :class:`~numpy.ndarray`
+            The x coordinates
+        y : :class:`~numpy.ndarray`
+            The y coordinates
+        z : :class:`~numpy.ndarray`
+            The z coordinates
+        """
+        return healpix_to_xyz(healpix_index, self.nside, dx=dx, dy=dy, order=self.order)
+
+    def xyz_to_healpix(self, x, y, z, return_offsets=False):
+        """
+        Convert Cartesian coordinates to HEALPix indices (optionally with offsets)
+
+        Parameters
+        ----------
+        x : :class:`~numpy.ndarray`
+            The x coordinates
+        y : :class:`~numpy.ndarray`
+            The y coordinates
+        z : :class:`~numpy.ndarray`
+            The z coordinates
+        return_offsets : bool
+            If `True`, the returned values are the HEALPix pixel as well as
+            ``dx`` and ``dy``, the fractional positions inside the pixel. If
+            `False` (the default), only the HEALPix pixel is returned.
+
+        Returns
+        -------
+        healpix_index : `~numpy.ndarray`
+            1-D array of HEALPix indices
+        dx, dy : `~numpy.ndarray`
+            1-D arrays of offsets inside the HEALPix pixel in the range [0:1] (0.5
+            is the center of the HEALPix pixels). This is returned if
+            ``return_offsets`` is `True`.
+        """
+        return xyz_to_healpix(x, y, z, self.nside,
+                              return_offsets=return_offsets, order=self.order)
 
     def nested_to_ring(self, nested_index):
         """

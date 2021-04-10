@@ -57,6 +57,31 @@ class TestHEALPix:
         assert_allclose(dx, [0.1, 0.2, 0.3])
         assert_allclose(dy, [0.5, 0.4, 0.7])
 
+    def test_healpix_to_xyz(self):
+        x, y, z = self.pix.healpix_to_xyz([1, 2, 3])
+
+        assert isinstance(x, np.ndarray)
+        assert isinstance(y, np.ndarray)
+        assert isinstance(z, np.ndarray)
+
+        index = self.pix.xyz_to_healpix(x, y, z)
+
+        assert_equal(index, [1, 2, 3])
+
+        x, y, z = self.pix.healpix_to_xyz([1, 2, 3],
+                                          dx=[0.1, 0.2, 0.3],
+                                          dy=[0.5, 0.4, 0.7])
+
+        assert isinstance(x, np.ndarray)
+        assert isinstance(y, np.ndarray)
+        assert isinstance(z, np.ndarray)
+
+        index, dx, dy = self.pix.xyz_to_healpix(x, y, z, return_offsets=True)
+
+        assert_equal(index, [1, 2, 3])
+        assert_allclose(dx, [0.1, 0.2, 0.3])
+        assert_allclose(dy, [0.5, 0.4, 0.7])
+
     def test_nested_to_ring(self):
         nested_index_1 = [1, 3, 22]
         ring_index = self.pix.nested_to_ring(nested_index_1)

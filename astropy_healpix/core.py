@@ -28,20 +28,6 @@ __all__ = [
 ]
 
 
-def _restore_shape(*args, **kwargs):
-    shape = kwargs['shape']
-    if shape:
-        if len(args) > 1:
-            return [arg.reshape(shape) for arg in args]
-        else:
-            return args[0].reshape(shape)
-    else:
-        if len(args) > 1:
-            return [arg.item() for arg in args]
-        else:
-            return args[0].item()
-
-
 def _validate_order(order):
     # We also support upper-case, to support directly the values
     # ORDERING = {'RING', 'NESTED'} in FITS headers
@@ -52,12 +38,6 @@ def _validate_order(order):
         return 'ring'
     else:
         raise ValueError("order must be 'nested' or 'ring'")
-
-
-def _validate_healpix_index(label, healpix_index, nside):
-    npix = nside_to_npix(nside)
-    if np.any((healpix_index < 0) | (healpix_index > npix - 1)):
-        raise ValueError(f'{label} must be in the range [0:{npix}]')
 
 
 def _validate_offset(label, offset):

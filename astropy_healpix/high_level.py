@@ -1,7 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+import inspect
 import os
-from astropy.coordinates import SkyCoord
-from astropy.coordinates.representation import UnitSphericalRepresentation
+
+from astropy.coordinates import (BaseCoordinateFrame, frame_transform_graph,
+                                 SkyCoord, UnitSphericalRepresentation)
 
 from .core import (nside_to_pixel_area, nside_to_pixel_resolution,
                    nside_to_level, nside_to_npix, npix_to_nside,
@@ -27,6 +29,36 @@ class NoFrameError(Exception):
         super().__init__(NO_FRAME_MESSAGE.format(alternative_method))
 
 
+def _get_frame(frame):
+    """
+    Get a frame instance or None, from the input `frame`, which could be a
+    frame name string, frame instance, or frame class.
+
+    Adapted from
+    :meth:`astropy.coordinates.sky_coordinate_parsers._get_frame_class`.
+    """
+
+    if frame is None or isinstance(frame, BaseCoordinateFrame):
+        return frame
+
+    elif isinstance(frame, str):
+        frame_cls = frame_transform_graph.lookup_name(frame)
+        if frame_cls is None:
+            frame_names = frame_transform_graph.get_names()
+            raise ValueError('Coordinate frame name "{}" is not a known '
+                             'coordinate frame ({})'
+                             .format(frame, sorted(frame_names)))
+        return frame_cls()
+
+    elif inspect.isclass(frame) and issubclass(frame, BaseCoordinateFrame):
+        return frame()
+
+    else:
+        raise ValueError("Coordinate frame must be a frame name, frame "
+                         "instance, frame class, or None, not a '{}'"
+                         .format(frame.__class__.__name__))
+
+
 class HEALPix:
     """
     A HEALPix pixellization.
@@ -37,12 +69,14 @@ class HEALPix:
         Number of pixels along the side of each of the 12 top-level HEALPix tiles
     order : { 'nested' | 'ring' }
         Order of HEALPix pixels
-    frame : :class:`~astropy.coordinates.BaseCoordinateFrame`, optional
+    frame : str or :class:`~astropy.coordinates.BaseCoordinateFrame`, optional
         The celestial coordinate frame of the pixellization. This can be
         ommitted, in which case the pixellization will not be attached to any
         particular celestial frame, and the methods ending in _skycoord will
         not work (but the _lonlat methods will still work and continue to
-        return generic longitudes/latitudes).
+        return generic longitudes/latitudes). The frame may be passed as a
+        string (such as ``galactic``), as a frame class, or as an instance of
+        a frame class.
     """
 
     def __init__(self, nside=None, order='ring', frame=None):
@@ -50,7 +84,7 @@ class HEALPix:
             raise ValueError('nside has not been set')
         self.nside = nside
         self.order = order
-        self.frame = frame
+        self.frame = _get_frame(frame)
 
     @classmethod
     def from_header(cls, input_data, field=0, hdu_in=None, nested=None):

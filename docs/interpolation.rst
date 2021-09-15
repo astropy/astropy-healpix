@@ -144,7 +144,7 @@ Here is a full example that uses this to make a map of a section of the sky:
 
     # Make a plot of the interpolated temperatures
     plt.figure(figsize=(9, 5))
-    im = plt.imshow(tmap, extent=[-1, 1, -10, 10], cmap=plt.cm.RdYlBu, aspect='auto')
+    im = plt.imshow(tmap, extent=[-1, 1, -10, 10], cmap=plt.cm.RdYlBu, origin='lower', aspect='auto')
     plt.colorbar(im)
     plt.xlabel('Right ascension (ICRS)')
     plt.ylabel('Declination (ICRS)')

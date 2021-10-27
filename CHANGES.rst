@@ -9,6 +9,8 @@ Changes
 
 - Added new methods ``healpix_to_xyz`` and ``xyz_to_healpix`` to
   the high level interface. [#153]
+- The ``frame`` keyword argument for the high-level ``HEALPix`` class may now
+  be a frame name, frame instance, or frame class. [#156]
 
 0.6 (2021-03-10)
 ================

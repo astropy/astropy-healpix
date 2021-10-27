@@ -210,3 +210,25 @@ class TestCelestialHEALPix:
     def test_boundaries_skycoord(self):
         coord = self.pix.boundaries_skycoord([10, 20, 30], 4)
         assert coord.shape == (3, 16)
+
+
+class TestCelestialHEALPixFrameAsClass(TestCelestialHEALPix):
+
+    def setup_class(self):
+        self.pix = HEALPix(nside=256, order='nested', frame=Galactic)
+
+
+class TestCelestialHEALPixFrameAsString(TestCelestialHEALPix):
+
+    def setup_class(self):
+        self.pix = HEALPix(nside=256, order='nested', frame='galactic')
+
+
+def test_invalid_frame_name():
+    with pytest.raises(ValueError, match='Coordinate frame name "foobar"'):
+        HEALPix(nside=256, frame='foobar')
+
+
+def test_invalid_frame_type():
+    with pytest.raises(ValueError, match='Coordinate frame must be a'):
+        HEALPix(nside=256, frame=('obviously', 'not', 'a', 'frame'))

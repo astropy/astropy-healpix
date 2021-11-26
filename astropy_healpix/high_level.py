@@ -11,7 +11,7 @@ from .core import (nside_to_pixel_area, nside_to_pixel_resolution,
                    healpix_to_xyz, xyz_to_healpix,
                    bilinear_interpolation_weights, interpolate_bilinear_lonlat,
                    ring_to_nested, nested_to_ring, healpix_cone_search,
-                   boundaries_lonlat, neighbours)
+                   boundaries_lonlat, neighbours, _validate_order)
 from .utils import parse_input_healpix_data
 
 __all__ = ['HEALPix']
@@ -67,8 +67,8 @@ class HEALPix:
     ----------
     nside : int
         Number of pixels along the side of each of the 12 top-level HEALPix tiles
-    order : { 'nested' | 'ring' }
-        Order of HEALPix pixels
+    order : { 'nested' | 'ring' }, optional
+        Order of HEALPix pixels. Input string can be lower or upper case.
     frame : str or :class:`~astropy.coordinates.BaseCoordinateFrame`, optional
         The celestial coordinate frame of the pixellization. This can be
         ommitted, in which case the pixellization will not be attached to any
@@ -77,13 +77,18 @@ class HEALPix:
         return generic longitudes/latitudes). The frame may be passed as a
         string (such as ``galactic``), as a frame class, or as an instance of
         a frame class.
+
+    Raises
+    ------
+    ValueError
+        If 'order' is not one of the allowed options.
     """
 
     def __init__(self, nside=None, order='ring', frame=None):
         if nside is None:
             raise ValueError('nside has not been set')
         self.nside = nside
-        self.order = order
+        self.order = _validate_order(order)
         self.frame = _get_frame(frame)
 
     @classmethod

@@ -11,6 +11,7 @@ Changes
   the high level interface. [#153]
 - The ``frame`` keyword argument for the high-level ``HEALPix`` class may now
   be a frame name, frame instance, or frame class. [#156]
+- On instantiation, the ``HEALPix`` class checks the ``order`` argument. [#162]
 
 0.6 (2021-03-10)
 ================

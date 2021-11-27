@@ -24,6 +24,7 @@ __all__ = [
     'healpix_to_xyz',
     'bilinear_interpolation_weights',
     'interpolate_bilinear_lonlat',
+    'boundaries_lonlat',
     'neighbours',
 ]
 

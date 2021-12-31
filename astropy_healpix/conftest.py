@@ -7,19 +7,11 @@ import os
 
 import numpy as np
 
-from astropy.version import version as astropy_version
-
-# For Astropy 3.0 and later, we can use the standalone pytest plugin
-if astropy_version < '3.0':
-    from astropy.tests.pytest_plugins import *  # noqa
-    del pytest_report_header
+try:
+    from pytest_astropy_header.display import PYTEST_HEADER_MODULES, TESTED_VERSIONS
     ASTROPY_HEADER = True
-else:
-    try:
-        from pytest_astropy_header.display import PYTEST_HEADER_MODULES, TESTED_VERSIONS
-        ASTROPY_HEADER = True
-    except ImportError:
-        ASTROPY_HEADER = False
+except ImportError:
+    ASTROPY_HEADER = False
 
 
 def pytest_configure(config):
@@ -45,6 +37,3 @@ def pytest_configure(config):
         # On older versions of Numpy, the unrecognized 'legacy' option will
         # raise a TypeError.
         pass
-
-from astropy.tests.helper import enable_deprecations_as_exceptions  # noqa
-enable_deprecations_as_exceptions()

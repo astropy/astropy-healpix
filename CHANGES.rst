@@ -12,6 +12,7 @@ Changes
 - The ``frame`` keyword argument for the high-level ``HEALPix`` class may now
   be a frame name, frame instance, or frame class. [#156]
 - On instantiation, the ``HEALPix`` class checks the ``order`` argument. [#162]
+- Drop support for Python 3.6, which has passed end-of-life. [#166]
 
 0.6 (2021-03-10)
 ================

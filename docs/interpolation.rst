@@ -42,7 +42,6 @@ downloading and opening this map with Astropy::
 
     >>> from astropy.io import fits
     >>> hdulist = fits.open('https://lambda.gsfc.nasa.gov/data/map/dr3/skymaps/5yr//wmap_band_imap_r9_5yr_K_v3.fits')  # doctest: +REMOTE_DATA
-    Downloading https://lambda.gsfc.nasa.gov/data/map/dr3/skymaps/5yr//wmap_band_imap_r9_5yr_K_v3.fits [Done]
     >>> hdulist.info()  # doctest: +REMOTE_DATA
     Filename: ...
     No.    Name      Ver    Type      Cards   Dimensions   Format
@@ -86,8 +85,8 @@ Of particular interest to us are the ``NSIDE`` and ``ORDERING`` keywords::
 The data itself can be accessed using::
 
     >>> hdulist[1].data['TEMPERATURE']  # doctest: +REMOTE_DATA
-    array([ 16.28499985,  16.8025322 ,  15.32036781, ...,  15.0780201 ,
-        15.36229229,  15.23281574], dtype=float32)
+    array([ 16.285   ,  16.802532,  15.320368, ...,  15.07802 ,  15.362292,
+            15.232816], dtype=float32)
 
 The last piece of information we need is that the map is in Galactic coordinates,
 which is unfortunately not encoded in the header but can be found `here
@@ -109,7 +108,7 @@ the temperature at a given position on the sky::
     >>> coord = SkyCoord('00h42m44.3503s +41d16m08.634s', frame='icrs')
     >>> temperature = hdulist[1].data['temperature']  # doctest: +REMOTE_DATA
     >>> hp.interpolate_bilinear_skycoord(coord, temperature)  # doctest: +FLOAT_CMP +REMOTE_DATA
-    array([ 0.41296058])
+    0.40692833017361985
 
 Here is a full example that uses this to make a map of a section of the sky:
 

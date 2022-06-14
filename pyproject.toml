@@ -12,4 +12,4 @@ build-backend = 'setuptools.build_meta'
 skip = "*-musllinux_* pp*"
 
 [tool.cibuildwheel.macos]
-archs = "x86_64 universal2"
+archs = ["x86_64", "universal2"]

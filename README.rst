@@ -1,13 +1,21 @@
 astropy healpix
 ---------------
 
-.. image:: http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat
-    :target: http://www.astropy.org
+.. image:: https://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat
+    :target: https://www.astropy.org
     :alt: Powered by Astropy Badge
-.. image:: https://coveralls.io/repos/astropy/astropy-healpix/badge.svg
-    :target: https://coveralls.io/r/astropy/astropy-healpix
+
+.. image:: https://github.com/astropy/astropy-healpix/workflows/CI/badge.svg
+    :target: https://github.com/astropy/astropy-healpix/actions
+    :alt: GitHub Actions CI Status
+
+.. image:: https://codecov.io/gh/astropy/astropy-healpix/branch/main/graph/badge.svg
+    :target: https://codecov.io/gh/astropy/astropy-healpix
+    :alt: Coverage Status
+
 .. image:: https://readthedocs.org/projects/astropy-healpix/badge/?version=latest
     :target: http://astropy-healpix.readthedocs.io/en/latest/?badge=latest
+    :alt: Doc
 
 This is a BSD-licensed HEALPix package developed by the Astropy project
 and based on C code written by Dustin Lang in `astrometry.net <http://astrometry.net/>`__. See the

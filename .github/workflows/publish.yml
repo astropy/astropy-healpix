@@ -10,3 +10,6 @@ jobs:
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/publish.yml@v1
     secrets:
       pypi_token: ${{ secrets.pypi_token }}
+    env:
+      CIBW_SKIP: '*-musllinux_*'
+      CIBW_BUILD: 'cp37-* cp38-* cp39-* cp310-*'

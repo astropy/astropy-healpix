@@ -64,10 +64,6 @@ pip-wheel-metadata/
 # Mac OSX
 .DS_Store
 
-astropy_healpix/_compiler.c
-astropy_healpix/raw/wrap.c
-astropy_healpix/core_cython.c
-
 # pytest cache folder
 v
 

@@ -52,7 +52,7 @@ highlight_language = 'python3'
 #needs_sphinx = '1.2'
 
 # To perform a Sphinx version check that needs to be more specific than
-# major.minor, call `check_sphinx_version("x.y.z")` here.
+# major.minor, call `check_sphinx_version("X.Y.Z")` here.
 # check_sphinx_version("1.2.1")
 
 # List of patterns, relative to source directory, that match files and
@@ -135,6 +135,9 @@ html_title = '{0} v{1}'.format(project, release)
 # Output file base name for HTML help builder.
 htmlhelp_basename = project + 'doc'
 
+# Prefixes that are ignored for sorting the Python module index
+modindex_common_prefix = ["astropy_healpix."]
+
 
 # -- Options for LaTeX output -------------------------------------------------
 
@@ -160,11 +163,21 @@ if setup_cfg.get('edit_on_github').lower() == 'true':
 
     edit_on_github_project = setup_cfg['github_project']
     edit_on_github_branch = "main"
+
     edit_on_github_source_root = ""
     edit_on_github_doc_root = "docs"
 
 # -- Resolving issue number to links in changelog -----------------------------
 github_issues_url = 'https://github.com/{0}/issues/'.format(setup_cfg['github_project'])
+
+
+# -- Options for linkcheck output -------------------------------------------
+linkcheck_retry = 5
+linkcheck_ignore = [
+    r'https://github\.com/astropy/astropy/(?:issues|pull)/\d+',
+]
+linkcheck_timeout = 180
+linkcheck_anchors = False
 
 # -- Turn on nitpicky mode for sphinx (to warn about references not found) ----
 #

@@ -17,4 +17,4 @@ jobs:
         - linux
         - macos
         - windows
-        - universal2
+        - *-macosx_*_universal2

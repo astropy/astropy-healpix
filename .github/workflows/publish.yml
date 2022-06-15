@@ -12,9 +12,6 @@ jobs:
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/publish.yml@v1
     secrets:
       pypi_token: ${{ secrets.pypi_token }}
-    with:
-      targets: |
-        - linux
-        - macos
-        - windows
-        - *-macosx_*_universal2
+    env:
+      CIBW_SKIP: "*-musllinux_* pp*"
+      CIBW_ARCHS_MACOS: x86_64 universal2

@@ -30,7 +30,7 @@ The following packages are optional dependencies, which can be installed if need
 * `pytest <http://www.pytest.org>`__ for testing
 * `healpy <https://healpy.readthedocs.io>`__ for testing (but this is not required
   and the tests that require healpy will be skipped if healpy is not installed)
-* `hypothesis <hypothesis.readthedocs.io>`__ for the healpy-related tests.
+* `hypothesis <https://hypothesis.readthedocs.io>`__ for the healpy-related tests.
 
 Stable version
 ==============

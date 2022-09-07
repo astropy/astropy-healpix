@@ -1,6 +1,7 @@
 name: Publish
 
 on:
+  pull_request:
   push:
     branches:
       - main
@@ -9,6 +10,7 @@ on:
 
 jobs:
   publish:
+    if: (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'Build wheels'))
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/publish.yml@v1
     secrets:
       pypi_token: ${{ secrets.pypi_token }}

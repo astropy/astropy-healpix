@@ -4,7 +4,7 @@
 Changes
 *******
 
-0.7 (unreleased)
+0.7 (2022-09-15)
 ================
 
 - Added new methods ``healpix_to_xyz`` and ``xyz_to_healpix`` to

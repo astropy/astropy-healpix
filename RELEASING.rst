@@ -15,14 +15,14 @@ PGP keys set up. Then, push the tag to GitHub, e.g.::
 
     git push upstream v0.1
 
-and the build should happen automatically on Azure pipelines. You can
+and the build should happen automatically on GitHub Actions. You can
 follow the progress of the build here:
 
-https://dev.azure.com/astropy-project/astropy-healpix/_build
+https://github.com/astropy/astropy-healpix/actions/workflows/publish.yml
 
 If there are any failures, you can always delete the tag, fix the
 issues, tag the release again, and push the tag to GitHub.
 
-See the `OpenAstronomy Azure Pipelines Templates Documentation
-<https://openastronomy-azure-pipelines.readthedocs.io/en/latest/publish.html>`_
-for more details about the Azure Pipelines set-up.
+See the `OpenAstronomy GitHub Actions Workflows
+<https://github.com/OpenAstronomy/github-actions-workflows>`_
+for more details about the GitHub Actions set-up.

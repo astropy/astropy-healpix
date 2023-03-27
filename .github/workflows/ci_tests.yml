@@ -50,7 +50,7 @@ jobs:
           - name: Python 3.10 with all optional dependencies and pre-releases
             os: ubuntu-latest
             python: '3.10'
-            toxenv: py38-test-alldeps-predeps
+            toxenv: py310-test-alldeps-predeps
 
           # - name: Python 3.7 with oldest supported version of all dependencies
           #   os: ubuntu-16.04

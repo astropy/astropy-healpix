@@ -174,6 +174,7 @@ github_issues_url = 'https://github.com/{0}/issues/'.format(setup_cfg['github_pr
 # -- Options for linkcheck output -------------------------------------------
 linkcheck_retry = 5
 linkcheck_ignore = [
+    'http://adsabs.harvard.edu',   # CI blocked by service provider
     r'https://github\.com/astropy/astropy/(?:issues|pull)/\d+',
 ]
 linkcheck_timeout = 180

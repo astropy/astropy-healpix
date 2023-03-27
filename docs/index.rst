@@ -16,9 +16,9 @@ can apply to any field that has to deal with representing data on a sphere.
 
 More information about the HEALPix algorithm can be found here:
 
-* http://healpix.jpl.nasa.gov/
-* http://adsabs.harvard.edu/abs/2005ApJ...622..759G
-* http://adsabs.harvard.edu/abs/2007MNRAS.381..865C
+* https://healpix.jpl.nasa.gov/
+* https://ui.adsabs.harvard.edu/abs/2005ApJ...622..759G
+* https://ui.adsabs.harvard.edu/abs/2007MNRAS.381..865C
 
 About this package
 ==================

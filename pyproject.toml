@@ -1,6 +1,6 @@
 [build-system]
 
-requires = ["setuptools",
+requires = ["setuptools>=42.0.0",
             "setuptools_scm",
             "wheel",
             "extension-helpers",

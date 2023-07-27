@@ -27,40 +27,40 @@ jobs:
             python: 3.x
             toxenv: codestyle
 
-          - name: Python 3.7 with minimal dependencies
-            os: ubuntu-latest
-            python: 3.7
-            toxenv: py37-test
-
-          - name: Python 3.8 with all optional dependencies and coverage checking
+          - name: Python 3.8 with minimal dependencies
             os: ubuntu-latest
             python: 3.8
-            toxenv: py38-test-alldeps-cov
+            toxenv: py38-test
 
-          - name: macOS - Python 3.8 with all optional dependencies
+          - name: Python 3.9 with all optional dependencies and coverage checking
+            os: ubuntu-latest
+            python: 3.9
+            toxenv: py39-test-alldeps-cov
+
+          - name: macOS - Python 3.9 with all optional dependencies
             os: macos-latest
-            python: 3.8
-            toxenv: py38-test-alldeps
+            python: 3.9
+            toxenv: py39-test-alldeps
 
-          - name: Windows - Python 3.8 with all optional dependencies
+          - name: Windows - Python 3.9 with all optional dependencies
             os: windows-latest
-            python: 3.8
-            toxenv: py38-test-alldeps
+            python: 3.9
+            toxenv: py39-test-alldeps
 
-          - name: Python 3.10 with all optional dependencies and pre-releases
+          - name: Python 3.11 with all optional dependencies and pre-releases
             os: ubuntu-latest
-            python: '3.10'
-            toxenv: py310-test-alldeps-predeps
+            python: '3.11'
+            toxenv: py311-test-alldeps-predeps
 
-          # - name: Python 3.7 with oldest supported version of all dependencies
+          # - name: Python 3.8 with oldest supported version of all dependencies
           #   os: ubuntu-16.04
-          #   python: 3.7
-          #   toxenv: py37-test-oldestdeps
-
-          # - name: Python 3.8 with latest dev versions of key dependencies
-          #   os: ubuntu-latest
           #   python: 3.8
-          #   toxenv: py38-test-devdeps
+          #   toxenv: py38-test-oldestdeps
+
+          # - name: Python 3.9 with latest dev versions of key dependencies
+          #   os: ubuntu-latest
+          #   python: 3.9
+          #   toxenv: py39-test-devdeps
 
           # - name: Test building of Sphinx docs
           #   os: ubuntu-latest

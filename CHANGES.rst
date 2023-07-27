@@ -4,6 +4,11 @@
 Changes
 *******
 
+0.8 (unreleased)
+================
+
+- Drop support for Python 3.7, which is past end-of-life. [#186]
+
 0.7 (2022-09-15)
 ================
 

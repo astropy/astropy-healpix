@@ -1,5 +1,11 @@
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 
+// FIXME: workaround for https://github.com/numpy/numpy/issues/13784,
+// broken from 1.21.0 to 1.22.4.
+#if defined(Py_LIMITED_API) && Py_LIMITED_API+0 < 0x030c0000 // 3.12
+typedef void *vectorcallfunc;
+#endif
+
 #include <Python.h>
 #include <numpy/arrayobject.h>
 #include <numpy/ufuncobject.h>

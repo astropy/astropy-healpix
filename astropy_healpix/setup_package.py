@@ -36,6 +36,8 @@ def get_extensions():
         include_dirs=C_DIRS,
         libraries=libraries,
         language="c",
-        extra_compile_args=['-O2'])
+        extra_compile_args=['-O2'],
+        py_limited_api=True,
+        define_macros=[('Py_LIMITED_API', 0x03080000)])
 
     return [extension]

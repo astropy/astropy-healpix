@@ -52,10 +52,10 @@ jobs:
             python: '3.11'
             toxenv: py311-test-alldeps-predeps
 
-          # - name: Python 3.9 with oldest supported version of all dependencies
-          #   os: ubuntu-16.04
-          #   python: 3.9
-          #   toxenv: py39-test-oldestdeps
+          - name: Python 3.9 with oldest supported version of all dependencies
+            os: ubuntu-20.04
+            python: 3.9
+            toxenv: py39-test-oldestdeps
 
           # - name: Python 3.10 with latest dev versions of key dependencies
           #   os: ubuntu-latest

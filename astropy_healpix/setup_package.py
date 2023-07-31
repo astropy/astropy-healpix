@@ -38,6 +38,6 @@ def get_extensions():
         language="c",
         extra_compile_args=['-O2'],
         py_limited_api=True,
-        define_macros=[('Py_LIMITED_API', 0x03080000)])
+        define_macros=[('Py_LIMITED_API', 0x03090000)])
 
     return [extension]

@@ -1,10 +1,5 @@
 .. include:: references.txt
 
-.. warning::
-    This **astropy-healpix** package is in an early stage of development. It
-    should not be considered feature complete or API stable. Feedback and
-    contributions welcome!
-
 What is HEALPix?
 ================
 

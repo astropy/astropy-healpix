@@ -59,7 +59,7 @@ simply run::
 Using conda
 -----------
 
-To install healpix with `Anaconda <https://www.continuum.io/downloads>`_
+To install healpix with `Anaconda <https://www.anaconda.com/download>`_
 from the `conda-forge channel on anaconda.org <https://anaconda.org/conda-forge/astropy-healpix>`__
 simply run::
 

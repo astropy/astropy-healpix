@@ -4,11 +4,15 @@
 Changes
 *******
 
-0.8 (unreleased)
-================
+1.0.0 (unreleased)
+==================
 
 - Drop support for Python 3.7 and 3.8, which are not supported by the latest
   minor release of Numpy (1.25).
+
+- Build binary wheels using the Python limited API.
+
+- Remove warning about API stability. The API is now considered stable.
 
 0.7 (2022-09-15)
 ================

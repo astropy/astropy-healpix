@@ -4,7 +4,7 @@
 Changes
 *******
 
-1.0.0 (unreleased)
+1.0.0 (2023-08-21)
 ==================
 
 - Drop support for Python 3.7 and 3.8, which are not supported by the latest

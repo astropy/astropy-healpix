@@ -47,7 +47,7 @@ static int pixel_nside_valid(int64_t pixel, int nside)
 
 
 static void healpix_to_lonlat_loop(
-    char **args, npy_intp *dimensions, npy_intp *steps, void *data)
+    char **args, const npy_intp *dimensions, const npy_intp *steps, void *data)
 {
     order_funcs *funcs = data;
     npy_intp i, n = dimensions[0];
@@ -77,7 +77,7 @@ static void healpix_to_lonlat_loop(
 
 
 static void lonlat_to_healpix_loop(
-    char **args, npy_intp *dimensions, npy_intp *steps, void *data)
+    char **args, const npy_intp *dimensions, const npy_intp *steps, void *data)
 {
     order_funcs *funcs = data;
     npy_intp i, n = dimensions[0];
@@ -105,7 +105,7 @@ static void lonlat_to_healpix_loop(
 
 
 static void healpix_to_xyz_loop(
-    char **args, npy_intp *dimensions, npy_intp *steps, void *data)
+    char **args, const npy_intp *dimensions, const npy_intp *steps, void *data)
 {
     order_funcs *funcs = data;
     npy_intp i, n = dimensions[0];
@@ -136,7 +136,7 @@ static void healpix_to_xyz_loop(
 
 
 static void xyz_to_healpix_loop(
-    char **args, npy_intp *dimensions, npy_intp *steps, void *data)
+    char **args, const npy_intp *dimensions, const npy_intp *steps, void *data)
 {
     order_funcs *funcs = data;
     npy_intp i, n = dimensions[0];
@@ -171,7 +171,7 @@ static void xyz_to_healpix_loop(
 
 
 static void nested_to_ring_loop(
-    char **args, npy_intp *dimensions, npy_intp *steps, void *data)
+    char **args, const npy_intp *dimensions, const npy_intp *steps, void *data)
 {
     npy_intp i, n = dimensions[0];
 
@@ -195,7 +195,7 @@ static void nested_to_ring_loop(
 
 
 static void ring_to_nested_loop(
-    char **args, npy_intp *dimensions, npy_intp *steps, void *data)
+    char **args, const npy_intp *dimensions, const npy_intp *steps, void *data)
 {
     npy_intp i, n = dimensions[0];
 
@@ -219,7 +219,7 @@ static void ring_to_nested_loop(
 
 
 static void bilinear_interpolation_weights_loop(
-    char **args, npy_intp *dimensions, npy_intp *steps, void *data)
+    char **args, const npy_intp *dimensions, const npy_intp *steps, void *data)
 {
     npy_intp i, n = dimensions[0];
 
@@ -243,7 +243,7 @@ static void bilinear_interpolation_weights_loop(
 
 
 static void neighbours_loop(
-    char **args, npy_intp *dimensions, npy_intp *steps, void *data)
+    char **args, const npy_intp *dimensions, const npy_intp *steps, void *data)
 {
     order_funcs *funcs = data;
     npy_intp i, n = dimensions[0];

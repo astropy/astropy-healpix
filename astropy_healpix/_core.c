@@ -14,9 +14,11 @@
  *
  * Drop this when supporting gcc < 10 becomes irrelevant.
  */
+#ifndef PYPY_VERSION
 struct _typeobject {
     int _placeholder;
 };
+#endif
 
 #include <Python.h>
 #include <numpy/arrayobject.h>

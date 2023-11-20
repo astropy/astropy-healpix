@@ -1,3 +1,17 @@
+#include <Python.h>
+#include <numpy/arrayobject.h>
+#include <numpy/ufuncobject.h>
+#include "healpix.h"
+#include "healpix-utils.h"
+#include "interpolation.h"
+
+/* FIXME: We need npy_set_floatstatus_invalid(), but unlike most of the Numpy
+ * C API it is only available on some platforms if you explicitly link against
+ * Numpy, which is not typically done for building C extensions. This bundled
+ * header file contains a static definition of _npy_set_floatstatus_invalid().
+ */
+#include "ieee754.h"
+
 /* FIXME:
  * The Numpy C-API defines PyArrayDescr_Type as:
  *
@@ -19,20 +33,6 @@ struct _typeobject {
     int _placeholder;
 };
 #endif
-
-#include <Python.h>
-#include <numpy/arrayobject.h>
-#include <numpy/ufuncobject.h>
-#include "healpix.h"
-#include "healpix-utils.h"
-#include "interpolation.h"
-
-/* FIXME: We need npy_set_floatstatus_invalid(), but unlike most of the Numpy
- * C API it is only available on some platforms if you explicitly link against
- * Numpy, which is not typically done for building C extensions. This bundled
- * header file contains a static definition of _npy_set_floatstatus_invalid().
- */
-#include "ieee754.h"
 
 
 #define INVALID_INDEX (-1)

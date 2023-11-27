@@ -1,6 +1,10 @@
 name: Publish
 
 on:
+  schedule:
+    # run every day at 4am UTC
+    - cron: '0 4 * * *'
+  workflow_dispatch:
   pull_request:
   push:
     branches:
@@ -14,6 +18,7 @@ jobs:
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/publish.yml@v1
     secrets:
       pypi_token: ${{ secrets.pypi_token }}
+      anaconda_token: ${{ secrets.anaconda_token }}
     with:
       targets: |
         - linux
@@ -21,3 +26,9 @@ jobs:
         - windows
         - cp3*-macosx_arm64
         - cp3*-manylinux_aarch64
+
+      # Developer wheels
+      upload_to_anaconda: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+      anaconda_user: astropy
+      anaconda_package: astropy-healpix
+      anaconda_keep_n_latest: 10

@@ -27,8 +27,11 @@ jobs:
         - cp3*-macosx_arm64
         - cp3*-manylinux_aarch64
 
-      # Developer wheels
+      # Developer wheels (use Numpy dev to build)
       upload_to_anaconda: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
       anaconda_user: astropy
       anaconda_package: astropy-healpix
       anaconda_keep_n_latest: 10
+      env: |
+        CIBW_BEFORE_BUILD: '${{ ((github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && 'pip install --pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple setuptools setuptools_scm jinja2 numpy') || '' }}'
+        CIBW_BUILD_FRONTEND: '${{ ((github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && 'pip; args: --no-build-isolation') || 'build' }}'

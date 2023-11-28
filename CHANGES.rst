@@ -4,6 +4,13 @@
 Changes
 *******
 
+1.0.1 (2023-11-28)
+==================
+
+- Allow building using any version of Numpy between 1.25 and 2. [#201]
+
+- Build wheels for PyPI. [#200]
+
 1.0.0 (2023-08-21)
 ==================
 

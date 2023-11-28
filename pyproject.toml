@@ -8,7 +8,7 @@ requires = ["setuptools>=42.0.0",
 build-backend = 'setuptools.build_meta'
 
 [tool.cibuildwheel]
-skip = "*-musllinux_* pp310*"
+skip = "pp310*"
 
 [tool.cibuildwheel.macos]
 archs = ["x86_64", "universal2"]

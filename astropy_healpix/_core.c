@@ -12,6 +12,28 @@
  */
 #include "ieee754.h"
 
+/* FIXME:
+ * The Numpy C-API defines PyArrayDescr_Type as:
+ *
+ *   #define PyArrayDescr_Type (*(PyTypeObject *)PyArray_API[3])
+ *
+ * and then in some places we need to take its address, &PyArrayDescr_Type.
+ * This is fine in GCC 10 and Clang, but earlier versions of GCC complain:
+ *
+ *   error: dereferencing pointer to incomplete type 'PyTypeObject'
+ *   {aka 'struct _typeobject'}
+ *
+ * As a workaround, provide a faux forward declaration for PyTypeObject.
+ * See https://github.com/numpy/numpy/issues/16970.
+ *
+ * Drop this when supporting gcc < 10 becomes irrelevant.
+ */
+#ifndef PYPY_VERSION
+struct _typeobject {
+    int _placeholder;
+};
+#endif
+
 
 #define INVALID_INDEX (-1)
 

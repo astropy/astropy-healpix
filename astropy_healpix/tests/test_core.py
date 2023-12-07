@@ -209,6 +209,13 @@ def test_lonlat_to_healpix_shape():
     assert dy.shape == (2, 4)
 
 
+def test_lonlat_to_healpix_invalid():
+    # Check that if we pass NaN values for example, the index is set to -1
+    ipix = lonlat_to_healpix(np.nan * u.deg, np.nan * u.deg,
+                             nside=1, order='nested')
+    assert ipix == -1
+
+
 @pytest.mark.parametrize('function', [nested_to_ring, ring_to_nested])
 def test_nested_ring_shape(function):
     index = function(1, 8)

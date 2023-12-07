@@ -134,6 +134,9 @@ jobs:
             echo "LONG_BIT="$(getconf LONG_BIT)
             python3 -m venv --system-site-packages tests
             source tests/bin/activate
-            pip3 install -v --no-build-isolation -e .[test]
-            pip3 list
+            # cython and pyerfa versions in ubuntu repos are too old currently
+            python3 -m pip install -U cython
+            python3 -m pip install -U --no-build-isolation pyerfa
+            python3 -m pip install -v --no-build-isolation -e .[test]
+            python3 -m pip freeze
             python3 -m pytest

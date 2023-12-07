@@ -88,3 +88,52 @@ jobs:
       uses: codecov/codecov-action@v3
       with:
         file: ./coverage.xml
+
+  tests_more_architectures:
+
+    runs-on: ubuntu-latest
+    name: Python 3.11
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: aarch64
+          - arch: s390x
+          - arch: ppc64le
+          - arch: armv7
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: uraimo/run-on-arch-action@v2
+        name: Run tests
+        id: build
+        with:
+          arch: ${{ matrix.arch }}
+          distro: ubuntu_rolling
+          shell: /bin/bash
+          install: |
+            apt-get update -q -y
+            apt-get install -q -y --no-install-recommends \
+                                  git \
+                                  g++ \
+                                  pkg-config \
+                                  python3 \
+                                  python3-extension-helpers \
+                                  python3-jinja2 \
+                                  python3-numpy \
+                                  python3-pytest-astropy \
+                                  python3-setuptools-scm \
+                                  python3-venv \
+                                  python3-wheel \
+
+          run: |
+            uname -a
+            echo "LONG_BIT="$(getconf LONG_BIT)
+            python3 -m venv --system-site-packages tests
+            source tests/bin/activate
+            pip3 install -v --no-build-isolation -e .[test]
+            pip3 list
+            python3 -m pytest

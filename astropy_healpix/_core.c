@@ -1,4 +1,5 @@
 #include <Python.h>
+#include <math.h>
 #include <numpy/arrayobject.h>
 #include <numpy/ufuncobject.h>
 #include "healpix.h"
@@ -114,7 +115,8 @@ static void lonlat_to_healpix_loop(
         double  *dy    =  (double *)  &args[5][i * steps[5]];
         int64_t xy = INVALID_INDEX;
 
-        xy = radec_to_healpixlf(lon, lat, nside, dx, dy);
+        if (isfinite(lon) && isfinite(lat))
+            xy = radec_to_healpixlf(lon, lat, nside, dx, dy);
         if (xy >= 0)
             *pixel = funcs->xy_to_order(xy, nside);
         else {
@@ -174,13 +176,15 @@ static void xyz_to_healpix_loop(
         double  *dy    =  (double *)  &args[6][i * steps[6]];
         int64_t xy = INVALID_INDEX;
 
-        /* xyztohealpixlf expects a unit vector */
-        double norm = sqrt(x*x + y*y + z*z);
-        x /= norm;
-        y /= norm;
-        z /= norm;
+        if (isfinite(x) && isfinite(y) && isfinite(z)) {
+            /* xyztohealpixlf expects a unit vector */
+            double norm = sqrt(x*x + y*y + z*z);
+            x /= norm;
+            y /= norm;
+            z /= norm;
 
-        xy = xyztohealpixlf(x, y, z, nside, dx, dy);
+            xy = xyztohealpixlf(x, y, z, nside, dx, dy);
+        }
         if (xy >= 0)
             *pixel = funcs->xy_to_order(xy, nside);
         else {

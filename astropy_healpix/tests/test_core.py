@@ -210,7 +210,7 @@ def test_lonlat_to_healpix_shape():
 
 
 def test_lonlat_to_healpix_invalid():
-    # Check that if we pass NaN values for example, the index is set to -1
+    """Check that if we pass NaN values for example, the index is set to -1"""
     ipix = lonlat_to_healpix(np.nan * u.deg, np.nan * u.deg,
                              nside=1, order='nested')
     assert ipix == -1

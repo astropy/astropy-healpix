@@ -4,6 +4,12 @@
 Changes
 *******
 
+1.0.2 (2023-12-12)
+==================
+
+- lonlat_to_healpix now correctly returns -1 if the longitude or latitude is
+  NaN or infinite. [#208]
+
 1.0.1 (2023-11-28)
 ==================
 

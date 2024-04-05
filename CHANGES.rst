@@ -4,6 +4,11 @@
 Changes
 *******
 
+1.0.3 (2024-04-05)
+==================
+
+- Fixed compatibility with upcoming astropy 6.1.0 and numpy 2.0.0 releases. [#214, #215]
+
 1.0.2 (2023-12-12)
 ==================
 

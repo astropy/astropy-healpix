@@ -400,6 +400,13 @@ class HEALPix:
             one extra dimension compared to ``healpix_index`` - the first dimension -
             which is set to 8. For example if healpix_index has shape (2, 3),
             ``neigh`` has shape (8, 2, 3).
+
+        Notes
+        -----
+        Some HEALPix pixels do not have all 8 neighbours. In these cases, the
+        corresponding entry in the returned array has the value of -1 and Numpy
+        may print an invalid value warning. To suppress the warning, use
+        :class:`numpy.errstate`.
         """
         return neighbours(healpix_index, self.nside, order=self.order)
 

@@ -16,4 +16,6 @@ python:
 formats: []
 
 sphinx:
+  builder: html
   configuration: docs/conf.py
+  fail_on_warning: true

@@ -2,8 +2,6 @@
 
 import os
 
-from setuptools import Extension
-
 import numpy as np
 
 HEALPIX_ROOT = os.path.relpath(os.path.dirname(__file__))
@@ -23,6 +21,7 @@ C_DIRS = [np.get_include(), C_DIR, HEALPIX_ROOT,
 
 
 def get_extensions():
+    from setuptools import Extension
 
     libraries = []
 

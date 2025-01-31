@@ -42,10 +42,10 @@ jobs:
             python: '3.11'
             toxenv: py311-test-alldeps
 
-          - name: Windows - Python 3.11 with all optional dependencies
+          - name: Windows - Python 3.11 with minimal dependencies
             os: windows-latest
             python: '3.11'
-            toxenv: py311-test-alldeps
+            toxenv: py311-test
 
           - name: Python 3.12 with all optional dependencies and pre-releases
             os: ubuntu-latest

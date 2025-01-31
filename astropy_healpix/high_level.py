@@ -11,7 +11,8 @@ from .core import (nside_to_pixel_area, nside_to_pixel_resolution,
                    healpix_to_xyz, xyz_to_healpix,
                    bilinear_interpolation_weights, interpolate_bilinear_lonlat,
                    ring_to_nested, nested_to_ring, healpix_cone_search,
-                   boundaries_lonlat, neighbours, _validate_order)
+                   boundaries_lonlat, neighbours, _validate_order,
+                   _NUMPY_COPY_IF_NEEDED)
 from .utils import parse_input_healpix_data
 
 __all__ = ['HEALPix']
@@ -435,7 +436,7 @@ class HEALPix:
         if self.frame is None:
             raise NoFrameError("healpix_to_skycoord")
         lon, lat = self.healpix_to_lonlat(healpix_index, dx=dx, dy=dy)
-        representation = UnitSphericalRepresentation(lon, lat, copy=False)
+        representation = UnitSphericalRepresentation(lon, lat, copy=_NUMPY_COPY_IF_NEEDED)
         return SkyCoord(self.frame.realize_frame(representation))
 
     def skycoord_to_healpix(self, skycoord, return_offsets=False):
@@ -561,5 +562,5 @@ class HEALPix:
         if self.frame is None:
             raise NoFrameError("boundaries_skycoord")
         lon, lat = self.boundaries_lonlat(healpix_index, step)
-        representation = UnitSphericalRepresentation(lon, lat, copy=False)
+        representation = UnitSphericalRepresentation(lon, lat, copy=_NUMPY_COPY_IF_NEEDED)
         return SkyCoord(self.frame.realize_frame(representation))

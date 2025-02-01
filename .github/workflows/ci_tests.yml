@@ -27,40 +27,40 @@ jobs:
             python: 3.x
             toxenv: codestyle
 
-          - name: Python 3.9 with minimal dependencies
-            os: ubuntu-latest
-            python: 3.9
-            toxenv: py39-test
-
-          - name: Python 3.10 with all optional dependencies and coverage checking
+          - name: Python 3.10 with minimal dependencies
             os: ubuntu-latest
             python: '3.10'
-            toxenv: py310-test-alldeps-cov
+            toxenv: py310-test
 
-          - name: macOS - Python 3.10 with all optional dependencies
-            os: macos-latest
-            python: '3.10'
-            toxenv: py310-test-alldeps
-
-          - name: Windows - Python 3.10 with all optional dependencies
-            os: windows-latest
-            python: '3.10'
-            toxenv: py310-test-alldeps
-
-          - name: Python 3.11 with all optional dependencies and pre-releases
+          - name: Python 3.11 with all optional dependencies and coverage checking
             os: ubuntu-latest
             python: '3.11'
-            toxenv: py311-test-alldeps-predeps
+            toxenv: py311-test-alldeps-cov
 
-          - name: Python 3.9 with oldest supported version of all dependencies
-            os: ubuntu-20.04
-            python: 3.9
-            toxenv: py39-test-oldestdeps
+          - name: macOS - Python 3.11 with all optional dependencies
+            os: macos-latest
+            python: '3.11'
+            toxenv: py311-test-alldeps
 
-          # - name: Python 3.10 with latest dev versions of key dependencies
-          #   os: ubuntu-latest
-          #   python: '3.10'
-          #   toxenv: py310-test-devdeps
+          - name: Windows - Python 3.11 with all optional dependencies
+            os: windows-latest
+            python: '3.11'
+            toxenv: py311-test-alldeps
+
+          - name: Python 3.12 with all optional dependencies and pre-releases
+            os: ubuntu-latest
+            python: '3.12'
+            toxenv: py312-test-alldeps-predeps
+
+          - name: Python 3.10 with oldest supported version of all dependencies
+            os: ubuntu-22.04
+            python: '3.10'
+            toxenv: py310-test-oldestdeps
+
+          - name: Python 3.13 with latest dev versions of key dependencies
+            os: ubuntu-latest
+            python: '3.13'
+            toxenv: py313-test-devdeps
 
           # - name: Test building of Sphinx docs
           #   os: ubuntu-latest

@@ -1,5 +1,5 @@
-Seaching for pixels around a position (cone search)
-===================================================
+Searching for pixels around a position (cone search)
+====================================================
 
 A common operation when using HEALPix maps is to try and find all pixels
 that lie within a certain radius of a given longitude/latitude. One way to
@@ -20,7 +20,7 @@ longitude/latitude::
       140  142  130  131 1239 1244 1238 1241 1243 1265 1267 1276 1273 1277
       168  169  163  166  164]
 
-Likewise, if a celestial frame was specified using the ``frame`` keyword arguent
+Likewise, if a celestial frame was specified using the ``frame`` keyword argument
 to :class:`~astropy_healpix.HEALPix`, you can use the
 :meth:`~astropy_healpix.HEALPix.cone_search_skycoord` method to query
 around specific celestial coordinates::

@@ -12,7 +12,7 @@ from .. import healpy as hp_compat
 from ..high_level import xyz_to_healpix
 
 from hypothesis import given, settings, example
-from hypothesis.strategies import integers, floats, booleans
+from hypothesis.strategies import integers, floats, booleans, tuples
 from hypothesis.extra.numpy import arrays
 
 # NOTE: If healpy is installed, we use it in these tests, but healpy is not a
@@ -115,21 +115,31 @@ def test_pix2ang(nside_pow, frac, nest, lonlat):
             assert_allclose(phi1, phi2, atol=1e-10)
 
 
-@given(nside_pow=integers(0, 29), nest=booleans(),
-       x=floats(-1, 1, allow_nan=False, allow_infinity=False).filter(lambda x: abs(x) > 1e-10),
-       y=floats(-1, 1, allow_nan=False, allow_infinity=False).filter(lambda y: abs(y) > 1e-10),
-       z=floats(-1, 1, allow_nan=False, allow_infinity=False).filter(lambda z: abs(z) > 1e-10))
-@settings(max_examples=2000, derandomize=True, deadline=None)
-def test_vec2pix(nside_pow, x, y, z, nest):
+def not_on_boundaries(args):
+    """Skip vectors that are on the boundary of a pixel where ipix is ambiguous."""
+    nside_pow, nest, x, y, z = args
     nside = 2 ** nside_pow
     _, dx, dy = xyz_to_healpix(
         x, y, z, nside, return_offsets=True, order="nested" if nest else "ring"
     )
-    # Skip vectors that are on the boundary of a pixel where ipix is ambiguous
-    if 0 < dx < 1 and 0 < dy < 1:
-        ipix1 = hp_compat.vec2pix(nside, x, y, z, nest=nest)
-        ipix2 = hp.vec2pix(nside, x, y, z, nest=nest)
-        assert ipix1 == ipix2
+    return 0 < dx < 1 and 0 < dy < 1
+
+
+@given(
+    args=tuples(
+        integers(0, 29), booleans(),
+        floats(-1, 1, allow_nan=False, allow_infinity=False).filter(lambda x: abs(x) > 1e-10),
+        floats(-1, 1, allow_nan=False, allow_infinity=False).filter(lambda y: abs(y) > 1e-10),
+        floats(-1, 1, allow_nan=False, allow_infinity=False).filter(lambda z: abs(z) > 1e-10)
+    ).filter(not_on_boundaries)
+)
+@settings(max_examples=2000, derandomize=True, deadline=None)
+def test_vec2pix(args):
+    nside_pow, nest, x, y, z = args
+    nside = 2 ** nside_pow
+    ipix1 = hp_compat.vec2pix(nside, x, y, z, nest=nest)
+    ipix2 = hp.vec2pix(nside, x, y, z, nest=nest)
+    assert ipix1 == ipix2
 
 
 @given(nside_pow=integers(0, 29), nest=booleans(),

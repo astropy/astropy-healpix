@@ -22,11 +22,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: Code style checks
-            os: ubuntu-latest
-            python: 3.x
-            toxenv: codestyle
-
           - name: Python 3.10 with minimal dependencies
             os: ubuntu-latest
             python: '3.10'

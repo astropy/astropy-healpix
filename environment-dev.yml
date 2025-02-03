@@ -23,7 +23,6 @@ dependencies:
   - pytest
   - sphinx
   - pylint
-  - flake8
   - hypothesis
   - pip:
     - sphinx-rtd-theme==0.3

@@ -12,3 +12,14 @@ skip = "*-musllinux_* pp*"
 
 [tool.cibuildwheel.macos]
 archs = ["x86_64", "universal2"]
+
+[tool.ruff]
+exclude = [
+    "cextern",
+    "docs/conf.py",
+]
+
+[tool.codespell]
+skip = """
+cextern/*
+"""

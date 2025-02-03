@@ -2,8 +2,6 @@
 
 import os
 
-from setuptools import Extension
-
 import numpy as np
 
 HEALPIX_ROOT = os.path.relpath(os.path.dirname(__file__))
@@ -23,6 +21,7 @@ C_DIRS = [np.get_include(), C_DIR, HEALPIX_ROOT,
 
 
 def get_extensions():
+    from setuptools import Extension
 
     libraries = []
 
@@ -38,7 +37,7 @@ def get_extensions():
         language="c",
         extra_compile_args=['-O2'],
         py_limited_api=True,
-        define_macros=[('Py_LIMITED_API', 0x03090000),
+        define_macros=[('Py_LIMITED_API', 0x030A0000),
                        ('NPY_TARGET_VERSION', 'NPY_1_19_API_VERSION'),
                        ('NPY_NO_DEPRECATED_API', 'NPY_1_19_API_VERSION')])
 

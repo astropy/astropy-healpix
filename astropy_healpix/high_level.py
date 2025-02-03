@@ -2,27 +2,43 @@
 import inspect
 import os
 
-from astropy.coordinates import (BaseCoordinateFrame, frame_transform_graph,
-                                 SkyCoord, UnitSphericalRepresentation)
+from astropy.coordinates import (
+    BaseCoordinateFrame,
+    frame_transform_graph,
+    SkyCoord,
+    UnitSphericalRepresentation,
+)
 
-from .core import (nside_to_pixel_area, nside_to_pixel_resolution,
-                   nside_to_level, nside_to_npix, npix_to_nside,
-                   healpix_to_lonlat, lonlat_to_healpix,
-                   healpix_to_xyz, xyz_to_healpix,
-                   bilinear_interpolation_weights, interpolate_bilinear_lonlat,
-                   ring_to_nested, nested_to_ring, healpix_cone_search,
-                   boundaries_lonlat, neighbours, _validate_order,
-                   _NUMPY_COPY_IF_NEEDED)
+from .core import (
+    nside_to_pixel_area,
+    nside_to_pixel_resolution,
+    nside_to_level,
+    nside_to_npix,
+    npix_to_nside,
+    healpix_to_lonlat,
+    lonlat_to_healpix,
+    healpix_to_xyz,
+    xyz_to_healpix,
+    bilinear_interpolation_weights,
+    interpolate_bilinear_lonlat,
+    ring_to_nested,
+    nested_to_ring,
+    healpix_cone_search,
+    boundaries_lonlat,
+    neighbours,
+    _validate_order,
+    _NUMPY_COPY_IF_NEEDED,
+)
 from .utils import parse_input_healpix_data
 
-__all__ = ['HEALPix']
+__all__ = ["HEALPix"]
 
 
 NO_FRAME_MESSAGE = """
 No frame was specified when initializing HEALPix, so SkyCoord objects cannot be
 returned. Either specify a frame when initializing HEALPix or use the {0}
 method.
-""".replace(os.linesep, ' ').strip()
+""".replace(os.linesep, " ").strip()
 
 
 class NoFrameError(Exception):
@@ -46,18 +62,22 @@ def _get_frame(frame):
         frame_cls = frame_transform_graph.lookup_name(frame)
         if frame_cls is None:
             frame_names = frame_transform_graph.get_names()
-            raise ValueError('Coordinate frame name "{}" is not a known '
-                             'coordinate frame ({})'
-                             .format(frame, sorted(frame_names)))
+            raise ValueError(
+                'Coordinate frame name "{}" is not a known '
+                "coordinate frame ({})".format(frame, sorted(frame_names))
+            )
         return frame_cls()
 
     elif inspect.isclass(frame) and issubclass(frame, BaseCoordinateFrame):
         return frame()
 
     else:
-        raise ValueError("Coordinate frame must be a frame name, frame "
-                         "instance, frame class, or None, not a '{}'"
-                         .format(frame.__class__.__name__))
+        raise ValueError(
+            "Coordinate frame must be a frame name, frame "
+            "instance, frame class, or None, not a '{}'".format(
+                frame.__class__.__name__
+            )
+        )
 
 
 class HEALPix:
@@ -72,7 +92,7 @@ class HEALPix:
         Order of HEALPix pixels. Input string can be lower or upper case.
     frame : str or :class:`~astropy.coordinates.BaseCoordinateFrame`, optional
         The celestial coordinate frame of the pixellization. This can be
-        ommitted, in which case the pixellization will not be attached to any
+        omitted, in which case the pixellization will not be attached to any
         particular celestial frame, and the methods ending in _skycoord will
         not work (but the _lonlat methods will still work and continue to
         return generic longitudes/latitudes). The frame may be passed as a
@@ -85,9 +105,9 @@ class HEALPix:
         If 'order' is not one of the allowed options.
     """
 
-    def __init__(self, nside=None, order='ring', frame=None):
+    def __init__(self, nside=None, order="ring", frame=None):
         if nside is None:
-            raise ValueError('nside has not been set')
+            raise ValueError("nside has not been set")
         self.nside = nside
         self.order = _validate_order(order)
         self.frame = _get_frame(frame)
@@ -121,9 +141,10 @@ class HEALPix:
             A HEALPix pixellization corresponding to the input data.
         """
         array_in, frame, nested = parse_input_healpix_data(
-            input_data, field=field, hdu_in=hdu_in, nested=nested)
+            input_data, field=field, hdu_in=hdu_in, nested=nested
+        )
         nside = npix_to_nside(len(array_in))
-        order = 'nested' if nested else 'ring'
+        order = "nested" if nested else "ring"
         return cls(nside=nside, order=order, frame=frame)
 
     @property
@@ -174,7 +195,9 @@ class HEALPix:
         lat : :class:`~astropy.coordinates.Latitude`
             The latitude values
         """
-        return healpix_to_lonlat(healpix_index, self.nside, dx=dx, dy=dy, order=self.order)
+        return healpix_to_lonlat(
+            healpix_index, self.nside, dx=dx, dy=dy, order=self.order
+        )
 
     def lonlat_to_healpix(self, lon, lat, return_offsets=False):
         """
@@ -199,8 +222,9 @@ class HEALPix:
             is the center of the HEALPix pixels). This is returned if
             ``return_offsets`` is `True`.
         """
-        return lonlat_to_healpix(lon, lat, self.nside,
-                                 return_offsets=return_offsets, order=self.order)
+        return lonlat_to_healpix(
+            lon, lat, self.nside, return_offsets=return_offsets, order=self.order
+        )
 
     def healpix_to_xyz(self, healpix_index, dx=None, dy=None):
         """
@@ -252,8 +276,9 @@ class HEALPix:
             is the center of the HEALPix pixels). This is returned if
             ``return_offsets`` is `True`.
         """
-        return xyz_to_healpix(x, y, z, self.nside,
-                              return_offsets=return_offsets, order=self.order)
+        return xyz_to_healpix(
+            x, y, z, self.nside, return_offsets=return_offsets, order=self.order
+        )
 
     def nested_to_ring(self, nested_index):
         """
@@ -331,8 +356,11 @@ class HEALPix:
             1-D array of interpolated values
         """
         if len(values) != self.npix:
-            raise ValueError('values must be an array of length {} (got {})'
-                             .format(self.npix, len(values)))
+            raise ValueError(
+                "values must be an array of length {} (got {})".format(
+                    self.npix, len(values)
+                )
+            )
         return interpolate_bilinear_lonlat(lon, lat, values, order=self.order)
 
     def cone_search_lonlat(self, lon, lat, radius):
@@ -357,8 +385,9 @@ class HEALPix:
             1-D array with all the matching HEALPix pixel indices.
         """
         if not lon.isscalar or not lat.isscalar or not radius.isscalar:
-            raise ValueError('The longitude, latitude and radius must be '
-                             'scalar Quantity objects')
+            raise ValueError(
+                "The longitude, latitude and radius must be " "scalar Quantity objects"
+            )
         return healpix_cone_search(lon, lat, radius, self.nside, order=self.order)
 
     def boundaries_lonlat(self, healpix_index, step):
@@ -436,7 +465,9 @@ class HEALPix:
         if self.frame is None:
             raise NoFrameError("healpix_to_skycoord")
         lon, lat = self.healpix_to_lonlat(healpix_index, dx=dx, dy=dy)
-        representation = UnitSphericalRepresentation(lon, lat, copy=_NUMPY_COPY_IF_NEEDED)
+        representation = UnitSphericalRepresentation(
+            lon, lat, copy=_NUMPY_COPY_IF_NEEDED
+        )
         return SkyCoord(self.frame.realize_frame(representation))
 
     def skycoord_to_healpix(self, skycoord, return_offsets=False):
@@ -562,5 +593,7 @@ class HEALPix:
         if self.frame is None:
             raise NoFrameError("boundaries_skycoord")
         lon, lat = self.boundaries_lonlat(healpix_index, step)
-        representation = UnitSphericalRepresentation(lon, lat, copy=_NUMPY_COPY_IF_NEEDED)
+        representation = UnitSphericalRepresentation(
+            lon, lat, copy=_NUMPY_COPY_IF_NEEDED
+        )
         return SkyCoord(self.frame.realize_frame(representation))

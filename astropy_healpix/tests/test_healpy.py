@@ -17,40 +17,40 @@ from hypothesis.extra.numpy import arrays
 
 # NOTE: If healpy is installed, we use it in these tests, but healpy is not a
 # formal dependency of astropy-healpix.
-hp = pytest.importorskip('healpy')
+hp = pytest.importorskip("healpy")
 
-NSIDE_VALUES = [2 ** n for n in range(1, 6)]
+NSIDE_VALUES = [2**n for n in range(1, 6)]
 
 
-@pytest.mark.parametrize(('nside', 'degrees'), product(NSIDE_VALUES, (False, True)))
+@pytest.mark.parametrize(("nside", "degrees"), product(NSIDE_VALUES, (False, True)))
 def test_nside2pixarea(nside, degrees):
     actual = hp_compat.nside2pixarea(nside=nside, degrees=degrees)
     expected = hp.nside2pixarea(nside=nside, degrees=degrees)
     assert_allclose(actual, expected)
 
 
-@pytest.mark.parametrize(('nside', 'arcmin'), product(NSIDE_VALUES, (False, True)))
+@pytest.mark.parametrize(("nside", "arcmin"), product(NSIDE_VALUES, (False, True)))
 def test_nside2resol(nside, arcmin):
     actual = hp_compat.nside2resol(nside=nside, arcmin=arcmin)
     expected = hp.nside2resol(nside=nside, arcmin=arcmin)
     assert_allclose(actual, expected)
 
 
-@pytest.mark.parametrize('nside', NSIDE_VALUES)
+@pytest.mark.parametrize("nside", NSIDE_VALUES)
 def test_nside2npix(nside):
     actual = hp_compat.nside2npix(nside)
     expected = hp.nside2npix(nside)
     assert_equal(actual, expected)
 
 
-@pytest.mark.parametrize('level', [0, 3, 7])
+@pytest.mark.parametrize("level", [0, 3, 7])
 def test_order2nside(level):
     actual = hp_compat.order2nside(level)
     expected = hp.order2nside(level)
     assert_equal(actual, expected)
 
 
-@pytest.mark.parametrize('npix', [12 * 2 ** (2 * n) for n in range(1, 6)])
+@pytest.mark.parametrize("npix", [12 * 2 ** (2 * n) for n in range(1, 6)])
 def test_npix2nside(npix):
     actual = hp_compat.npix2nside(npix)
     expected = hp.npix2nside(npix)
@@ -60,28 +60,35 @@ def test_npix2nside(npix):
 # For the test below, we exclude latitudes that fall exactly on the pole or
 # the equator since points that fall at exact boundaries are ambiguous.
 
-@given(nside_pow=integers(0, 29), nest=booleans(), lonlat=booleans(),
-       lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(
-           lambda lon: abs(lon) > 1e-10),
-       lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(
-           lambda lat: abs(lat) < 89.99 and abs(lat) > 1e-10))
+
+@given(
+    nside_pow=integers(0, 29),
+    nest=booleans(),
+    lonlat=booleans(),
+    lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(
+        lambda lon: abs(lon) > 1e-10
+    ),
+    lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(
+        lambda lat: abs(lat) < 89.99 and abs(lat) > 1e-10
+    ),
+)
 @settings(max_examples=2000, derandomize=True, deadline=None)
 def test_ang2pix(nside_pow, lon, lat, nest, lonlat):
-    nside = 2 ** nside_pow
+    nside = 2**nside_pow
     if lonlat:
         theta, phi = lon, lat
     else:
-        theta, phi = np.pi / 2. - np.radians(lat), np.radians(lon)
+        theta, phi = np.pi / 2.0 - np.radians(lat), np.radians(lon)
     ipix1 = hp_compat.ang2pix(nside, theta, phi, nest=nest, lonlat=lonlat)
     ipix2 = hp.ang2pix(nside, theta, phi, nest=nest, lonlat=lonlat)
     assert ipix1 == ipix2
 
 
 def test_ang2pix_shape():
-    ipix = hp_compat.ang2pix(8, 1., 2.)
+    ipix = hp_compat.ang2pix(8, 1.0, 2.0)
     assert np.can_cast(ipix, np.int64)
 
-    ipix = hp_compat.ang2pix(8, [[1., 2.], [3., 4.]], [[1., 2.], [3., 4.]])
+    ipix = hp_compat.ang2pix(8, [[1.0, 2.0], [3.0, 4.0]], [[1.0, 2.0], [3.0, 4.0]])
     assert ipix.shape == (2, 2)
 
 
@@ -95,14 +102,18 @@ def test_pix2ang_shape():
     assert lat.shape == (2, 3)
 
 
-@given(nside_pow=integers(0, 29), nest=booleans(), lonlat=booleans(),
-       frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1))
+@given(
+    nside_pow=integers(0, 29),
+    nest=booleans(),
+    lonlat=booleans(),
+    frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1),
+)
 @settings(max_examples=2000, derandomize=True, deadline=None)
 @example(nside_pow=29, frac=0.1666666694606345, nest=False, lonlat=False)
-@example(nside_pow=27, frac=2./3., nest=True, lonlat=False)
+@example(nside_pow=27, frac=2.0 / 3.0, nest=True, lonlat=False)
 def test_pix2ang(nside_pow, frac, nest, lonlat):
-    nside = 2 ** nside_pow
-    ipix = int(frac * 12 * nside ** 2)
+    nside = 2**nside_pow
+    ipix = int(frac * 12 * nside**2)
     theta1, phi1 = hp_compat.pix2ang(nside, ipix, nest=nest, lonlat=lonlat)
     theta2, phi2 = hp.pix2ang(nside, ipix, nest=nest, lonlat=lonlat)
     if lonlat:
@@ -118,7 +129,7 @@ def test_pix2ang(nside_pow, frac, nest, lonlat):
 def not_on_boundaries(args):
     """Skip vectors that are on the boundary of a pixel where ipix is ambiguous."""
     nside_pow, nest, x, y, z = args
-    nside = 2 ** nside_pow
+    nside = 2**nside_pow
     _, dx, dy = xyz_to_healpix(
         x, y, z, nside, return_offsets=True, order="nested" if nest else "ring"
     )
@@ -127,38 +138,53 @@ def not_on_boundaries(args):
 
 @given(
     args=tuples(
-        integers(0, 29), booleans(),
-        floats(-1, 1, allow_nan=False, allow_infinity=False).filter(lambda x: abs(x) > 1e-10),
-        floats(-1, 1, allow_nan=False, allow_infinity=False).filter(lambda y: abs(y) > 1e-10),
-        floats(-1, 1, allow_nan=False, allow_infinity=False).filter(lambda z: abs(z) > 1e-10)
+        integers(0, 29),
+        booleans(),
+        floats(-1, 1, allow_nan=False, allow_infinity=False).filter(
+            lambda x: abs(x) > 1e-10
+        ),
+        floats(-1, 1, allow_nan=False, allow_infinity=False).filter(
+            lambda y: abs(y) > 1e-10
+        ),
+        floats(-1, 1, allow_nan=False, allow_infinity=False).filter(
+            lambda z: abs(z) > 1e-10
+        ),
     ).filter(not_on_boundaries)
 )
 @settings(max_examples=2000, derandomize=True, deadline=None)
 def test_vec2pix(args):
     nside_pow, nest, x, y, z = args
-    nside = 2 ** nside_pow
+    nside = 2**nside_pow
     ipix1 = hp_compat.vec2pix(nside, x, y, z, nest=nest)
     ipix2 = hp.vec2pix(nside, x, y, z, nest=nest)
     assert ipix1 == ipix2
 
 
-@given(nside_pow=integers(0, 29), nest=booleans(),
-       frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1))
+@given(
+    nside_pow=integers(0, 29),
+    nest=booleans(),
+    frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1),
+)
 @settings(max_examples=2000, derandomize=True, deadline=None)
 @example(nside_pow=29, frac=0.1666666694606345, nest=False)
 def test_pix2vec(nside_pow, frac, nest):
-    nside = 2 ** nside_pow
-    ipix = int(frac * 12 * nside ** 2)
+    nside = 2**nside_pow
+    ipix = int(frac * 12 * nside**2)
     xyz1 = hp_compat.pix2vec(nside, ipix, nest=nest)
     xyz2 = hp.pix2vec(nside, ipix, nest=nest)
     assert_allclose(xyz1, xyz2, atol=1e-8)
 
 
 def test_vec2pix_shape():
-    ipix = hp_compat.vec2pix(8, 1., 2., 3.)
+    ipix = hp_compat.vec2pix(8, 1.0, 2.0, 3.0)
     assert np.can_cast(ipix, np.int64)
 
-    ipix = hp_compat.vec2pix(8, [[1., 2.], [3., 4.]], [[5., 6.], [7., 8.]], [[9., 10.], [11., 12.]])
+    ipix = hp_compat.vec2pix(
+        8,
+        [[1.0, 2.0], [3.0, 4.0]],
+        [[5.0, 6.0], [7.0, 8.0]],
+        [[9.0, 10.0], [11.0, 12.0]],
+    )
     assert ipix.shape == (2, 2)
 
 
@@ -174,35 +200,43 @@ def test_pix2vec_shape():
     assert z.shape == (2, 3)
 
 
-@given(nside_pow=integers(0, 29),
-       frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1))
+@given(
+    nside_pow=integers(0, 29),
+    frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1),
+)
 @settings(max_examples=2000, derandomize=True, deadline=None)
 def test_nest2ring(nside_pow, frac):
-    nside = 2 ** nside_pow
-    nest = int(frac * 12 * nside ** 2)
+    nside = 2**nside_pow
+    nest = int(frac * 12 * nside**2)
     ring1 = hp_compat.nest2ring(nside, nest)
     ring2 = hp.nest2ring(nside, nest)
     assert ring1 == ring2
 
 
-@given(nside_pow=integers(0, 29),
-       frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1))
+@given(
+    nside_pow=integers(0, 29),
+    frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1),
+)
 @settings(max_examples=2000, derandomize=True, deadline=None)
 @example(nside_pow=29, frac=0.16666666697710755)
 def test_ring2nest(nside_pow, frac):
-    nside = 2 ** nside_pow
-    ring = int(frac * 12 * nside ** 2)
+    nside = 2**nside_pow
+    ring = int(frac * 12 * nside**2)
     nest1 = hp_compat.ring2nest(nside, ring)
     nest2 = hp.ring2nest(nside, ring)
     assert nest1 == nest2
 
 
-@given(nside_pow=integers(0, 29), step=integers(1, 10), nest=booleans(),
-       frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1))
+@given(
+    nside_pow=integers(0, 29),
+    step=integers(1, 10),
+    nest=booleans(),
+    frac=floats(0, 1, allow_nan=False, allow_infinity=False).filter(lambda x: x < 1),
+)
 @settings(max_examples=500, derandomize=True, deadline=None)
 def test_boundaries(nside_pow, frac, step, nest):
-    nside = 2 ** nside_pow
-    pix = int(frac * 12 * nside ** 2)
+    nside = 2**nside_pow
+    pix = int(frac * 12 * nside**2)
     b1 = hp_compat.boundaries(nside, pix, step=step, nest=nest)
     b2 = hp.boundaries(nside, pix, step=step, nest=nest)
     assert_allclose(b1, b2, atol=1e-8)
@@ -224,8 +258,11 @@ def not_at_origin(vec):
     return np.linalg.norm(vec) > 0
 
 
-@given(vectors=arrays(float, (3,), elements=floats(-1, 1)).filter(not_at_origin),
-       lonlat=booleans(), ndim=integers(0, 4))
+@given(
+    vectors=arrays(float, (3,), elements=floats(-1, 1)).filter(not_at_origin),
+    lonlat=booleans(),
+    ndim=integers(0, 4),
+)
 @settings(max_examples=500, derandomize=True, deadline=None)
 def test_vec2ang(vectors, lonlat, ndim):
     vectors = np.broadcast_to(vectors, (2,) * ndim + (3,))
@@ -240,17 +277,21 @@ def test_vec2ang(vectors, lonlat, ndim):
     assert_allclose(sep, 0, atol=1e-8)
 
 
-@given(lonlat=booleans(),
-       lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(
-           lambda lon: abs(lon) > 1e-10),
-       lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(
-           lambda lat: abs(lat) < 89.99 and abs(lat) > 1e-10))
+@given(
+    lonlat=booleans(),
+    lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(
+        lambda lon: abs(lon) > 1e-10
+    ),
+    lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(
+        lambda lat: abs(lat) < 89.99 and abs(lat) > 1e-10
+    ),
+)
 @settings(max_examples=2000, derandomize=True, deadline=None)
 def test_ang2vec(lon, lat, lonlat):
     if lonlat:
         theta, phi = lon, lat
     else:
-        theta, phi = np.pi / 2. - np.radians(lat), np.radians(lon)
+        theta, phi = np.pi / 2.0 - np.radians(lat), np.radians(lon)
     xyz1 = hp_compat.ang2vec(theta, phi, lonlat=lonlat)
     xyz2 = hp.ang2vec(theta, phi, lonlat=lonlat)
     assert_allclose(xyz1, xyz2, atol=1e-10)
@@ -261,33 +302,99 @@ def test_ang2vec(lon, lat, lonlat):
 # nest=False, lonlat=False)
 #
 
-@given(nside_pow=integers(0, 28), nest=booleans(), lonlat=booleans(),
-       lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(
-           lambda lon: abs(lon) > 1e-5),
-       lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(
-           lambda lat: abs(lat) < 89.99 and abs(lat) > 1e-5))
+
+@given(
+    nside_pow=integers(0, 28),
+    nest=booleans(),
+    lonlat=booleans(),
+    lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(
+        lambda lon: abs(lon) > 1e-5
+    ),
+    lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(
+        lambda lat: abs(lat) < 89.99 and abs(lat) > 1e-5
+    ),
+)
 @settings(max_examples=500, derandomize=True, deadline=None)
-@example(nside_pow=27, lon=1.0000000028043134e-05, lat=-41.81031451395941, nest=False, lonlat=False)
-@example(nside_pow=6, lon=1.6345238095238293, lat=69.42254649458224, nest=False, lonlat=False)
-@example(nside_pow=15, lon=1.0000000028043134e-05, lat=1.000000000805912e-05,
-         nest=False, lonlat=False)
-@example(nside_pow=0, lon=315.0000117809725, lat=1.000000000805912e-05, nest=False, lonlat=False)
-@example(nside_pow=0, lon=1.0000000028043134e-05, lat=-41.81031489577861, nest=False, lonlat=False)
-@example(nside_pow=0, lon=35.559942143736414, lat=-41.8103252622604, nest=False, lonlat=False)
-@example(nside_pow=28, lon=359.9999922886491, lat=-41.81031470486902, nest=False, lonlat=False)
-@example(nside_pow=0, lon=1.0000000028043134e-05, lat=-41.81031489577861, nest=False, lonlat=False)
-@example(nside_pow=27, lon=1.0000000028043134e-05, lat=-41.81031451395941, nest=False, lonlat=False)
-@example(nside_pow=26, lon=359.9999986588955, lat=41.81031489577861, nest=False, lonlat=False)
-@example(nside_pow=27, lon=359.999997317791, lat=-41.81031451395943, nest=False, lonlat=False)
-@example(nside_pow=27, lon=1.0000000028043134e-05, lat=89.80224636153702, nest=False, lonlat=False)
+@example(
+    nside_pow=27,
+    lon=1.0000000028043134e-05,
+    lat=-41.81031451395941,
+    nest=False,
+    lonlat=False,
+)
+@example(
+    nside_pow=6, lon=1.6345238095238293, lat=69.42254649458224, nest=False, lonlat=False
+)
+@example(
+    nside_pow=15,
+    lon=1.0000000028043134e-05,
+    lat=1.000000000805912e-05,
+    nest=False,
+    lonlat=False,
+)
+@example(
+    nside_pow=0,
+    lon=315.0000117809725,
+    lat=1.000000000805912e-05,
+    nest=False,
+    lonlat=False,
+)
+@example(
+    nside_pow=0,
+    lon=1.0000000028043134e-05,
+    lat=-41.81031489577861,
+    nest=False,
+    lonlat=False,
+)
+@example(
+    nside_pow=0, lon=35.559942143736414, lat=-41.8103252622604, nest=False, lonlat=False
+)
+@example(
+    nside_pow=28,
+    lon=359.9999922886491,
+    lat=-41.81031470486902,
+    nest=False,
+    lonlat=False,
+)
+@example(
+    nside_pow=0,
+    lon=1.0000000028043134e-05,
+    lat=-41.81031489577861,
+    nest=False,
+    lonlat=False,
+)
+@example(
+    nside_pow=27,
+    lon=1.0000000028043134e-05,
+    lat=-41.81031451395941,
+    nest=False,
+    lonlat=False,
+)
+@example(
+    nside_pow=26, lon=359.9999986588955, lat=41.81031489577861, nest=False, lonlat=False
+)
+@example(
+    nside_pow=27, lon=359.999997317791, lat=-41.81031451395943, nest=False, lonlat=False
+)
+@example(
+    nside_pow=27,
+    lon=1.0000000028043134e-05,
+    lat=89.80224636153702,
+    nest=False,
+    lonlat=False,
+)
 def test_interp_weights(nside_pow, lon, lat, nest, lonlat):
-    nside = 2 ** nside_pow
+    nside = 2**nside_pow
     if lonlat:
         theta, phi = lon, lat
     else:
-        theta, phi = np.pi / 2. - np.radians(lat), np.radians(lon)
-    indices1, weights1 = hp_compat.get_interp_weights(nside, theta, phi, nest=nest, lonlat=lonlat)
-    indices2, weights2 = hp.get_interp_weights(nside, theta, phi, nest=nest, lonlat=lonlat)
+        theta, phi = np.pi / 2.0 - np.radians(lat), np.radians(lon)
+    indices1, weights1 = hp_compat.get_interp_weights(
+        nside, theta, phi, nest=nest, lonlat=lonlat
+    )
+    indices2, weights2 = hp.get_interp_weights(
+        nside, theta, phi, nest=nest, lonlat=lonlat
+    )
 
     # Ignore neighbours with weights < 1e-6 - we have to exclude these otherwise
     # in some corner cases there will be different low-probability neighbours.
@@ -307,22 +414,28 @@ def test_interp_weights(nside_pow, lon, lat, nest, lonlat):
 
 # Make an array that can be useful up to the highest nside tested below
 NSIDE_POW_MAX = 8
-VALUES = np.random.random(12 * NSIDE_POW_MAX ** 2)
+VALUES = np.random.random(12 * NSIDE_POW_MAX**2)
 
 
-@given(nside_pow=integers(0, NSIDE_POW_MAX), nest=booleans(), lonlat=booleans(),
-       lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(
-           lambda lon: abs(lon) > 1e-5),
-       lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(
-           lambda lat: abs(lat) < 89.99 and abs(lat) > 1e-5))
+@given(
+    nside_pow=integers(0, NSIDE_POW_MAX),
+    nest=booleans(),
+    lonlat=booleans(),
+    lon=floats(0, 360, allow_nan=False, allow_infinity=False).filter(
+        lambda lon: abs(lon) > 1e-5
+    ),
+    lat=floats(-90, 90, allow_nan=False, allow_infinity=False).filter(
+        lambda lat: abs(lat) < 89.99 and abs(lat) > 1e-5
+    ),
+)
 @settings(max_examples=500, derandomize=True, deadline=None)
 def test_interp_val(nside_pow, lon, lat, nest, lonlat):
-    nside = 2 ** nside_pow
+    nside = 2**nside_pow
     if lonlat:
         theta, phi = lon, lat
     else:
-        theta, phi = np.pi / 2. - np.radians(lat), np.radians(lon)
-    m = VALUES[:12 * nside ** 2]
+        theta, phi = np.pi / 2.0 - np.radians(lat), np.radians(lon)
+    m = VALUES[: 12 * nside**2]
     value1 = hp_compat.get_interp_val(m, theta, phi, nest=nest, lonlat=lonlat)
     value2 = hp.get_interp_val(m, theta, phi, nest=nest, lonlat=lonlat)
-    assert_allclose(value1, value2, rtol=0.1, atol=1.e-10)
+    assert_allclose(value1, value2, rtol=0.1, atol=1.0e-10)

@@ -9,23 +9,23 @@ from astropy.coordinates import Longitude, Latitude
 from . import _core
 
 __all__ = [
-    'nside_to_pixel_area',
-    'nside_to_pixel_resolution',
-    'pixel_resolution_to_nside',
-    'nside_to_npix',
-    'npix_to_nside',
-    'level_to_nside',
-    'nside_to_level',
-    'level_ipix_to_uniq',
-    'uniq_to_level_ipix',
-    'lonlat_to_healpix',
-    'healpix_to_lonlat',
-    'xyz_to_healpix',
-    'healpix_to_xyz',
-    'bilinear_interpolation_weights',
-    'interpolate_bilinear_lonlat',
-    'boundaries_lonlat',
-    'neighbours',
+    "nside_to_pixel_area",
+    "nside_to_pixel_resolution",
+    "pixel_resolution_to_nside",
+    "nside_to_npix",
+    "npix_to_nside",
+    "level_to_nside",
+    "nside_to_level",
+    "level_ipix_to_uniq",
+    "uniq_to_level_ipix",
+    "lonlat_to_healpix",
+    "healpix_to_lonlat",
+    "xyz_to_healpix",
+    "healpix_to_xyz",
+    "bilinear_interpolation_weights",
+    "interpolate_bilinear_lonlat",
+    "boundaries_lonlat",
+    "neighbours",
 ]
 
 _NUMPY_COPY_IF_NEEDED = False if np.__version__.startswith("1.") else None
@@ -35,10 +35,10 @@ def _validate_order(order):
     # We also support upper-case, to support directly the values
     # ORDERING = {'RING', 'NESTED'} in FITS headers
     # This is currently undocumented in the docstrings.
-    if order == 'nested' or order == 'NESTED':
-        return 'nested'
-    elif order == 'ring' or order == 'RING':
-        return 'ring'
+    if order == "nested" or order == "NESTED":
+        return "nested"
+    elif order == "ring" or order == "RING":
+        return "ring"
     else:
         raise ValueError("order must be 'nested' or 'ring'")
 
@@ -46,23 +46,23 @@ def _validate_order(order):
 def _validate_offset(label, offset):
     offset = np.asarray(offset)
     if np.any((offset < 0) | (offset > 1)):
-        raise ValueError(f'd{label} must be in the range [0:1]')
+        raise ValueError(f"d{label} must be in the range [0:1]")
 
 
 def _validate_level(level):
     if np.any(level < 0):
-        raise ValueError('level must be positive')
+        raise ValueError("level must be positive")
 
 
 def _validate_nside(nside):
     log_2_nside = np.round(np.log2(nside))
-    if not np.all(2 ** log_2_nside == nside):
-        raise ValueError('nside must be a power of two')
+    if not np.all(2**log_2_nside == nside):
+        raise ValueError("nside must be a power of two")
 
 
 def _validate_npix(level, ipix):
-    if not np.all(ipix < (3 << 2*(level + 1))):
-        raise ValueError('ipix for a specific level must be inferior to npix')
+    if not np.all(ipix < (3 << 2 * (level + 1))):
+        raise ValueError("ipix for a specific level must be inferior to npix")
 
 
 def level_to_nside(level):
@@ -84,7 +84,7 @@ def level_to_nside(level):
     level = np.asarray(level, dtype=np.int64)
 
     _validate_level(level)
-    return 2 ** level
+    return 2**level
 
 
 def nside_to_level(nside):
@@ -132,11 +132,11 @@ def uniq_to_level_ipix(uniq):
     """
     uniq = np.asarray(uniq, dtype=np.int64)
 
-    level = (np.log2(uniq//4)) // 2
+    level = (np.log2(uniq // 4)) // 2
     level = level.astype(np.int64)
     _validate_level(level)
 
-    ipix = uniq - (1 << 2*(level + 1))
+    ipix = uniq - (1 << 2 * (level + 1))
     _validate_npix(level, ipix)
 
     return level, ipix
@@ -166,7 +166,7 @@ def level_ipix_to_uniq(level, ipix):
     _validate_level(level)
     _validate_npix(level, ipix)
 
-    return ipix + (1 << 2*(level + 1))
+    return ipix + (1 << 2 * (level + 1))
 
 
 def nside_to_pixel_area(nside):
@@ -215,7 +215,7 @@ def nside_to_pixel_resolution(nside):
     return (nside_to_pixel_area(nside) ** 0.5).to(u.arcmin)
 
 
-def pixel_resolution_to_nside(resolution, round='nearest'):
+def pixel_resolution_to_nside(resolution, round="nearest"):
     """Find closest HEALPix nside for a given angular resolution.
 
     This function is the inverse of `nside_to_pixel_resolution`,
@@ -260,14 +260,14 @@ def pixel_resolution_to_nside(resolution, round='nearest'):
     # round the level and then go back to nside
     level = np.log2(nside)
 
-    if round == 'up':
+    if round == "up":
         level = np.ceil(level)
-    elif round == 'nearest':
+    elif round == "nearest":
         level = np.round(level)
-    elif round == 'down':
+    elif round == "down":
         level = np.floor(level)
     else:
-        raise ValueError(f'Invalid value for round: {round!r}')
+        raise ValueError(f"Invalid value for round: {round!r}")
 
     # For very low requested resolution (i.e. large angle values), we
     # return ``level=0``, i.e. ``nside=1``, i.e. the lowest resolution
@@ -293,7 +293,7 @@ def nside_to_npix(nside):
     """
     nside = np.asanyarray(nside, dtype=np.int64)
     _validate_nside(nside)
-    return 12 * nside ** 2
+    return 12 * nside**2
 
 
 def npix_to_nside(npix):
@@ -315,16 +315,16 @@ def npix_to_nside(npix):
     npix = np.asanyarray(npix, dtype=np.int64)
 
     if not np.all(npix % 12 == 0):
-        raise ValueError('Number of pixels must be divisible by 12')
+        raise ValueError("Number of pixels must be divisible by 12")
 
     square_root = np.sqrt(npix / 12)
-    if not np.all(square_root ** 2 == npix / 12):
-        raise ValueError('Number of pixels is not of the form 12 * nside ** 2')
+    if not np.all(square_root**2 == npix / 12):
+        raise ValueError("Number of pixels is not of the form 12 * nside ** 2")
 
     return np.round(square_root).astype(int)
 
 
-def healpix_to_lonlat(healpix_index, nside, dx=None, dy=None, order='ring'):
+def healpix_to_lonlat(healpix_index, nside, dx=None, dy=None, order="ring"):
     """
     Convert HEALPix indices (optionally with offsets) to longitudes/latitudes.
 
@@ -353,7 +353,7 @@ def healpix_to_lonlat(healpix_index, nside, dx=None, dy=None, order='ring'):
 
     _validate_nside(nside)
 
-    if _validate_order(order) == 'ring':
+    if _validate_order(order) == "ring":
         func = _core.healpix_ring_to_lonlat
     else:  # _validate_order(order) == 'nested'
         func = _core.healpix_nested_to_lonlat
@@ -361,11 +361,11 @@ def healpix_to_lonlat(healpix_index, nside, dx=None, dy=None, order='ring'):
     if dx is None:
         dx = 0.5
     else:
-        _validate_offset('x', dx)
+        _validate_offset("x", dx)
     if dy is None:
         dy = 0.5
     else:
-        _validate_offset('y', dy)
+        _validate_offset("y", dy)
 
     nside = np.asarray(nside, dtype=np.intc)
 
@@ -377,7 +377,7 @@ def healpix_to_lonlat(healpix_index, nside, dx=None, dy=None, order='ring'):
     return lon, lat
 
 
-def lonlat_to_healpix(lon, lat, nside, return_offsets=False, order='ring'):
+def lonlat_to_healpix(lon, lat, nside, return_offsets=False, order="ring"):
     """
     Convert longitudes/latitudes to HEALPix indices
 
@@ -404,7 +404,7 @@ def lonlat_to_healpix(lon, lat, nside, return_offsets=False, order='ring'):
         center of the HEALPix pixels
     """
 
-    if _validate_order(order) == 'ring':
+    if _validate_order(order) == "ring":
         func = _core.lonlat_to_healpix_ring
     else:  # _validate_order(order) == 'nested'
         func = _core.lonlat_to_healpix_nested
@@ -422,7 +422,7 @@ def lonlat_to_healpix(lon, lat, nside, return_offsets=False, order='ring'):
         return healpix_index
 
 
-def healpix_to_xyz(healpix_index, nside, dx=None, dy=None, order='ring'):
+def healpix_to_xyz(healpix_index, nside, dx=None, dy=None, order="ring"):
     """
     Convert HEALPix indices (optionally with offsets) to Cartesian coordinates.
 
@@ -449,7 +449,7 @@ def healpix_to_xyz(healpix_index, nside, dx=None, dy=None, order='ring'):
 
     _validate_nside(nside)
 
-    if _validate_order(order) == 'ring':
+    if _validate_order(order) == "ring":
         func = _core.healpix_ring_to_xyz
     else:  # _validate_order(order) == 'nested'
         func = _core.healpix_nested_to_xyz
@@ -457,18 +457,18 @@ def healpix_to_xyz(healpix_index, nside, dx=None, dy=None, order='ring'):
     if dx is None:
         dx = 0.5
     else:
-        _validate_offset('x', dx)
+        _validate_offset("x", dx)
     if dy is None:
         dy = 0.5
     else:
-        _validate_offset('y', dy)
+        _validate_offset("y", dy)
 
     nside = np.asarray(nside, dtype=np.intc)
 
     return func(healpix_index, nside, dx, dy)
 
 
-def xyz_to_healpix(x, y, z, nside, return_offsets=False, order='ring'):
+def xyz_to_healpix(x, y, z, nside, return_offsets=False, order="ring"):
     """
     Convert longitudes/latitudes to HEALPix indices
 
@@ -494,7 +494,7 @@ def xyz_to_healpix(x, y, z, nside, return_offsets=False, order='ring'):
         center of the HEALPix pixels
     """
 
-    if _validate_order(order) == 'ring':
+    if _validate_order(order) == "ring":
         func = _core.xyz_to_healpix_ring
     else:  # _validate_order(order) == 'nested'
         func = _core.xyz_to_healpix_nested
@@ -553,7 +553,7 @@ def ring_to_nested(ring_index, nside):
     return _core.ring_to_nested(ring_index, nside)
 
 
-def bilinear_interpolation_weights(lon, lat, nside, order='ring'):
+def bilinear_interpolation_weights(lon, lat, nside, order="ring"):
     """
     Get the four neighbours for each (lon, lat) position and the weight
     associated with each one for bilinear interpolation.
@@ -589,13 +589,13 @@ def bilinear_interpolation_weights(lon, lat, nside, order='ring'):
     indices = np.stack(result[:4])
     weights = np.stack(result[4:])
 
-    if _validate_order(order) == 'nested':
+    if _validate_order(order) == "nested":
         indices = ring_to_nested(indices, nside)
 
     return indices, weights
 
 
-def interpolate_bilinear_lonlat(lon, lat, values, order='ring'):
+def interpolate_bilinear_lonlat(lon, lat, values, order="ring"):
     """
     Interpolate values at specific longitudes/latitudes using bilinear interpolation
 
@@ -627,7 +627,7 @@ def interpolate_bilinear_lonlat(lon, lat, values, order='ring'):
     return result.sum(axis=0)
 
 
-def neighbours(healpix_index, nside, order='ring'):
+def neighbours(healpix_index, nside, order="ring"):
     """
     Find all the HEALPix pixels that are the neighbours of a HEALPix pixel
 
@@ -660,7 +660,7 @@ def neighbours(healpix_index, nside, order='ring'):
 
     nside = np.asarray(nside, dtype=np.intc)
 
-    if _validate_order(order) == 'ring':
+    if _validate_order(order) == "ring":
         func = _core.neighbours_ring
     else:  # _validate_order(order) == 'nested'
         func = _core.neighbours_nested
@@ -668,7 +668,7 @@ def neighbours(healpix_index, nside, order='ring'):
     return np.stack(func(healpix_index, nside))
 
 
-def healpix_cone_search(lon, lat, radius, nside, order='ring'):
+def healpix_cone_search(lon, lat, radius, nside, order="ring"):
     """
     Find all the HEALPix pixels within a given radius of a longitude/latitude.
 
@@ -704,7 +704,7 @@ def healpix_cone_search(lon, lat, radius, nside, order='ring'):
     return _core.healpix_cone_search(lon, lat, radius, nside, order)
 
 
-def boundaries_lonlat(healpix_index, step, nside, order='ring'):
+def boundaries_lonlat(healpix_index, step, nside, order="ring"):
     """
     Return the longitude and latitude of the edges of HEALPix pixels
 
@@ -735,18 +735,20 @@ def boundaries_lonlat(healpix_index, step, nside, order='ring'):
     step = int(step)
 
     if step < 1:
-        raise ValueError('step must be at least 1')
+        raise ValueError("step must be at least 1")
 
     # PERF: this could be optimized by writing a Cython routine to do this to
     # avoid allocating temporary arrays
 
-    frac = np.linspace(0., 1., step + 1)[:-1]
+    frac = np.linspace(0.0, 1.0, step + 1)[:-1]
     dx = np.hstack([1 - frac, np.repeat(0, step), frac, np.repeat(1, step)])
     dy = np.hstack([np.repeat(1, step), 1 - frac, np.repeat(0, step), frac])
 
     healpix_index, dx, dy = np.broadcast_arrays(healpix_index.reshape(-1, 1), dx, dy)
 
-    lon, lat = healpix_to_lonlat(healpix_index.ravel(), nside, dx.ravel(), dy.ravel(), order=order)
+    lon, lat = healpix_to_lonlat(
+        healpix_index.ravel(), nside, dx.ravel(), dy.ravel(), order=order
+    )
 
     lon = lon.reshape(-1, 4 * step)
     lat = lat.reshape(-1, 4 * step)

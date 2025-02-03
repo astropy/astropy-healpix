@@ -10,9 +10,8 @@ from ..high_level import HEALPix
 
 
 class TestHEALPix:
-
     def setup_class(self):
-        self.pix = HEALPix(nside=256, order='nested')
+        self.pix = HEALPix(nside=256, order="nested")
 
     def test_pixel_area(self):
         pixel_area = self.pix.pixel_area
@@ -28,7 +27,7 @@ class TestHEALPix:
         assert self.pix.level == 8
 
     def test_npix(self):
-        assert self.pix.npix == 12 * 256 ** 2
+        assert self.pix.npix == 12 * 256**2
 
     # For the following tests, the numerical accuracy of this function is
     # already tested in test_cython_api.py, so we focus here on functionality
@@ -44,9 +43,9 @@ class TestHEALPix:
 
         assert_equal(index, [1, 2, 3])
 
-        lon, lat = self.pix.healpix_to_lonlat([1, 2, 3],
-                                              dx=[0.1, 0.2, 0.3],
-                                              dy=[0.5, 0.4, 0.7])
+        lon, lat = self.pix.healpix_to_lonlat(
+            [1, 2, 3], dx=[0.1, 0.2, 0.3], dy=[0.5, 0.4, 0.7]
+        )
 
         assert isinstance(lon, Longitude)
         assert isinstance(lat, Latitude)
@@ -68,9 +67,9 @@ class TestHEALPix:
 
         assert_equal(index, [1, 2, 3])
 
-        x, y, z = self.pix.healpix_to_xyz([1, 2, 3],
-                                          dx=[0.1, 0.2, 0.3],
-                                          dy=[0.5, 0.4, 0.7])
+        x, y, z = self.pix.healpix_to_xyz(
+            [1, 2, 3], dx=[0.1, 0.2, 0.3], dy=[0.5, 0.4, 0.7]
+        )
 
         assert isinstance(x, np.ndarray)
         assert isinstance(y, np.ndarray)
@@ -89,23 +88,26 @@ class TestHEALPix:
         assert_equal(nested_index_1, nested_index_2)
 
     def test_bilinear_interpolation_weights(self):
-        indices, weights = self.pix.bilinear_interpolation_weights([1, 3, 4] * u.deg,
-                                                                   [3, 2, 6] * u.deg)
+        indices, weights = self.pix.bilinear_interpolation_weights(
+            [1, 3, 4] * u.deg, [3, 2, 6] * u.deg
+        )
         assert indices.shape == (4, 3)
         assert weights.shape == (4, 3)
 
     def test_interpolate_bilinear_lonlat(self):
-        values = np.ones(12 * 256 ** 2) * 3
-        result = self.pix.interpolate_bilinear_lonlat([1, 3, 4] * u.deg,
-                                                      [3, 2, 6] * u.deg, values)
+        values = np.ones(12 * 256**2) * 3
+        result = self.pix.interpolate_bilinear_lonlat(
+            [1, 3, 4] * u.deg, [3, 2, 6] * u.deg, values
+        )
         assert_allclose(result, [3, 3, 3])
 
     def test_interpolate_bilinear_lonlat_invalid(self):
         values = np.ones(222) * 3
         with pytest.raises(ValueError) as exc:
-            self.pix.interpolate_bilinear_lonlat([1, 3, 4] * u.deg,
-                                                 [3, 2, 6] * u.deg, values)
-        assert exc.value.args[0] == 'values must be an array of length 786432 (got 222)'
+            self.pix.interpolate_bilinear_lonlat(
+                [1, 3, 4] * u.deg, [3, 2, 6] * u.deg, values
+            )
+        assert exc.value.args[0] == "values must be an array of length 786432 (got 222)"
 
     def test_cone_search_lonlat(self):
         lon, lat = 1 * u.deg, 4 * u.deg
@@ -116,8 +118,9 @@ class TestHEALPix:
         lon, lat = [1, 2] * u.deg, [3, 4] * u.deg
         with pytest.raises(ValueError) as exc:
             self.pix.cone_search_lonlat(lon, lat, 1 * u.deg)
-        assert exc.value.args[0] == ('The longitude, latitude and radius must '
-                                     'be scalar Quantity objects')
+        assert exc.value.args[0] == (
+            "The longitude, latitude and radius must " "be scalar Quantity objects"
+        )
 
     def test_boundaries_lonlat(self):
         lon, lat = self.pix.boundaries_lonlat([10, 20, 30], 4)
@@ -130,9 +133,8 @@ class TestHEALPix:
 
 
 class TestCelestialHEALPix:
-
     def setup_class(self):
-        self.pix = HEALPix(nside=256, order='nested', frame=Galactic())
+        self.pix = HEALPix(nside=256, order="nested", frame=Galactic())
 
     def test_healpix_from_header(self):
         """Test instantiation from a FITS header.
@@ -146,8 +148,8 @@ class TestCelestialHEALPix:
         """
 
         pix = HEALPix.from_header(
-            (np.empty(self.pix.npix), 'G'),
-            nested=self.pix.order == 'nested')
+            (np.empty(self.pix.npix), "G"), nested=self.pix.order == "nested"
+        )
 
         assert pix.nside == self.pix.nside
         assert type(pix.frame) == type(self.pix.frame)  # noqa
@@ -161,22 +163,22 @@ class TestCelestialHEALPix:
 
         # Make sure that the skycoord_to_healpix method converts coordinates
         # to the frame of the HEALPix
-        coord = coord.transform_to('fk5')
+        coord = coord.transform_to("fk5")
 
         index = self.pix.skycoord_to_healpix(coord)
 
         assert_equal(index, [1, 2, 3])
 
-        coord = self.pix.healpix_to_skycoord([1, 2, 3],
-                                             dx=[0.1, 0.2, 0.3],
-                                             dy=[0.5, 0.4, 0.7])
+        coord = self.pix.healpix_to_skycoord(
+            [1, 2, 3], dx=[0.1, 0.2, 0.3], dy=[0.5, 0.4, 0.7]
+        )
 
         assert isinstance(coord, SkyCoord)
         assert isinstance(coord.frame, Galactic)
 
         # Make sure that the skycoord_to_healpix method converts coordinates
         # to the frame of the HEALPix
-        coord = coord.transform_to('fk5')
+        coord = coord.transform_to("fk5")
 
         index, dx, dy = self.pix.skycoord_to_healpix(coord, return_offsets=True)
 
@@ -185,15 +187,15 @@ class TestCelestialHEALPix:
         assert_allclose(dy, [0.5, 0.4, 0.7])
 
     def test_interpolate_bilinear_skycoord(self):
-        values = np.ones(12 * 256 ** 2) * 3
-        coord = SkyCoord([1, 2, 3] * u.deg, [4, 3, 1] * u.deg, frame='fk4')
+        values = np.ones(12 * 256**2) * 3
+        coord = SkyCoord([1, 2, 3] * u.deg, [4, 3, 1] * u.deg, frame="fk4")
         result = self.pix.interpolate_bilinear_skycoord(coord, values)
         assert_allclose(result, [3, 3, 3])
 
         # Make sure that coordinate system is correctly taken into account
 
-        values = np.arange(12 * 256 ** 2) * 3
-        coord = SkyCoord([1, 2, 3] * u.deg, [4, 3, 1] * u.deg, frame='fk4')
+        values = np.arange(12 * 256**2) * 3
+        coord = SkyCoord([1, 2, 3] * u.deg, [4, 3, 1] * u.deg, frame="fk4")
 
         result1 = self.pix.interpolate_bilinear_skycoord(coord, values)
         result2 = self.pix.interpolate_bilinear_skycoord(coord.icrs, values)
@@ -201,7 +203,7 @@ class TestCelestialHEALPix:
         assert_allclose(result1, result2)
 
     def test_cone_search_skycoord(self):
-        coord = SkyCoord(1 * u.deg, 4 * u.deg, frame='galactic')
+        coord = SkyCoord(1 * u.deg, 4 * u.deg, frame="galactic")
         result1 = self.pix.cone_search_skycoord(coord, 1 * u.deg)
         assert len(result1) == 77
         result2 = self.pix.cone_search_skycoord(coord.icrs, 1 * u.deg)
@@ -213,22 +215,20 @@ class TestCelestialHEALPix:
 
 
 class TestCelestialHEALPixFrameAsClass(TestCelestialHEALPix):
-
     def setup_class(self):
-        self.pix = HEALPix(nside=256, order='nested', frame=Galactic)
+        self.pix = HEALPix(nside=256, order="nested", frame=Galactic)
 
 
 class TestCelestialHEALPixFrameAsString(TestCelestialHEALPix):
-
     def setup_class(self):
-        self.pix = HEALPix(nside=256, order='nested', frame='galactic')
+        self.pix = HEALPix(nside=256, order="nested", frame="galactic")
 
 
 def test_invalid_frame_name():
     with pytest.raises(ValueError, match='Coordinate frame name "foobar"'):
-        HEALPix(nside=256, frame='foobar')
+        HEALPix(nside=256, frame="foobar")
 
 
 def test_invalid_frame_type():
-    with pytest.raises(ValueError, match='Coordinate frame must be a'):
-        HEALPix(nside=256, frame=('obviously', 'not', 'a', 'frame'))
+    with pytest.raises(ValueError, match="Coordinate frame must be a"):
+        HEALPix(nside=256, frame=("obviously", "not", "a", "frame"))

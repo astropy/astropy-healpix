@@ -28,7 +28,7 @@ longitude/latitude on the sphere, there are two main options:
   interpolation. This is trickier to do by hand, and we therefore provide the
   methods :meth:`~astropy_healpix.HEALPix.interpolate_bilinear_lonlat` and
   :meth:`~astropy_healpix.HEALPix.interpolate_bilinear_skycoord` methods to
-  faciliate this. If you are not already familiar with how to access HEALPix
+  facilitate this. If you are not already familiar with how to access HEALPix
   data from FITS files, we have provided a `Full example`_ in the following
   section.
 

@@ -4,6 +4,15 @@
 Changes
 *******
 
+1.1.0 (2025-02-03)
+==================
+
+- Fix unit tests so that they pass under Numpy 1.x and 2.x. [#234]
+
+- Require python >= 3.10, numpy >= 1.25, and astropy >= 5. [#239]
+
+- Fix broken unit tests that were reported by Debian. [#237]
+
 1.0.3 (2024-04-05)
 ==================
 

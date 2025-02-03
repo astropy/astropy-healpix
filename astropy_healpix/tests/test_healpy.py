@@ -1,15 +1,18 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from itertools import product
 
+from astropy.coordinates import angular_separation
+from astropy import units as u
 import pytest
 import numpy as np
 
 from numpy.testing import assert_equal, assert_allclose
 
 from .. import healpy as hp_compat
+from ..high_level import xyz_to_healpix
 
 from hypothesis import given, settings, example
-from hypothesis.strategies import integers, floats, booleans
+from hypothesis.strategies import integers, floats, booleans, tuples
 from hypothesis.extra.numpy import arrays
 
 # NOTE: If healpy is installed, we use it in these tests, but healpy is not a
@@ -112,12 +115,27 @@ def test_pix2ang(nside_pow, frac, nest, lonlat):
             assert_allclose(phi1, phi2, atol=1e-10)
 
 
-@given(nside_pow=integers(0, 29), nest=booleans(),
-       x=floats(-1, 1, allow_nan=False, allow_infinity=False).filter(lambda x: abs(x) > 1e-10),
-       y=floats(-1, 1, allow_nan=False, allow_infinity=False).filter(lambda y: abs(y) > 1e-10),
-       z=floats(-1, 1, allow_nan=False, allow_infinity=False).filter(lambda z: abs(z) > 1e-10))
+def not_on_boundaries(args):
+    """Skip vectors that are on the boundary of a pixel where ipix is ambiguous."""
+    nside_pow, nest, x, y, z = args
+    nside = 2 ** nside_pow
+    _, dx, dy = xyz_to_healpix(
+        x, y, z, nside, return_offsets=True, order="nested" if nest else "ring"
+    )
+    return 0 < dx < 1 and 0 < dy < 1
+
+
+@given(
+    args=tuples(
+        integers(0, 29), booleans(),
+        floats(-1, 1, allow_nan=False, allow_infinity=False).filter(lambda x: abs(x) > 1e-10),
+        floats(-1, 1, allow_nan=False, allow_infinity=False).filter(lambda y: abs(y) > 1e-10),
+        floats(-1, 1, allow_nan=False, allow_infinity=False).filter(lambda z: abs(z) > 1e-10)
+    ).filter(not_on_boundaries)
+)
 @settings(max_examples=2000, derandomize=True, deadline=None)
-def test_vec2pix(nside_pow, x, y, z, nest):
+def test_vec2pix(args):
+    nside_pow, nest, x, y, z = args
     nside = 2 ** nside_pow
     ipix1 = hp_compat.vec2pix(nside, x, y, z, nest=nest)
     ipix2 = hp.vec2pix(nside, x, y, z, nest=nest)
@@ -211,12 +229,15 @@ def not_at_origin(vec):
 @settings(max_examples=500, derandomize=True, deadline=None)
 def test_vec2ang(vectors, lonlat, ndim):
     vectors = np.broadcast_to(vectors, (2,) * ndim + (3,))
-    theta1, phi1 = hp_compat.vec2ang(vectors, lonlat=lonlat)
-    theta2, phi2 = hp.vec2ang(vectors, lonlat=lonlat)
-    # Healpy sometimes returns NaNs for phi (somewhat incorrectly)
-    phi2 = np.nan_to_num(phi2)
-    assert_allclose(theta1, theta1, atol=1e-10)
-    assert_allclose(phi1, phi2, atol=1e-10)
+    lon1, lat1 = hp_compat.vec2ang(vectors, lonlat=lonlat)
+    lon2, lat2 = hp.vec2ang(vectors, lonlat=lonlat)
+    if not lonlat:
+        lon1, lat1 = np.rad2deg(lat1), 90 - np.rad2deg(lon1)
+        lon2, lat2 = np.rad2deg(lat2), 90 - np.rad2deg(lon2)
+    sep = angular_separation(
+        lon1 * u.deg, lat1 * u.deg, lon2 * u.deg, lat2 * u.deg
+    ).to_value(u.rad)
+    assert_allclose(sep, 0, atol=1e-8)
 
 
 @given(lonlat=booleans(),

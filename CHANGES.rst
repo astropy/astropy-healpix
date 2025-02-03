@@ -4,7 +4,7 @@
 Changes
 *******
 
-1.0.3 (unreleased)
+1.0.3 (2024-04-05)
 ==================
 
 - Require astropy 4 or newer. [#219]

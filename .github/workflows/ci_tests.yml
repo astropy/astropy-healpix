@@ -42,6 +42,11 @@ jobs:
             python: '3.11'
             toxenv: py311-test-alldeps
 
+          - name: macOS - Python 3.13 with all optional dependencies
+            os: macos-13
+            python: '3.13'
+            toxenv: py311-test-alldeps
+
           - name: Windows - Python 3.11 with minimal dependencies
             os: windows-latest
             python: '3.11'

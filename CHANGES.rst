@@ -4,7 +4,12 @@
 Changes
 *******
 
-1.1.0 (2025-02-03)
+1.1.1 (2025-02-18)
+==================
+
+- Remove dependency on obsolete Astropy test runner function. [#249]
+
+ 1.1.0 (2025-02-03)
 ==================
 
 - Fix unit tests so that they pass under Numpy 1.x and 2.x. [#234]

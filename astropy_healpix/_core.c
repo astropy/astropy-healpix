@@ -258,11 +258,20 @@ static void bilinear_interpolation_weights_loop(
         double weights[4];
         int j;
 
-        interpolate_weights(lon, lat, indices, weights, nside);
-        for (j = 0; j < 4; j ++)
-        {
-            *(int64_t *) &args[3 + j][i * steps[3 + j]] = indices[j];
-            *(double *)  &args[7 + j][i * steps[7 + j]] = weights[j];
+        if (isfinite(lon) && isfinite(lat)) {
+            interpolate_weights(lon, lat, indices, weights, nside);
+            for (j = 0; j < 4; j ++)
+            {
+                *(int64_t *) &args[3 + j][i * steps[3 + j]] = indices[j];
+                *(double *)  &args[7 + j][i * steps[7 + j]] = weights[j];
+            }
+        } else {
+            for (j = 0; j < 4; j ++)
+            {
+                *(int64_t *) &args[3 + j][i * steps[3 + j]] = INVALID_INDEX;
+                *(double *)  &args[7 + j][i * steps[7 + j]] = NPY_NAN;
+            }
+            _npy_set_floatstatus_invalid();
         }
     }
 }

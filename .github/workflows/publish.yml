@@ -22,9 +22,10 @@ jobs:
     with:
       targets: |
         - linux
-        - macos
-        - windows
-        - cp3*-macosx_arm64
+        - cp3*win32
+        - cp3*win_amd64
+        - cp3*macosx_x86_64
+        - cp3*macosx_arm64
         - cp3*-manylinux_aarch64
 
       # Developer wheels

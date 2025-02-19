@@ -4,6 +4,14 @@
 Changes
 *******
 
+1.1.2 (2025-02-19)
+==================
+
+- Correctly handle non-finite longitude and latitude values in
+  ``bilinear_interpolation_weights``. In previous versions, this function would
+  have tripped a C assertion and fatally aborted the Python interpreter. Now,
+  it will return NaN. [#252]
+
 1.1.1 (2025-02-18)
 ==================
 

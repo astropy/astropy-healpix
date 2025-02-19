@@ -211,8 +211,9 @@ def test_lonlat_to_healpix_shape():
 
 def test_lonlat_to_healpix_invalid():
     """Check that if we pass NaN values for example, the index is set to -1"""
-    ipix = lonlat_to_healpix(np.nan * u.deg, np.nan * u.deg,
-                             nside=1, order='nested')
+    with pytest.warns(RuntimeWarning, match='invalid value'):
+        ipix = lonlat_to_healpix(np.nan * u.deg, np.nan * u.deg,
+                                 nside=1, order='nested')
     assert ipix == -1
 
 
@@ -279,9 +280,10 @@ def test_interpolate_bilinear_invalid():
                                     values, order='banana')
     assert exc.value.args[0] == "order must be 'nested' or 'ring'"
 
-    result = interpolate_bilinear_lonlat([0, np.nan] * u.deg,
-                                         [0, np.nan] * u.deg, values,
-                                         order='nested')
+    with pytest.warns(RuntimeWarning, match='invalid value'):
+        result = interpolate_bilinear_lonlat([0, np.nan] * u.deg,
+                                             [0, np.nan] * u.deg, values,
+                                             order='nested')
     assert result.shape == (2,)
     assert result[0] == 1
     assert np.isnan(result[1])

@@ -21,12 +21,14 @@ jobs:
       anaconda_token: ${{ secrets.anaconda_token }}
     with:
       targets: |
-        - linux
+        - cp3*-manylinux_x86_64
+        - cp3*-musllinux_x86_64
         - cp3*-win32
         - cp3*-win_amd64
         - cp3*-macosx_x86_64
         - cp3*-macosx_arm64
-        - cp3*-manylinux_aarch64
+        - target: cp3*-manylinux_aarch64
+          runs-on: ubuntu-24.04-arm
 
       # Developer wheels
       upload_to_anaconda: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}

@@ -21,7 +21,8 @@ jobs:
       anaconda_token: ${{ secrets.anaconda_token }}
     with:
       targets: |
-        - linux
+        - cp3*-manylinux_x86_64
+        - cp3*-musllinux_x86_64
         - macos
         - windows
         - cp3*-macosx_arm64

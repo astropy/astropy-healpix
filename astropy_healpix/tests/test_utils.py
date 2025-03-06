@@ -51,6 +51,6 @@ def test_parse_input_healpix_data(tmp_path):
     np.testing.assert_allclose(array, data)
 
     # Invalid
-    errmsg = r"input_data should either be an HDU object or a tuple of \(array, frame\)")
+    errmsg = r"input_data should either be an HDU object or a tuple of \(array, frame\)"
     with pytest.raises(TypeError,  match=errmsg):
         parse_input_healpix_data(data)

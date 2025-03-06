@@ -27,7 +27,7 @@ def test_parse_coord_system():
     assert exc.value.args[0] == "Could not determine frame for system=spam"
 
 
-def test_parse_input_healpix_data(tmpdir):
+def test_parse_input_healpix_data(tmp_path):
 
     data = np.arange(3072)
 
@@ -41,7 +41,7 @@ def test_parse_input_healpix_data(tmpdir):
     np.testing.assert_allclose(array, data)
 
     # As filename
-    filename = tmpdir.join('test.fits').strpath
+    filename = str(tmp_path / 'test.fits')
     hdu.writeto(filename)
     array, coordinate_system, nested = parse_input_healpix_data(filename)
     np.testing.assert_allclose(array, data)
@@ -51,7 +51,6 @@ def test_parse_input_healpix_data(tmpdir):
     np.testing.assert_allclose(array, data)
 
     # Invalid
-    with pytest.raises(TypeError) as exc:
+    errmsg = r"input_data should either be an HDU object or a tuple of \(array, frame\)")
+    with pytest.raises(TypeError,  match=errmsg):
         parse_input_healpix_data(data)
-    assert exc.value.args[0] == ("input_data should either be an HDU object or "
-                                 "a tuple of (array, frame)")

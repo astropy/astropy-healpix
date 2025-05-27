@@ -36,9 +36,7 @@ def get_extensions():
         libraries=libraries,
         language="c",
         extra_compile_args=['-O2'],
-        py_limited_api=True,
-        define_macros=[('Py_LIMITED_API', 0x030A0000),
-                       ('NPY_TARGET_VERSION', 'NPY_1_19_API_VERSION'),
+        define_macros=[('NPY_TARGET_VERSION', 'NPY_1_19_API_VERSION'),
                        ('NPY_NO_DEPRECATED_API', 'NPY_1_19_API_VERSION')])
 
     return [extension]

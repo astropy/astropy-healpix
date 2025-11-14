@@ -1,7 +1,6 @@
 include README.rst
 include CHANGES.rst
 include setup.cfg
-include LICENSE.md
 include pyproject.toml
 
 recursive-include astropy_healpix *.c *.h

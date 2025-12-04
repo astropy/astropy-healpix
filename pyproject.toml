@@ -10,6 +10,13 @@ build-backend = 'setuptools.build_meta'
 [tool.cibuildwheel]
 skip = "pp*"
 
+# Currently, free-threaded builds do not support the Python Limited API.
+# See https://github.com/python/cpython/issues/111506
+[[tool.cibuildwheel.overrides]]
+select = "cp3??t-*"
+inherit.environment = "append"
+environment.EXTENSION_HELPERS_PY_LIMITED_API = ""
+
 [tool.pytest.ini_options]
 filterwarnings = [
     "error",

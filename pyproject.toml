@@ -7,9 +7,6 @@ requires = ["setuptools>=77.0.1",
 
 build-backend = 'setuptools.build_meta'
 
-[tool.cibuildwheel]
-skip = "pp*"
-
 # Currently, free-threaded builds do not support the Python Limited API.
 # See https://github.com/python/cpython/issues/111506
 [[tool.cibuildwheel.overrides]]

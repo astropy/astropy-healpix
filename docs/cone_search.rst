@@ -1,5 +1,5 @@
-Seaching for pixels around a position (cone search)
-===================================================
+Searching for pixels around a position (cone search)
+====================================================
 
 A common operation when using HEALPix maps is to try and find all pixels
 that lie within a certain radius of a given longitude/latitude. One way to

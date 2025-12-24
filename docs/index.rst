@@ -11,7 +11,7 @@ can apply to any field that has to deal with representing data on a sphere.
 
 More information about the HEALPix algorithm can be found here:
 
-* https://healpix.jpl.nasa.gov/
+* https://healpix.sourceforge.io/
 * https://ui.adsabs.harvard.edu/abs/2005ApJ...622..759G
 * https://ui.adsabs.harvard.edu/abs/2007MNRAS.381..865C
 

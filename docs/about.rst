@@ -14,7 +14,7 @@ HEALPix code written by Dustin Lang originally in `astrometry.net
 with a Python interface.
 
 The `healpy <https://github.com/healpy/healpy>`__ package that is a wrapper
-around the `HEALPix <http://healpix.jpl.nasa.gov/>`__ C++ library has existed
+around the `HEALPix <https://healpix.sourceforge.io/>`__ C++ library has existed
 for a long time. So why this re-write?
 
 The main motivation is that the original HEALPIX/healpy packages are

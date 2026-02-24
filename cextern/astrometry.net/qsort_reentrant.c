@@ -37,7 +37,7 @@
 #ifdef _MSC_VER
 # include <stdio.h>
 #else
-#if __sun
+#if defined(__sun) || defined(__EMSCRIPTEN__)
 # include <stdio.h>
 #else
 # include <sys/cdefs.h>

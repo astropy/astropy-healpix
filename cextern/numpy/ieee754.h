@@ -70,7 +70,7 @@ static void _npy_set_floatstatus_invalid(void)
     fp_raise_xcp(FP_INVALID);
 }
 
-#elif defined(_MSC_VER) || (defined(__osf__) && defined(__alpha))
+#elif defined(_MSC_VER) || (defined(__osf__) && defined(__alpha)) || defined(__EMSCRIPTEN__)
 
 /*
  * By using a volatile floating point value,
@@ -80,6 +80,10 @@ static void _npy_set_floatstatus_invalid(void)
  * We shouldn't write multiple values to a single
  * global here, because that would cause
  * a race condition.
+ *
+ * Note: Emscripten is included here because its fenv.h implementation
+ * provides stub functions that don't actually manipulate floating-point
+ * state (WebAssembly has limited access to hardware exception mechanisms).
  */
 static volatile double _npy_floatstatus_x, _npy_floatstatus_inf;
 

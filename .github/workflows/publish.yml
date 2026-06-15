@@ -15,7 +15,7 @@ on:
 jobs:
   publish:
     if: (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'Build wheels'))
-    uses: OpenAstronomy/github-actions-workflows/.github/workflows/publish.yml@a138926f6e4f9667d1306c24f24f5bdcaa01fbab  # v2.5.0
+    uses: OpenAstronomy/github-actions-workflows/.github/workflows/publish.yml@afacbe8ebafa67b369e1f605b4f6989284ba2e87  # v2.6.5
     secrets:
       anaconda_token: ${{ secrets.anaconda_token }}
     with:

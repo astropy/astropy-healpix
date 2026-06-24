@@ -382,7 +382,9 @@ def test_healpix_cone_search(order):
     assert len(indices) == 80
 
 
-@pytest.mark.parametrize(("step", "order"), product([1, 4, 10], ["nested", "ring"]))
+@pytest.mark.parametrize(
+    ("step", "order"), list(product([1, 4, 10], ["nested", "ring"]))
+)
 def test_boundaries_lonlat(step, order):
     lon, lat = boundaries_lonlat([10, 20, 30], step, 256, order=order)
     assert lon.shape == (3, 4 * step)

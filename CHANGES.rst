@@ -4,6 +4,14 @@
 Changes
 *******
 
+1.1.4 (unreleased)
+==================
+
+- Fix an off-by-one error in ``uniq_to_level_ipix`` that returned the wrong
+  level (and a negative ``ipix``) for the last pixel of levels >= 24, caused by
+  floating-point rounding in the level computation. The level is now computed
+  with exact integer arithmetic.
+
 1.1.3 (2026-01-19)
 ==================
 

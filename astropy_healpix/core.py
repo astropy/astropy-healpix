@@ -132,8 +132,14 @@ def uniq_to_level_ipix(uniq):
     """
     uniq = np.asarray(uniq, dtype=np.int64)
 
-    level = (np.log2(uniq // 4)) // 2
-    level = level.astype(np.int64)
+    # level = floor(log4(uniq)) - 1. A purely floating-point log2 mis-rounds at
+    # power-of-two boundaries (e.g. the last pixel of a level, where uniq is just
+    # below 2 ** 52), giving a level that is off by one, so refine the
+    # floating-point guess with exact integer comparisons.
+    log2 = np.floor(np.log2(uniq)).astype(np.int64)
+    log2 -= (np.int64(1) << log2) > uniq
+    log2 += (np.int64(1) << log2) <= (uniq >> np.int64(1))
+    level = (log2 >> np.int64(1)) - 1
     _validate_level(level)
 
     ipix = uniq - (1 << 2 * (level + 1))

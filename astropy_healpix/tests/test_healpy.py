@@ -1,6 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from itertools import product
-
 from astropy.coordinates import angular_separation
 from astropy import units as u
 import pytest
@@ -22,14 +20,16 @@ hp = pytest.importorskip("healpy")
 NSIDE_VALUES = [2**n for n in range(1, 6)]
 
 
-@pytest.mark.parametrize(("nside", "degrees"), product(NSIDE_VALUES, (False, True)))
+@pytest.mark.parametrize("nside", NSIDE_VALUES)
+@pytest.mark.parametrize("degrees", [False, True])
 def test_nside2pixarea(nside, degrees):
     actual = hp_compat.nside2pixarea(nside=nside, degrees=degrees)
     expected = hp.nside2pixarea(nside=nside, degrees=degrees)
     assert_allclose(actual, expected)
 
 
-@pytest.mark.parametrize(("nside", "arcmin"), product(NSIDE_VALUES, (False, True)))
+@pytest.mark.parametrize("nside", NSIDE_VALUES)
+@pytest.mark.parametrize("arcmin", [False, True])
 def test_nside2resol(nside, arcmin):
     actual = hp_compat.nside2resol(nside=nside, arcmin=arcmin)
     expected = hp.nside2resol(nside=nside, arcmin=arcmin)

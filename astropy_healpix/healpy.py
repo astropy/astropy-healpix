@@ -25,7 +25,6 @@ from .core import (
     boundaries_lonlat,
     bilinear_interpolation_weights,
     interpolate_bilinear_lonlat,
-    _NUMPY_COPY_IF_NEEDED,
 )
 
 RAD2DEG = 180 / np.pi
@@ -76,9 +75,7 @@ def _healpy_to_lonlat(theta, phi, lonlat=False):
     else:
         lat = PI_2 - np.asarray(theta)
         lon = np.asarray(phi)
-    return u.Quantity(lon, u.rad, copy=_NUMPY_COPY_IF_NEEDED), u.Quantity(
-        lat, u.rad, copy=_NUMPY_COPY_IF_NEEDED
-    )
+    return u.Quantity(lon, u.rad), u.Quantity(lat, u.rad)
 
 
 def nside2resol(nside, arcmin=False):
@@ -138,13 +135,13 @@ def vec2pix(nside, x, y, z, nest=False):
 
 def nest2ring(nside, ipix):
     """Drop-in replacement for healpy `~healpy.pixelfunc.nest2ring`."""
-    ipix = np.atleast_1d(ipix).astype(np.int64, copy=_NUMPY_COPY_IF_NEEDED)
+    ipix = np.atleast_1d(ipix).astype(np.int64)
     return nested_to_ring(ipix, nside)
 
 
 def ring2nest(nside, ipix):
     """Drop-in replacement for healpy `~healpy.pixelfunc.ring2nest`."""
-    ipix = np.atleast_1d(ipix).astype(np.int64, copy=_NUMPY_COPY_IF_NEEDED)
+    ipix = np.atleast_1d(ipix).astype(np.int64)
     return ring_to_nested(ipix, nside)
 
 

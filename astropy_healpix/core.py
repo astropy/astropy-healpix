@@ -28,8 +28,6 @@ __all__ = [
     "neighbours",
 ]
 
-_NUMPY_COPY_IF_NEEDED = False if np.__version__.startswith("1.") else None
-
 
 def _validate_order(order):
     # We also support upper-case, to support directly the values
@@ -371,8 +369,8 @@ def healpix_to_lonlat(healpix_index, nside, dx=None, dy=None, order="ring"):
 
     lon, lat = func(healpix_index, nside, dx, dy)
 
-    lon = Longitude(lon, unit=u.rad, copy=_NUMPY_COPY_IF_NEEDED)
-    lat = Latitude(lat, unit=u.rad, copy=_NUMPY_COPY_IF_NEEDED)
+    lon = Longitude(lon, unit=u.rad)
+    lat = Latitude(lat, unit=u.rad)
 
     return lon, lat
 

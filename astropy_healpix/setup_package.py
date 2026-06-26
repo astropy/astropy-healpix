@@ -38,8 +38,8 @@ def get_extensions():
         language="c",
         extra_compile_args=["-O2"],
         define_macros=[
-            ("NPY_TARGET_VERSION", "NPY_1_19_API_VERSION"),
-            ("NPY_NO_DEPRECATED_API", "NPY_1_19_API_VERSION"),
+            ("NPY_TARGET_VERSION", "NPY_2_0_API_VERSION"),
+            ("NPY_NO_DEPRECATED_API", "NPY_2_0_API_VERSION"),
         ],
     )
 

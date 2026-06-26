@@ -1,5 +1,6 @@
 #include <Python.h>
 #include <math.h>
+#include <stdbit.h>
 #include <numpy/arrayobject.h>
 #include <numpy/ufuncobject.h>
 #include "healpix.h"
@@ -294,6 +295,47 @@ static void neighbours_loop(
 }
 
 
+static void nside_to_level_loop(
+    char **args, const npy_intp *dimensions, const npy_intp *steps, void *data)
+{
+    npy_intp i, n = dimensions[0];
+
+    for (i = 0; i < n; i ++)
+    {
+        int64_t nside = *(int64_t) &args[0][i * steps[0]];
+        int    *level =  (int *)   &args[1][i * steps[1]];
+
+        if (nside > 0)
+            *nside = 63 - stdc_leading_zeros(nside);
+        else {
+            *nside = -1;
+            _npy_set_floatstatus_invalid();
+        }
+    }
+}
+
+
+static void uniq_to_level_ipix_loop(
+    char **args, const npy_intp *dimensions, const npy_intp *steps, void *data)
+{
+    npy_intp i, n = dimensions[0];
+
+    for (i = 0; i < n; i ++)
+    {
+        int64_t uniq = *(int64_t)   &args[0][i * steps[0]];
+        int   *level =  (int *)     &args[1][i * steps[1]];
+        int    *ipix =  (int64_t *) &args[2][i * steps[2]];
+
+        if (nside > 0)
+            *nside = 63 - stdc_leading_zeros(nside);
+        else {
+            *nside = -1;
+            _npy_set_floatstatus_invalid();
+        }
+    }
+}
+
+
 static PyObject *healpix_cone_search(
     PyObject *self, PyObject *args, PyObject *kwargs)
 {
@@ -361,7 +403,8 @@ static PyUFuncGenericFunction
     nested_to_ring_loops                [] = {nested_to_ring_loop},
     ring_to_nested_loops                [] = {ring_to_nested_loop},
     bilinear_interpolation_weights_loops[] = {bilinear_interpolation_weights_loop},
-    neighbours_loops                    [] = {neighbours_loop};
+    neighbours_loops                    [] = {neighbours_loop}
+    nside_to_level_loops                [] = {nside_to_level_loop};
 
 static char
     healpix_to_lonlat_types[] = {
@@ -381,7 +424,8 @@ static char
     neighbours_types[] = {
         NPY_INT64, NPY_INT,
         NPY_INT64, NPY_INT64, NPY_INT64, NPY_INT64,
-        NPY_INT64, NPY_INT64, NPY_INT64, NPY_INT64};
+        NPY_INT64, NPY_INT64, NPY_INT64, NPY_INT64},
+    nside_to_level_types[] = {NPY_INT64, NPY_INT};
 
 
 PyMODINIT_FUNC PyInit__core(void)
@@ -470,6 +514,12 @@ PyMODINIT_FUNC PyInit__core(void)
             neighbours_loops, ring_ufunc_data,
             neighbours_types, 1, 2, 8, PyUFunc_None,
             "neighbours_ring", NULL, 0));
+
+    PyModule_AddObject(
+        module, "nside_to_level", PyUFunc_FromFuncAndData(
+            nside_to_level_loops, no_ufunc_data,
+            nside_to_level_types, 1, 1, 1, PyUFunc_None,
+            "nside_to_level", NULL, 0));
 
     return module;
 }

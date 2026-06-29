@@ -9,6 +9,8 @@ Changes
 
 - Require Numpy >= 2.
 
+- Wheel for ``win32`` is no longer provided. Use wheel for ``win_amd64`` instead.
+
 - Fix incorrect return values of ``uniq_to_level_ipix`` near npix boundaries.
 
 - The functions ``nside_to_level`` and ``uniq_to_level_ipix`` no longer raise

@@ -42,6 +42,13 @@ def test_nside_to_level(level):
     assert nside_to_level(nside) == level
 
 
+@pytest.mark.parametrize(
+    "level", [0, -1, np.iinfo(np.int32).min, np.iinfo(np.int64).min]
+)
+def test_nside_to_level_invalid(level):
+    assert nside_to_level(level) == -1
+
+
 def test_level_ipix_to_uniq():
     assert 11 + 4 * 4**0 == level_ipix_to_uniq(0, 11)
     assert 62540 + 4 * 4**15 == level_ipix_to_uniq(15, 62540)

@@ -308,20 +308,26 @@ static void bit_scan_reverse_loop(
     for (i = 0; i < n; i ++)
     {
         int64_t   in = *(int64_t *) &args[0][i * steps[0]];
-        int64_t *out =  (int *)     &args[1][i * steps[1]];
-        int result;
-        #if __has_include(<stdbit.h>)
-            result = 63 - stdc_leading_zeros(in);
-        #elif defined(_MSC_VER)
-            unsigned long index;
-            if (_BitScanReverse64(&index, in))
-                result = index;
-            else
-                result = -1;
-        #else
-            result = 63 - __builtin_clzll(in);
-        #endif
-        *out = result;
+        int64_t *out =  (int64_t *) &args[1][i * steps[1]];
+        if (in <= 0)
+        {
+            *out = -1;
+        } else {
+            int result;
+            uint64_t arg = (uint64_t) in;
+            #if __has_include(<stdbit.h>)
+                result = 63 - stdc_leading_zeros(arg);
+            #elif defined(_MSC_VER)
+                unsigned long index;
+                if (_BitScanReverse64(&index, arg))
+                    result = index;
+                else
+                    result = -1;
+            #else
+                result = 63 - __builtin_clzll(arg);
+            #endif
+            *out = result;
+        }
     }
 }
 

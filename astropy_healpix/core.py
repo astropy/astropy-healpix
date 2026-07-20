@@ -130,7 +130,7 @@ def uniq_to_level_ipix(uniq):
     good = uniq >= 4
     i = _core.bit_scan_reverse(uniq) >> 1
     level = i - 1
-    ipix = uniq - (np.int64(1) << (i << 1))
+    ipix = uniq - (1 << (i << 1))
     return np.where(good, level, -1), np.where(good, ipix, -1)
 
 

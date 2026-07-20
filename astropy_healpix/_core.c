@@ -307,19 +307,21 @@ static void bit_scan_reverse_loop(
 
     for (i = 0; i < n; i ++)
     {
-        int64_t  in = *(int64_t *) &args[0][i * steps[0]];
-        int    *out =  (int *)     &args[1][i * steps[1]];
+        int64_t   in = *(int64_t *) &args[0][i * steps[0]];
+        int64_t *out =  (int *)     &args[1][i * steps[1]];
+        int result;
         #if __has_include(<stdbit.h>)
-            *out = 63 - stdc_leading_zeros(in);
+            result = 63 - stdc_leading_zeros(in);
         #elif defined(_MSC_VER)
             unsigned long index;
             if (_BitScanReverse64(&index, in))
-                *out = index;
+                result = index;
             else
-                *out = -1;
+                result = -1;
         #else
-            *out = 63 - __builtin_clzll(in);
+            result = 63 - __builtin_clzll(in);
         #endif
+        *out = result;
     }
 }
 
@@ -413,7 +415,7 @@ static char
         NPY_INT64, NPY_INT,
         NPY_INT64, NPY_INT64, NPY_INT64, NPY_INT64,
         NPY_INT64, NPY_INT64, NPY_INT64, NPY_INT64},
-    bit_scan_reverse_types[] = {NPY_INT64, NPY_INT};
+    bit_scan_reverse_types[] = {NPY_INT64, NPY_INT64};
 
 
 PyMODINIT_FUNC PyInit__core(void)

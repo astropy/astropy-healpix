@@ -4,6 +4,13 @@
 Changes
 *******
 
+2.0.1 (unreleased)
+==================
+
+- Have ``nside_to_level`` return a 64-bit integer. It is very common to use the
+  return value as a bit-shift argument which would cause truncation if the user
+  failed to first convert the return value to a 64-bit integer.
+
 2.0.0 (2026-06-29)
 ==================
 

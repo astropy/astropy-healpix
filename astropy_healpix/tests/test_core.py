@@ -398,19 +398,21 @@ def test_healpix_cone_search(order):
 
 
 @pytest.mark.parametrize(
-    ("lon", "lat", "radius", "index"),
+    ("lon", "lat", "radius", "nside", "index"),
     [
-        (33.903845, 72.034925, 30, 62095),
-        (357.872569, 48.878311, 100, 220614),
-        (356.235352, 52.538460, 400, 221117),
+        (33.903845, 72.034925, 30, 256, 62095),
+        (357.872569, 48.878311, 100, 256, 220614),
+        (356.235352, 52.538460, 400, 256, 221117),
+        (61.2713871615, 85.7572154597, 400, 16, 253),
     ],
 )
-def test_healpix_cone_search_partial_overlap(lon, lat, radius, index):
+def test_healpix_cone_search_partial_overlap(lon, lat, radius, nside, index):
     # Small cones that partially overlap a neighbouring pixel; these were
     # previously missed because only the edge joining the two nearest pixel
-    # corners was used to compute the distance to the pixel.
+    # corners was used to compute the distance to the pixel, and because the
+    # search along that edge could discard the half containing the minimum.
     indices = healpix_cone_search(
-        lon * u.deg, lat * u.deg, radius * u.arcsec, nside=256, order="nested"
+        lon * u.deg, lat * u.deg, radius * u.arcsec, nside=nside, order="nested"
     )
     assert index in indices
 

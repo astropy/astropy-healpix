@@ -1232,55 +1232,67 @@ int healpix_get_neighbours_within_range(double* xyz, double range, int64_t* out_
     return nhp;
 }
 
-// Binary search along one edge of a healpix (from corner A to corner B) for
-// the point closest to "xyz". Returns the squared distance to the closest
-// point evaluated (endpoints included) and stores that point in "closestxyz".
+// Squared distance from "xyz" to the point a fraction t of the way along the
+// edge of a healpix from corner A to corner B; that point is stored in "pxyz".
+static double edge_point_distsq(int64_t hp, int Nside, const double* xyz,
+                                double dxA, double dyA, double dxB, double dyB,
+                                double t, double* pxyz) {
+    healpixl_to_xyzarr(hp, Nside, dxA + t*(dxB - dxA), dyA + t*(dyB - dyA), pxyz);
+    return distsq(xyz, pxyz, 3);
+}
+
+// Golden-section search along one edge of a healpix (from corner A to corner
+// B) for the point closest to "xyz". Unlike a bisection that compares the
+// endpoints, this only assumes the distance has a single minimum along the
+// edge, not that it is symmetric about it. Returns the squared distance to
+// the closest point evaluated (endpoints included) and stores that point in
+// "closestxyz".
 static double edge_distsq_to_xyz(int64_t hp, int Nside, const double* xyz,
                                  double dxA, double dyA, double dxB, double dyB,
                                  double* closestxyz) {
-    double dxmid, dymid;
-    double dist2A, dist2B, dist2mid;
-    double Axyz[3], Bxyz[3], midxyz[3];
-    double best;
+    const double invphi = 0.6180339887498949;  // 1 / golden ratio
+    double a = 0, b = 1, c, d, fc, fd, f, best;
+    double cxyz[3], dxyz[3], pxyz[3];
 
-    double EPS = 1e-16;
-
-    healpixl_to_xyzarr(hp, Nside, dxA, dyA, Axyz);
-    healpixl_to_xyzarr(hp, Nside, dxB, dyB, Bxyz);
-    dist2A = distsq(xyz, Axyz, 3);
-    dist2B = distsq(xyz, Bxyz, 3);
-    if (dist2A <= dist2B) {
-        best = dist2A;
-        memcpy(closestxyz, Axyz, 3*sizeof(double));
-    } else {
-        best = dist2B;
-        memcpy(closestxyz, Bxyz, 3*sizeof(double));
+    best = edge_point_distsq(hp, Nside, xyz, dxA, dyA, dxB, dyB, 0, closestxyz);
+    f = edge_point_distsq(hp, Nside, xyz, dxA, dyA, dxB, dyB, 1, pxyz);
+    if (f < best) {
+        best = f;
+        memcpy(closestxyz, pxyz, 3*sizeof(double));
     }
 
-    while (1) {
-        dxmid = (dxA + dxB) / 2.0;
-        dymid = (dyA + dyB) / 2.0;
-        // converged to EPS?
-        if ((dxA != dxB && (fabs(dxmid - dxA) < EPS || fabs(dxmid - dxB) < EPS)) ||
-            (dyA != dyB && (fabs(dymid - dyA) < EPS || fabs(dymid - dyB) < EPS)))
-            break;
-        healpixl_to_xyzarr(hp, Nside, dxmid, dymid, midxyz);
-        dist2mid = distsq(xyz, midxyz, 3);
-        if (dist2mid < best) {
-            best = dist2mid;
-            memcpy(closestxyz, midxyz, 3*sizeof(double));
-        }
-        if ((dist2mid >= dist2A) && (dist2mid >= dist2B))
-            break;
-        if (dist2A < dist2B) {
-            dist2B = dist2mid;
-            dxB = dxmid;
-            dyB = dymid;
+    c = b - invphi*(b - a);
+    d = a + invphi*(b - a);
+    fc = edge_point_distsq(hp, Nside, xyz, dxA, dyA, dxB, dyB, c, cxyz);
+    fd = edge_point_distsq(hp, Nside, xyz, dxA, dyA, dxB, dyB, d, dxyz);
+    // The tolerance must stay well above double precision: for t in [0.5, 1)
+    // adjacent doubles are ~1.1e-16 apart, so b - a > 1e-16 may never fail.
+    while (b - a > 1e-10) {
+        if (fc < fd) {
+            // the minimum cannot lie in (d, b]
+            b = d;
+            d = c;
+            fd = fc;
+            memcpy(dxyz, cxyz, 3*sizeof(double));
+            c = b - invphi*(b - a);
+            fc = edge_point_distsq(hp, Nside, xyz, dxA, dyA, dxB, dyB, c, cxyz);
         } else {
-            dist2A = dist2mid;
-            dxA = dxmid;
-            dyA = dymid;
+            // the minimum cannot lie in [a, c)
+            a = c;
+            c = d;
+            fc = fd;
+            memcpy(cxyz, dxyz, 3*sizeof(double));
+            d = a + invphi*(b - a);
+            fd = edge_point_distsq(hp, Nside, xyz, dxA, dyA, dxB, dyB, d, dxyz);
         }
+    }
+    if (fc < best) {
+        best = fc;
+        memcpy(closestxyz, cxyz, 3*sizeof(double));
+    }
+    if (fd < best) {
+        best = fd;
+        memcpy(closestxyz, dxyz, 3*sizeof(double));
     }
     return best;
 }

@@ -1232,21 +1232,80 @@ int healpix_get_neighbours_within_range(double* xyz, double range, int64_t* out_
     return nhp;
 }
 
+// Squared distance from "xyz" to the point a fraction t of the way along the
+// edge of a healpix from corner A to corner B; that point is stored in "pxyz".
+static double edge_point_distsq(int64_t hp, int Nside, const double* xyz,
+                                double dxA, double dyA, double dxB, double dyB,
+                                double t, double* pxyz) {
+    healpixl_to_xyzarr(hp, Nside, dxA + t*(dxB - dxA), dyA + t*(dyB - dyA), pxyz);
+    return distsq(xyz, pxyz, 3);
+}
+
+// Golden-section search along one edge of a healpix (from corner A to corner
+// B) for the point closest to "xyz". Unlike a bisection that compares the
+// endpoints, this only assumes the distance has a single minimum along the
+// edge, not that it is symmetric about it. Returns the squared distance to
+// the closest point evaluated (endpoints included) and stores that point in
+// "closestxyz".
+static double edge_distsq_to_xyz(int64_t hp, int Nside, const double* xyz,
+                                 double dxA, double dyA, double dxB, double dyB,
+                                 double* closestxyz) {
+    const double invphi = 0.6180339887498949;  // 1 / golden ratio
+    double a = 0, b = 1, c, d, fc, fd, f, best;
+    double cxyz[3], dxyz[3], pxyz[3];
+
+    best = edge_point_distsq(hp, Nside, xyz, dxA, dyA, dxB, dyB, 0, closestxyz);
+    f = edge_point_distsq(hp, Nside, xyz, dxA, dyA, dxB, dyB, 1, pxyz);
+    if (f < best) {
+        best = f;
+        memcpy(closestxyz, pxyz, 3*sizeof(double));
+    }
+
+    c = b - invphi*(b - a);
+    d = a + invphi*(b - a);
+    fc = edge_point_distsq(hp, Nside, xyz, dxA, dyA, dxB, dyB, c, cxyz);
+    fd = edge_point_distsq(hp, Nside, xyz, dxA, dyA, dxB, dyB, d, dxyz);
+    // The tolerance must stay well above double precision: for t in [0.5, 1)
+    // adjacent doubles are ~1.1e-16 apart, so b - a > 1e-16 may never fail.
+    while (b - a > 1e-10) {
+        if (fc < fd) {
+            // the minimum cannot lie in (d, b]
+            b = d;
+            d = c;
+            fd = fc;
+            memcpy(dxyz, cxyz, 3*sizeof(double));
+            c = b - invphi*(b - a);
+            fc = edge_point_distsq(hp, Nside, xyz, dxA, dyA, dxB, dyB, c, cxyz);
+        } else {
+            // the minimum cannot lie in [a, c)
+            a = c;
+            c = d;
+            fc = fd;
+            memcpy(cxyz, dxyz, 3*sizeof(double));
+            d = a + invphi*(b - a);
+            fd = edge_point_distsq(hp, Nside, xyz, dxA, dyA, dxB, dyB, d, dxyz);
+        }
+    }
+    if (fc < best) {
+        best = fc;
+        memcpy(closestxyz, cxyz, 3*sizeof(double));
+    }
+    if (fd < best) {
+        best = fd;
+        memcpy(closestxyz, dxyz, 3*sizeof(double));
+    }
+    return best;
+}
+
 double healpix_distance_to_xyz(int64_t hp, int Nside, const double* xyz,
                                double* closestxyz) {
     int64_t thehp;
-    // corners
-    double cdx[4], cdy[4];
-    double cdists[4];
-    int corder[4];
+    // edges, as (dxA, dyA, dxB, dyB) corner pairs
+    static const double edges[4][4] = {
+        {0, 0, 1, 0}, {0, 1, 1, 1}, {0, 0, 0, 1}, {1, 0, 1, 1}};
     int i;
-    double dxA,dxB,dyA,dyB;
-    double dxmid, dymid;
-    double dist2A, dist2B;
-    double midxyz[3];
-    double dist2mid = 0.0;
-
-    double EPS = 1e-16;
+    double best = HUGE_VAL;
+    double bestxyz[3];
 
     // If the point is actually inside the healpix, dist = 0.
     thehp = xyzarrtohealpixl(xyz, Nside);
@@ -1256,71 +1315,21 @@ double healpix_distance_to_xyz(int64_t hp, int Nside, const double* xyz,
         return 0;
     }
 
-    // Find two nearest corners.
+    // Search every edge: the edge joining the two nearest corners is not
+    // necessarily the nearest edge for elongated or rhombic pixels.
     for (i=0; i<4; i++) {
-        double cxyz[3];
-        cdx[i] = i/2;
-        cdy[i] = i%2;
-        healpixl_to_xyzarr(hp, Nside, cdx[i], cdy[i], cxyz);
-        cdists[i] = distsq(xyz, cxyz, 3);
-    }
-    permutation_init(corder, 4);
-    permuted_sort(cdists, sizeof(double), compare_doubles_asc, corder, 4);
-    // now "corder" [0] and [1] are the indices of the two nearest corners.
-
-    // Binary search for closest dx,dy.
-    dxA = cdx[corder[0]];
-    dyA = cdy[corder[0]];
-    dist2A = cdists[corder[0]];
-    dxB = cdx[corder[1]];
-    dyB = cdy[corder[1]];
-    dist2B = cdists[corder[1]];
-    // the closest two points should share an edge... unless we're in some
-    // weird configuration like the opposite side of the sphere.
-    if (!((dxA == dxB) || (dyA == dyB))) {
-        // weird configuration -- return the closest corner.
-        if (closestxyz)
-            healpixl_to_xyzarr(hp, Nside, cdx[corder[0]], cdy[corder[0]], closestxyz);
-        return distsq2deg(cdists[corder[0]]);
-    }
-    assert(dxA == dxB || dyA == dyB);
-    assert(dist2A <= dist2B);
-
-    while (1) {
-        dxmid = (dxA + dxB) / 2.0;
-        dymid = (dyA + dyB) / 2.0;
-        // converged to EPS?
-        if ((dxA != dxB && (fabs(dxmid - dxA) < EPS || fabs(dxmid - dxB) < EPS)) ||
-            (dyA != dyB && (fabs(dymid - dyA) < EPS || fabs(dymid - dyB) < EPS)))
-            break;
-        healpixl_to_xyzarr(hp, Nside, dxmid, dymid, midxyz);
-        dist2mid = distsq(xyz, midxyz, 3);
-        //printf("  dx,dy (%g,%g) %g  (%g,%g) %g  (%g,%g) %g\n", dxA, dyA, dist2A, dxmid, dymid, dist2mid, dxB, dyB, dist2B);
-        if ((dist2mid >= dist2A) && (dist2mid >= dist2B))
-            break;
-        if (dist2A < dist2B) {
-            dist2B = dist2mid;
-            dxB = dxmid;
-            dyB = dymid;
-        } else {
-            dist2A = dist2mid;
-            dxA = dxmid;
-            dyA = dymid;
+        double exyz[3];
+        double dist2 = edge_distsq_to_xyz(hp, Nside, xyz, edges[i][0], edges[i][1],
+                                          edges[i][2], edges[i][3], exyz);
+        if (dist2 < best) {
+            best = dist2;
+            memcpy(bestxyz, exyz, 3*sizeof(double));
         }
     }
 
-    // Check whether endpoint A is actually closer.
-    dist2A = cdists[corder[0]];
-    if (dist2A < dist2mid) {
-        dxA = cdx[corder[0]];
-        dyA = cdy[corder[0]];
-        healpixl_to_xyzarr(hp, Nside, dxA, dyA, midxyz);
-        dist2mid = dist2A;
-    }
-
     if (closestxyz)
-        memcpy(closestxyz, midxyz, 3*sizeof(double));
-    return distsq2deg(dist2mid);
+        memcpy(closestxyz, bestxyz, 3*sizeof(double));
+    return distsq2deg(best);
 }
 
 double healpix_distance_to_radec(int64_t hp, int Nside, double ra, double dec,
